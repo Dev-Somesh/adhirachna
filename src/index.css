@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 210 100% 35%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -35,19 +38,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -96,6 +92,45 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-7xl mx-auto px-6 md:px-10 py-24;
+  }
+  
+  .section-title {
+    @apply text-4xl md:text-5xl font-semibold mb-12 text-center;
+  }
+  
+  .section-subtitle {
+    @apply text-adhirachna-gray text-lg max-w-3xl mx-auto text-center mb-16;
+  }
+  
+  .reveal {
+    @apply opacity-0;
+  }
+  
+  .reveal-visible {
+    @apply animate-fade-in;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center px-6 py-3 text-base font-medium text-white bg-adhirachna-blue border border-transparent rounded-md shadow-sm hover:bg-adhirachna-darkblue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adhirachna-blue transition-all duration-300;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center px-6 py-3 text-base font-medium text-adhirachna-blue bg-white border border-adhirachna-blue rounded-md shadow-sm hover:bg-adhirachna-lightgray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adhirachna-blue transition-all duration-300;
+  }
+  
+  .glass-card {
+    @apply bg-white bg-opacity-70 backdrop-blur-lg rounded-2xl shadow-card border border-white border-opacity-20 transition-all duration-300;
   }
 }
