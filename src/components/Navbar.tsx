@@ -24,11 +24,19 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <nav className="flex items-center justify-between">
           <a href="#" className="flex items-center">
-            <img 
-              src="/lovable-uploads/1135ec3a-16b6-4dbd-b92e-3c119762f672.png" 
-              alt="Adhirachna Engineering Solutions" 
-              className="h-12 md:h-14"
-            />
+            {isScrolled ? (
+              <img 
+                src="/lovable-uploads/621de27a-0a5d-497f-91db-56b0a403ac42.png" 
+                alt="Adhirachna Engineering Solutions" 
+                className="h-12 md:h-14"
+              />
+            ) : (
+              <img 
+                src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
+                alt="Adhirachna Engineering Solutions" 
+                className="h-12 md:h-14"
+              />
+            )}
           </a>
 
           {/* Mobile menu button */}
