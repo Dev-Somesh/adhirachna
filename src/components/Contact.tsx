@@ -57,8 +57,10 @@ const Contact = () => {
                   <div>
                     <h4 className="font-medium text-adhirachna-darkblue mb-1">Our Location</h4>
                     <p className="text-adhirachna-gray">
-                      123 Engineering Plaza, Tech Park<br />
-                      Bangalore, Karnataka 560001
+                      Villa No. 04, Aditi Villas<br />
+                      Jagatpura, Jaipur<br />
+                      Rajasthan, 302017<br />
+                      India
                     </p>
                   </div>
                 </div>

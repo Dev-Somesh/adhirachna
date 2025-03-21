@@ -26,7 +26,7 @@ const Hero = () => {
           <img 
             src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
             alt="Adhirachna Engineering Solutions" 
-            className="h-32 md:h-40 mx-auto"
+            className="h-40 md:h-52 mx-auto" // Increased logo size
           />
         </div>
         <div 
@@ -38,7 +38,7 @@ const Hero = () => {
             Building the <span className="text-adhirachna-green">Future</span> Together
           </h1>
           <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto mb-12">
-            Innovative engineering solutions for infrastructure development, delivering excellence in every project.
+            Specialized in Architectural Engineering, Management Consulting, and Technical Services since 2023.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a href="#services" className="btn-primary bg-adhirachna-green hover:bg-adhirachna-darkgreen">

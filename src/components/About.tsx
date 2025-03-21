@@ -23,8 +23,8 @@ const About = () => {
                 className="w-full h-auto rounded-xl shadow-lg relative z-10"
               />
               <div className="glass-card p-6 absolute -bottom-10 -right-10 z-20 max-w-xs">
-                <div className="text-4xl font-bold text-adhirachna-blue">15+</div>
-                <div className="text-adhirachna-darkblue font-medium">Years of Excellence</div>
+                <div className="text-4xl font-bold text-adhirachna-blue">Since</div>
+                <div className="text-adhirachna-darkblue font-medium">August 2023</div>
               </div>
             </div>
           </div>
@@ -38,20 +38,20 @@ const About = () => {
               About Adhirachna Engineering Solutions
             </h2>
             <p className="text-adhirachna-gray mb-6">
-              Adhirachna Engineering Solutions is a leading infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions across a wide range of projects.
+              Founded in August 2023 by co-founder Anurag Pareek, Adhirachna Engineering Solutions is a growing infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions across a wide range of projects.
             </p>
             <p className="text-adhirachna-gray mb-8">
-              With over 15 years of industry experience, our team of expert engineers, designers, and consultants work collaboratively to bring your infrastructure projects to life, ensuring sustainable development and optimal performance.
+              Our team of expert engineers, designers, and consultants work collaboratively to bring your infrastructure projects to life, ensuring sustainable development and optimal performance.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {[
-                'Quality Excellence',
-                'Innovative Solutions',
-                'Sustainable Practices',
-                'Timely Delivery',
-                'Expert Consultation',
-                'Client Satisfaction'
+                'Architectural Engineering',
+                'Management Consulting',
+                'Technical Services',
+                'Building Maintenance',
+                'Scientific Services',
+                'Infrastructure Development'
               ].map((item, index) => (
                 <div key={index} className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-adhirachna-blue mr-2" />
