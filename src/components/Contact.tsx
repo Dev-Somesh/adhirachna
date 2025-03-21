@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useInView } from './ui/motion';
-import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 const Contact = () => {
   const { ref, isInView } = useInView();
@@ -100,16 +100,34 @@ const Contact = () => {
               <div className="mt-8 bg-white p-6 rounded-xl shadow-soft">
                 <h4 className="font-medium text-adhirachna-darkblue mb-4">Follow Us</h4>
                 <div className="flex space-x-4">
-                  {['facebook', 'twitter', 'linkedin', 'instagram'].map((platform) => (
-                    <a 
-                      key={platform} 
-                      href="#" 
-                      className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
-                    >
-                      <span className="sr-only">{platform}</span>
-                      <i className={`fab fa-${platform}`}></i>
-                    </a>
-                  ))}
+                  <a 
+                    href="#" 
+                    className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
+                    aria-label="Facebook"
+                  >
+                    <Facebook className="h-5 w-5" />
+                  </a>
+                  <a 
+                    href="#" 
+                    className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
+                    aria-label="Twitter"
+                  >
+                    <Twitter className="h-5 w-5" />
+                  </a>
+                  <a 
+                    href="#" 
+                    className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                  <a 
+                    href="#" 
+                    className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="h-5 w-5" />
+                  </a>
                 </div>
               </div>
             </div>

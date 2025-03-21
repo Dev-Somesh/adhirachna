@@ -1,5 +1,5 @@
 
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -11,23 +11,41 @@ const Footer = () => {
               <img 
                 src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
                 alt="Adhirachna Engineering Solutions" 
-                className="h-14 mb-4"
+                className="h-20 mb-4"
               />
             </div>
             <p className="text-white/70 mb-6">
               Leading infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions.
             </p>
             <div className="flex space-x-4">
-              {['facebook', 'twitter', 'linkedin', 'instagram'].map((platform) => (
-                <a 
-                  key={platform} 
-                  href="#" 
-                  className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
-                >
-                  <span className="sr-only">{platform}</span>
-                  <i className={`fab fa-${platform}`}></i>
-                </a>
-              ))}
+              <a 
+                href="#" 
+                className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a 
+                href="#" 
+                className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a 
+                href="#" 
+                className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a 
+                href="#" 
+                className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
             </div>
           </div>
           

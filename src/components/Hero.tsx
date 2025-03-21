@@ -26,7 +26,7 @@ const Hero = () => {
           <img 
             src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
             alt="Adhirachna Engineering Solutions" 
-            className="h-24 md:h-28 mx-auto"
+            className="h-32 md:h-40 mx-auto"
           />
         </div>
         <div 
