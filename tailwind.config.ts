@@ -70,6 +70,8 @@ export default {
 					dark: "#212529",
 					gray: "#6c757d",
 					lightgray: "#e9ecef",
+					green: "#00C853",        // Added green color from logo
+					darkgreen: "#00A547",    // Added darker green for hover states
 				}
 			},
 			borderRadius: {

@@ -24,10 +24,11 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <nav className="flex items-center justify-between">
           <a href="#" className="flex items-center">
-            <span className="text-xl font-bold text-adhirachna-darkblue">
-              Adhirachna
-              <span className="text-adhirachna-blue font-light">Engineering</span>
-            </span>
+            <img 
+              src="/lovable-uploads/1135ec3a-16b6-4dbd-b92e-3c119762f672.png" 
+              alt="Adhirachna Engineering Solutions" 
+              className="h-12 md:h-14"
+            />
           </a>
 
           {/* Mobile menu button */}
@@ -48,7 +49,7 @@ const Navbar = () => {
               <li key={item}>
                 <a
                   href={`#${item.toLowerCase()}`}
-                  className={`font-medium hover:text-adhirachna-blue transition-colors ${
+                  className={`font-medium hover:text-adhirachna-green transition-colors ${
                     isScrolled ? 'text-adhirachna-darkblue' : 'text-white'
                   }`}
                 >
@@ -59,7 +60,7 @@ const Navbar = () => {
             <li>
               <a 
                 href="#contact" 
-                className="btn-primary py-2 px-4"
+                className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
               >
                 Get In Touch
               </a>
@@ -76,7 +77,7 @@ const Navbar = () => {
                   <li key={item}>
                     <a
                       href={`#${item.toLowerCase()}`}
-                      className="font-medium text-adhirachna-darkblue hover:text-adhirachna-blue transition-colors"
+                      className="font-medium text-adhirachna-darkblue hover:text-adhirachna-green transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item}
@@ -86,7 +87,7 @@ const Navbar = () => {
                 <li className="pt-6">
                   <a 
                     href="#contact" 
-                    className="btn-primary py-2 px-4"
+                    className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Get In Touch

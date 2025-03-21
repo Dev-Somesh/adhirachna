@@ -22,7 +22,7 @@ const Stats = () => {
                 isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
             >
-              <div className="text-4xl md:text-5xl font-bold text-adhirachna-blue mb-2">
+              <div className="text-4xl md:text-5xl font-bold text-adhirachna-green mb-2">
                 {stat.value}
               </div>
               <div className="text-adhirachna-gray">{stat.label}</div>

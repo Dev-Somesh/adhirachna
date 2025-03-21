@@ -7,10 +7,13 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-10 pt-20 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
           <div>
-            <h3 className="text-2xl font-bold mb-6">
-              Adhirachna
-              <span className="font-light">Engineering</span>
-            </h3>
+            <div className="mb-6">
+              <img 
+                src="/lovable-uploads/1135ec3a-16b6-4dbd-b92e-3c119762f672.png" 
+                alt="Adhirachna Engineering Solutions" 
+                className="h-14 mb-4"
+              />
+            </div>
             <p className="text-white/70 mb-6">
               Leading infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions.
             </p>
@@ -19,7 +22,7 @@ const Footer = () => {
                 <a 
                   key={platform} 
                   href="#" 
-                  className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-blue transition-colors duration-300"
+                  className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
                 >
                   <span className="sr-only">{platform}</span>
                   <i className={`fab fa-${platform}`}></i>
@@ -41,7 +44,7 @@ const Footer = () => {
                 <li key={link.label}>
                   <a 
                     href={link.href} 
-                    className="text-white/70 hover:text-white flex items-center transition-colors duration-300"
+                    className="text-white/70 hover:text-adhirachna-green flex items-center transition-colors duration-300"
                   >
                     <ChevronRight className="h-4 w-4 mr-2" />
                     {link.label}
@@ -64,7 +67,7 @@ const Footer = () => {
                 <li key={service}>
                   <a 
                     href="#services" 
-                    className="text-white/70 hover:text-white flex items-center transition-colors duration-300"
+                    className="text-white/70 hover:text-adhirachna-green flex items-center transition-colors duration-300"
                   >
                     <ChevronRight className="h-4 w-4 mr-2" />
                     {service}
@@ -88,7 +91,7 @@ const Footer = () => {
                 />
                 <button
                   type="submit"
-                  className="bg-adhirachna-blue px-4 py-3 rounded-r-lg hover:bg-blue-700 transition-colors duration-300"
+                  className="bg-adhirachna-green px-4 py-3 rounded-r-lg hover:bg-adhirachna-darkgreen transition-colors duration-300"
                 >
                   Subscribe
                 </button>
@@ -116,7 +119,7 @@ const Footer = () => {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-white/50 hover:text-white text-sm transition-colors duration-300"
+                className="text-white/50 hover:text-adhirachna-green text-sm transition-colors duration-300"
               >
                 {link.label}
               </a>
