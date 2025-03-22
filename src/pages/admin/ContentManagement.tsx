@@ -5,25 +5,42 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { useSiteContent } from "@/context/SiteContext";
+import { useSiteContent, HeroSection, AboutSection, ServicesSection, ContactSection } from "@/context/SiteContext";
 import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
+// Type to represent all possible section types
+type SectionType = "hero" | "about" | "services" | "contact";
+
 const ContentManagement = () => {
   const { siteContent, updateSection } = useSiteContent();
-  const [activeTab, setActiveTab] = useState("hero");
+  const [activeTab, setActiveTab] = useState<SectionType>("hero");
   
-  // Get the active section from site content
-  const activeSection = siteContent[activeTab as keyof typeof siteContent];
-  
+  // Define form with generic type
   const form = useForm({
-    defaultValues: activeSection
+    defaultValues: getSectionData(activeTab, siteContent)
   });
   
+  // Function to get the appropriate section data based on the active tab
+  function getSectionData(tab: SectionType, content: typeof siteContent) {
+    switch (tab) {
+      case "hero":
+        return content.hero;
+      case "about":
+        return content.about;
+      case "services":
+        return content.services;
+      case "contact":
+        return content.contact;
+      default:
+        return content.hero;
+    }
+  }
+  
   // Update form values when tab changes
-  const handleTabChange = (tabId: string) => {
+  const handleTabChange = (tabId: SectionType) => {
     setActiveTab(tabId);
-    const section = siteContent[tabId as keyof typeof siteContent];
+    const section = getSectionData(tabId, siteContent);
     form.reset(section);
   };
   
@@ -36,6 +53,11 @@ const ContentManagement = () => {
       description: "Your content changes have been saved and are now visible on the website."
     });
   };
+
+  // Function to check if the current section has content field
+  const hasContentField = activeTab === "about";
+  // Function to check if the current section has subtitle field
+  const hasSubtitleField = activeTab === "hero" || activeTab === "services" || activeTab === "contact";
 
   return (
     <div>
@@ -61,7 +83,7 @@ const ContentManagement = () => {
                   ? "border-b-2 border-adhirachna-blue text-adhirachna-darkblue" 
                   : "text-adhirachna-gray"
               }`}
-              onClick={() => handleTabChange(sectionId)}
+              onClick={() => handleTabChange(sectionId as SectionType)}
             >
               {sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Section
             </button>
@@ -88,7 +110,7 @@ const ContentManagement = () => {
                 )}
               />
               
-              {(activeTab === "hero" || activeTab === "services" || activeTab === "contact") && (
+              {hasSubtitleField && (
                 <FormField
                   control={form.control}
                   name="subtitle"
@@ -107,7 +129,7 @@ const ContentManagement = () => {
                 />
               )}
               
-              {activeTab === "about" && (
+              {hasContentField && (
                 <FormField
                   control={form.control}
                   name="content"
@@ -137,8 +159,8 @@ const ContentManagement = () => {
                     <FormControl>
                       <input
                         type="checkbox"
-                        checked={field.value}
-                        onChange={field.onChange}
+                        checked={field.value as boolean}
+                        onChange={(e) => field.onChange(e.target.checked)}
                         className="h-4 w-4"
                       />
                     </FormControl>
@@ -154,7 +176,7 @@ const ContentManagement = () => {
                 <button
                   type="reset"
                   className="px-4 py-2 border border-adhirachna-gray text-adhirachna-gray rounded hover:bg-adhirachna-lightgray transition-colors"
-                  onClick={() => form.reset(activeSection)}
+                  onClick={() => form.reset(getSectionData(activeTab, siteContent))}
                 >
                   Cancel
                 </button>
