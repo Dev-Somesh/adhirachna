@@ -22,13 +22,6 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 text-center">
-        <div className="mb-8">
-          <img 
-            src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
-            alt="Adhirachna Engineering Solutions" 
-            className="h-40 md:h-52 mx-auto" // Increased logo size
-          />
-        </div>
         <div 
           className={`transition-all duration-1000 ${
             isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
