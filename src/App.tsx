@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import PolicyPage from "./pages/PolicyPage";
+import AdminLayout from "./components/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import ContentManagement from "./pages/admin/ContentManagement";
+import TeamMembers from "./pages/admin/TeamMembers";
+import Messages from "./pages/admin/Messages";
+import Settings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -16,7 +25,25 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          
+          {/* Policy pages */}
+          <Route path="/privacy-policy" element={<PolicyPage />} />
+          <Route path="/terms-of-service" element={<PolicyPage />} />
+          <Route path="/cookie-policy" element={<PolicyPage />} />
+          
+          {/* Authentication */}
+          <Route path="/login" element={<Login />} />
+          
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="content" element={<ContentManagement />} />
+            <Route path="team" element={<TeamMembers />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+          
+          {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

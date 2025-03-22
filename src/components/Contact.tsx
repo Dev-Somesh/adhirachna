@@ -1,35 +1,97 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useInView } from './ui/motion';
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { toast } from "./ui/use-toast";
+
+// Form validation schema
+const contactFormSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  phone: z.string().optional(),
+  subject: z.string().min(2, { message: "Please select a subject." }),
+  message: z.string().min(10, { message: "Message must be at least 10 characters." }),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 const Contact = () => {
   const { ref, isInView } = useInView();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: '',
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  // Initialize form
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const onSubmit = async (data: ContactFormValues) => {
+    if (!captchaValue) {
+      toast({
+        title: "CAPTCHA Required",
+        description: "Please complete the CAPTCHA verification.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Encode data for email script
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('email', data.email);
+      formData.append('phone', data.phone || 'Not provided');
+      formData.append('subject', data.subject);
+      formData.append('message', data.message);
+      formData.append('g-recaptcha-response', captchaValue);
+
+      // Send to serverless function or form handling service
+      const response = await fetch('https://formsubmit.co/info@adhirachna.com', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent",
+          description: "Thank you for your message. We will get back to you soon!",
+        });
+        form.reset();
+        recaptchaRef.current?.reset();
+        setCaptchaValue(null);
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Here you would normally send the data to a server
-    alert('Thank you for your message. We will get back to you soon!');
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-    });
+  const handleCaptchaChange = (value: string | null) => {
+    setCaptchaValue(value);
   };
 
   return (
@@ -145,101 +207,130 @@ const Contact = () => {
                 Send Us a Message
               </h3>
               
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-adhirachna-darkblue mb-2">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
                       name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
-                      placeholder="Your name"
-                      required
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-adhirachna-darkblue">Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Your name" 
+                              className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="email" className="block text-adhirachna-darkblue mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
+                    
+                    <FormField
+                      control={form.control}
                       name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
-                      placeholder="Your email"
-                      required
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-adhirachna-darkblue">Email</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="email" 
+                              placeholder="Your email" 
+                              className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="phone" className="block text-adhirachna-darkblue mb-2">
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
                       name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
-                      placeholder="Your phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-adhirachna-darkblue">Phone</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="tel" 
+                              placeholder="Your phone (optional)" 
+                              className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="subject"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-adhirachna-darkblue">Subject</FormLabel>
+                          <FormControl>
+                            <select
+                              className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
+                              {...field}
+                            >
+                              <option value="" disabled>Select a subject</option>
+                              <option value="General Inquiry">General Inquiry</option>
+                              <option value="Project Consultation">Project Consultation</option>
+                              <option value="Partnership">Partnership</option>
+                              <option value="Career">Career</option>
+                              <option value="Other">Other</option>
+                            </select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-adhirachna-darkblue">Message</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            rows={5}
+                            placeholder="Your message"
+                            className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="mb-6">
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // This is Google's test key - replace with your actual key in production
+                      onChange={handleCaptchaChange}
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="subject" className="block text-adhirachna-darkblue mb-2">
-                      Subject
-                    </label>
-                    <select
-                      id="subject"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
-                      required
+                    <button 
+                      type="submit" 
+                      className="btn-primary w-full" 
+                      disabled={isSubmitting || !captchaValue}
                     >
-                      <option value="" disabled>Select a subject</option>
-                      <option value="General Inquiry">General Inquiry</option>
-                      <option value="Project Consultation">Project Consultation</option>
-                      <option value="Partnership">Partnership</option>
-                      <option value="Career">Career</option>
-                      <option value="Other">Other</option>
-                    </select>
+                      {isSubmitting ? "Sending..." : "Send Message"}
+                    </button>
                   </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="message" className="block text-adhirachna-darkblue mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows={5}
-                    className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
-                    placeholder="Your message"
-                    required
-                  ></textarea>
-                </div>
-                
-                <div>
-                  <button type="submit" className="btn-primary w-full">
-                    Send Message
-                  </button>
-                </div>
-              </form>
+                </form>
+              </Form>
             </div>
           </div>
         </div>
