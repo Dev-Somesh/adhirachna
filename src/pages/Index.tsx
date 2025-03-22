@@ -8,8 +8,11 @@ import About from '@/components/About';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { useEffect } from 'react';
+import { useSiteContent } from '@/context/SiteContext';
 
 const Index = () => {
+  const { siteContent } = useSiteContent();
+
   useEffect(() => {
     // Smooth scroll implementation for anchor links
     const handleAnchorClick = (e: MouseEvent) => {
@@ -31,20 +34,39 @@ const Index = () => {
 
     document.addEventListener('click', handleAnchorClick);
     
+    // Increment visit count in stats
+    const incrementVisits = () => {
+      const currentStats = JSON.parse(localStorage.getItem('adhirachna_site_content') || '{}')?.stats;
+      if (currentStats) {
+        currentStats.totalVisits += 1;
+        const updatedContent = JSON.parse(localStorage.getItem('adhirachna_site_content') || '{}');
+        updatedContent.stats = currentStats;
+        localStorage.setItem('adhirachna_site_content', JSON.stringify(updatedContent));
+      }
+    };
+    
+    // Only increment once per session
+    const hasVisited = sessionStorage.getItem('adhirachna_visited');
+    if (!hasVisited) {
+      incrementVisits();
+      sessionStorage.setItem('adhirachna_visited', 'true');
+    }
+    
     return () => {
       document.removeEventListener('click', handleAnchorClick);
     };
   }, []);
 
+  // Conditionally render sections based on their enabled status
   return (
     <div className="min-h-screen">
       <Navbar />
-      <Hero />
+      {siteContent.hero.enabled && <Hero />}
       <Stats />
-      <About />
-      <Services />
+      {siteContent.about.enabled && <About />}
+      {siteContent.services.enabled && <Services />}
       <Projects />
-      <Contact />
+      {siteContent.contact.enabled && <Contact />}
       <Footer />
     </div>
   );

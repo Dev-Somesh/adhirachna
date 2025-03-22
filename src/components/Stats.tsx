@@ -1,15 +1,17 @@
 
 import { useInView } from './ui/motion';
-
-const stats = [
-  { value: '100+', label: 'Projects Completed' },
-  { value: '15+', label: 'Years Experience' },
-  { value: '50+', label: 'Expert Engineers' },
-  { value: '25+', label: 'Industry Awards' },
-];
+import { useSiteContent } from '@/context/SiteContext';
 
 const Stats = () => {
   const { ref, isInView } = useInView();
+  
+  // Define stats data
+  const stats = [
+    { value: '100+', label: 'Projects Completed' },
+    { value: '15+', label: 'Years Experience' },
+    { value: '50+', label: 'Expert Engineers' },
+    { value: '25+', label: 'Industry Awards' },
+  ];
 
   return (
     <section className="bg-adhirachna-light py-16" ref={ref as React.RefObject<HTMLDivElement>}>

@@ -1,41 +1,12 @@
 
 import { useState } from "react";
-import { PlusCircle, Pencil, Trash } from "lucide-react";
+import { PlusCircle, Pencil, Trash, Eye } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-
-type TeamMember = {
-  id: string;
-  name: string;
-  position: string;
-  image: string;
-  bio: string;
-};
+import { useSiteContent, TeamMember } from "@/context/SiteContext";
+import { Link } from "react-router-dom";
 
 const TeamMembers = () => {
-  const [members, setMembers] = useState<TeamMember[]>([
-    {
-      id: "1",
-      name: "Anurag Pareek",
-      position: "Co-founder & CEO",
-      image: "https://randomuser.me/api/portraits/men/1.jpg",
-      bio: "Co-founder of Adhirachna Engineering Solutions with extensive experience in architectural engineering."
-    },
-    {
-      id: "2",
-      name: "Priya Sharma",
-      position: "Chief Operating Officer",
-      image: "https://randomuser.me/api/portraits/women/2.jpg",
-      bio: "Experienced operations leader with a background in infrastructure project management."
-    },
-    {
-      id: "3",
-      name: "Rajesh Kumar",
-      position: "Lead Engineer",
-      image: "https://randomuser.me/api/portraits/men/3.jpg",
-      bio: "Structural engineering expert with over 10 years of experience in the field."
-    }
-  ]);
-  
+  const { siteContent, updateTeamMember, addTeamMember, removeTeamMember } = useSiteContent();
   const [isEditing, setIsEditing] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   
@@ -46,7 +17,7 @@ const TeamMembers = () => {
   
   const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this team member?")) {
-      setMembers(members.filter(member => member.id !== id));
+      removeTeamMember(id);
       toast({
         title: "Team Member Deleted",
         description: "The team member has been removed successfully."
@@ -60,23 +31,18 @@ const TeamMembers = () => {
     
     if (editingMember.id) {
       // Update existing member
-      setMembers(members.map(member => 
-        member.id === editingMember.id ? editingMember : member
-      ));
+      updateTeamMember(editingMember);
       toast({
         title: "Team Member Updated",
-        description: "The team member details have been updated successfully."
+        description: "The team member details have been updated successfully. Changes will be visible on the website."
       });
     } else {
       // Add new member
-      const newMember = {
-        ...editingMember,
-        id: Date.now().toString()
-      };
-      setMembers([...members, newMember]);
+      const { name, position, image, bio } = editingMember;
+      addTeamMember({ name, position, image, bio });
       toast({
         title: "Team Member Added",
-        description: "A new team member has been added successfully."
+        description: "A new team member has been added successfully. They will now appear on the website."
       });
     }
     
@@ -104,13 +70,23 @@ const TeamMembers = () => {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold">Team Members</h2>
-        <button 
-          className="btn-primary flex items-center"
-          onClick={handleAddNew}
-        >
-          <PlusCircle className="mr-2 h-5 w-5" />
-          Add New Member
-        </button>
+        <div className="flex space-x-4">
+          <Link 
+            to="/" 
+            target="_blank"
+            className="btn-secondary flex items-center"
+          >
+            <Eye className="mr-2 h-5 w-5" />
+            Preview Website
+          </Link>
+          <button 
+            className="btn-primary flex items-center"
+            onClick={handleAddNew}
+          >
+            <PlusCircle className="mr-2 h-5 w-5" />
+            Add New Member
+          </button>
+        </div>
       </div>
       
       {isEditing ? (
@@ -181,14 +157,14 @@ const TeamMembers = () => {
                 type="submit"
                 className="btn-primary"
               >
-                Save
+                Save Changes
               </button>
             </div>
           </form>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {members.map(member => (
+          {siteContent.teamMembers.map(member => (
             <div key={member.id} className="glass-card p-6">
               <div className="flex items-center mb-4">
                 <img 

@@ -5,84 +5,58 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-
-type ContentSection = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  content?: string;
-  enabled: boolean;
-};
+import { useSiteContent } from "@/context/SiteContext";
+import { Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ContentManagement = () => {
+  const { siteContent, updateSection } = useSiteContent();
   const [activeTab, setActiveTab] = useState("hero");
   
-  // Mock data - in a real application, this would come from an API or database
-  const [sections, setSections] = useState<Record<string, ContentSection>>({
-    hero: {
-      id: "hero",
-      title: "Building the Future Together",
-      subtitle: "Specialized in Architectural Engineering, Management Consulting, and Technical Services since 2023.",
-      enabled: true
-    },
-    about: {
-      id: "about",
-      title: "About Adhirachna Engineering Solutions",
-      content: "Leading infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions.",
-      enabled: true
-    },
-    services: {
-      id: "services",
-      title: "Our Services",
-      subtitle: "We provide a wide range of engineering and consulting services to meet your needs.",
-      enabled: true
-    },
-    contact: {
-      id: "contact",
-      title: "Contact Us",
-      subtitle: "Have a project in mind or need expert engineering consultation? Get in touch with our team.",
-      enabled: true
-    }
-  });
+  // Get the active section from site content
+  const activeSection = siteContent[activeTab as keyof typeof siteContent];
   
   const form = useForm({
-    defaultValues: sections[activeTab]
+    defaultValues: activeSection
   });
   
   // Update form values when tab changes
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
-    form.reset(sections[tabId]);
+    const section = siteContent[tabId as keyof typeof siteContent];
+    form.reset(section);
   };
   
-  const onSubmit = (data: ContentSection) => {
-    // Update the sections state with the new data
-    setSections({
-      ...sections,
-      [activeTab]: {
-        ...data,
-        id: activeTab
-      }
-    });
-    
-    // In a real application, this would save to a database
+  const onSubmit = (data: any) => {
+    // Update the site content with the new data
+    updateSection(activeTab as keyof typeof siteContent, data);
     
     toast({
       title: "Changes Saved",
-      description: "Your content changes have been saved successfully."
+      description: "Your content changes have been saved and are now visible on the website."
     });
   };
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-8">Content Management</h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-bold">Content Management</h2>
+        <Link 
+          to="/" 
+          target="_blank"
+          className="btn-secondary flex items-center"
+        >
+          <Eye className="mr-2 h-5 w-5" />
+          Preview Website
+        </Link>
+      </div>
       
       <div className="glass-card">
-        <div className="flex border-b">
-          {Object.keys(sections).map((sectionId) => (
+        <div className="flex border-b overflow-x-auto">
+          {["hero", "about", "services", "contact"].map((sectionId) => (
             <button
               key={sectionId}
-              className={`px-6 py-3 font-medium ${
+              className={`px-6 py-3 font-medium whitespace-nowrap ${
                 activeTab === sectionId 
                   ? "border-b-2 border-adhirachna-blue text-adhirachna-darkblue" 
                   : "text-adhirachna-gray"
@@ -180,7 +154,7 @@ const ContentManagement = () => {
                 <button
                   type="reset"
                   className="px-4 py-2 border border-adhirachna-gray text-adhirachna-gray rounded hover:bg-adhirachna-lightgray transition-colors"
-                  onClick={() => form.reset(sections[activeTab])}
+                  onClick={() => form.reset(activeSection)}
                 >
                   Cancel
                 </button>

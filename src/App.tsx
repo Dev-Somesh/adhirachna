@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SiteProvider } from "./context/SiteContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -19,35 +20,37 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          
-          {/* Policy pages */}
-          <Route path="/privacy-policy" element={<PolicyPage />} />
-          <Route path="/terms-of-service" element={<PolicyPage />} />
-          <Route path="/cookie-policy" element={<PolicyPage />} />
-          
-          {/* Authentication */}
-          <Route path="/login" element={<Login />} />
-          
-          {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="content" element={<ContentManagement />} />
-            <Route path="team" element={<TeamMembers />} />
-            <Route path="messages" element={<Messages />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-          
-          {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <SiteProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            
+            {/* Policy pages */}
+            <Route path="/privacy-policy" element={<PolicyPage />} />
+            <Route path="/terms-of-service" element={<PolicyPage />} />
+            <Route path="/cookie-policy" element={<PolicyPage />} />
+            
+            {/* Authentication */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="content" element={<ContentManagement />} />
+              <Route path="team" element={<TeamMembers />} />
+              <Route path="messages" element={<Messages />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </SiteProvider>
   </QueryClientProvider>
 );
 
