@@ -1,7 +1,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 type PolicyContent = {
   title: string;
@@ -13,7 +13,9 @@ type PolicyContent = {
 };
 
 const PolicyPage = () => {
-  const { policyType } = useParams<{ policyType: string }>();
+  const location = useLocation();
+  const pathSegments = location.pathname.split('/');
+  const policyType = pathSegments[pathSegments.length - 1];
   
   const policies: Record<string, PolicyContent> = {
     "privacy-policy": {
@@ -152,9 +154,9 @@ const PolicyPage = () => {
               <p className="text-adhirachna-gray">
                 The requested policy page could not be found. Please navigate back to the home page.
               </p>
-              <a href="/" className="btn-primary mt-6 inline-block">
+              <Link to="/" className="btn-primary mt-6 inline-block">
                 Return to Home
-              </a>
+              </Link>
             </div>
           )}
         </div>

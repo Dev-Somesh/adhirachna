@@ -9,9 +9,11 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { useEffect } from 'react';
 import { useSiteContent } from '@/context/SiteContext';
+import { useLocation } from 'react-router-dom';
 
 const Index = () => {
   const { siteContent } = useSiteContent();
+  const location = useLocation();
 
   useEffect(() => {
     // Smooth scroll implementation for anchor links
@@ -34,6 +36,19 @@ const Index = () => {
 
     document.addEventListener('click', handleAnchorClick);
     
+    // Scroll to section if hash is present in URL
+    if (location.hash) {
+      const targetElement = document.querySelector(location.hash);
+      if (targetElement) {
+        setTimeout(() => {
+          window.scrollTo({
+            top: targetElement.getBoundingClientRect().top + window.scrollY - 80,
+            behavior: 'smooth'
+          });
+        }, 300);
+      }
+    }
+    
     // Increment visit count in stats
     const incrementVisits = () => {
       const currentStats = JSON.parse(localStorage.getItem('adhirachna_site_content') || '{}')?.stats;
@@ -55,7 +70,7 @@ const Index = () => {
     return () => {
       document.removeEventListener('click', handleAnchorClick);
     };
-  }, []);
+  }, [location]);
 
   // Conditionally render sections based on their enabled status
   return (

@@ -5,48 +5,74 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { useSiteContent, HeroSection, AboutSection, ServicesSection, ContactSection } from "@/context/SiteContext";
+import { useSiteContent } from "@/context/SiteContext";
 import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Type to represent all possible section types
 type SectionType = "hero" | "about" | "services" | "contact";
 
+// Type for form values based on section type
+type FormValues = {
+  title: string;
+  subtitle?: string;
+  content?: string;
+  enabled: boolean;
+};
+
 const ContentManagement = () => {
   const { siteContent, updateSection } = useSiteContent();
   const [activeTab, setActiveTab] = useState<SectionType>("hero");
   
-  // Define form with generic type
-  const form = useForm({
-    defaultValues: getSectionData(activeTab, siteContent)
+  // Define form with type
+  const form = useForm<FormValues>({
+    defaultValues: getSectionData(activeTab)
   });
   
   // Function to get the appropriate section data based on the active tab
-  function getSectionData(tab: SectionType, content: typeof siteContent) {
+  function getSectionData(tab: SectionType): FormValues {
     switch (tab) {
       case "hero":
-        return content.hero;
+        return {
+          title: siteContent.hero.title,
+          subtitle: siteContent.hero.subtitle,
+          enabled: siteContent.hero.enabled
+        };
       case "about":
-        return content.about;
+        return {
+          title: siteContent.about.title,
+          content: siteContent.about.content,
+          enabled: siteContent.about.enabled
+        };
       case "services":
-        return content.services;
+        return {
+          title: siteContent.services.title,
+          subtitle: siteContent.services.subtitle,
+          enabled: siteContent.services.enabled
+        };
       case "contact":
-        return content.contact;
+        return {
+          title: siteContent.contact.title,
+          subtitle: siteContent.contact.subtitle,
+          enabled: siteContent.contact.enabled
+        };
       default:
-        return content.hero;
+        return {
+          title: "",
+          enabled: false
+        };
     }
   }
   
   // Update form values when tab changes
   const handleTabChange = (tabId: SectionType) => {
     setActiveTab(tabId);
-    const section = getSectionData(tabId, siteContent);
-    form.reset(section);
+    form.reset(getSectionData(tabId));
   };
   
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: FormValues) => {
     // Update the site content with the new data
-    updateSection(activeTab as keyof typeof siteContent, data);
+    updateSection(activeTab, data);
     
     toast({
       title: "Changes Saved",
@@ -140,6 +166,7 @@ const ContentManagement = () => {
                         <Textarea 
                           {...field} 
                           rows={5}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormDescription>
@@ -159,7 +186,7 @@ const ContentManagement = () => {
                     <FormControl>
                       <input
                         type="checkbox"
-                        checked={field.value as boolean}
+                        checked={field.value}
                         onChange={(e) => field.onChange(e.target.checked)}
                         className="h-4 w-4"
                       />
@@ -176,7 +203,7 @@ const ContentManagement = () => {
                 <button
                   type="reset"
                   className="px-4 py-2 border border-adhirachna-gray text-adhirachna-gray rounded hover:bg-adhirachna-lightgray transition-colors"
-                  onClick={() => form.reset(getSectionData(activeTab, siteContent))}
+                  onClick={() => form.reset(getSectionData(activeTab))}
                 >
                   Cancel
                 </button>

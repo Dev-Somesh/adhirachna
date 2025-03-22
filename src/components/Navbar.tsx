@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -23,7 +24,7 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <nav className="flex items-center justify-between">
-          <a href="#" className="flex items-center">
+          <Link to="/" className="flex items-center">
             {isScrolled ? (
               <img 
                 src="/lovable-uploads/621de27a-0a5d-497f-91db-56b0a403ac42.png" 
@@ -37,7 +38,7 @@ const Navbar = () => {
                 className="h-16 md:h-20"
               />
             )}
-          </a>
+          </Link>
 
           {/* Mobile menu button */}
           <button
@@ -55,23 +56,23 @@ const Navbar = () => {
           <ul className="hidden md:flex items-center space-x-8">
             {['Home', 'About', 'Services', 'Projects', 'Contact'].map((item) => (
               <li key={item}>
-                <a
-                  href={`#${item.toLowerCase()}`}
+                <Link
+                  to={item === 'Home' ? '/' : `/#${item.toLowerCase()}`}
                   className={`font-medium hover:text-adhirachna-green transition-colors ${
                     isScrolled ? 'text-adhirachna-darkblue' : 'text-white'
                   }`}
                 >
                   {item}
-                </a>
+                </Link>
               </li>
             ))}
             <li>
-              <a 
-                href="#contact" 
+              <Link 
+                to="/#contact" 
                 className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
               >
                 Get In Touch
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>
@@ -83,23 +84,23 @@ const Navbar = () => {
               <ul className="flex flex-col items-center space-y-6 text-xl mt-12">
                 {['Home', 'About', 'Services', 'Projects', 'Contact'].map((item) => (
                   <li key={item}>
-                    <a
-                      href={`#${item.toLowerCase()}`}
+                    <Link
+                      to={item === 'Home' ? '/' : `/#${item.toLowerCase()}`}
                       className="font-medium text-adhirachna-darkblue hover:text-adhirachna-green transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item}
-                    </a>
+                    </Link>
                   </li>
                 ))}
                 <li className="pt-6">
-                  <a 
-                    href="#contact" 
+                  <Link 
+                    to="/#contact" 
                     className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Get In Touch
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

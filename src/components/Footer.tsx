@@ -1,5 +1,6 @@
 
 import { ChevronRight, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -8,11 +9,13 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
           <div>
             <div className="mb-6">
-              <img 
-                src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
-                alt="Adhirachna Engineering Solutions" 
-                className="h-20 mb-4"
-              />
+              <Link to="/">
+                <img 
+                  src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
+                  alt="Adhirachna Engineering Solutions" 
+                  className="h-20 mb-4"
+                />
+              </Link>
             </div>
             <p className="text-white/70 mb-6">
               Leading infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions.
@@ -53,20 +56,20 @@ const Footer = () => {
             <h4 className="text-xl font-medium mb-6">Quick Links</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Home', href: '#home' },
-                { label: 'About Us', href: '#about' },
-                { label: 'Services', href: '#services' },
-                { label: 'Projects', href: '#projects' },
-                { label: 'Contact', href: '#contact' },
+                { label: 'Home', href: '/' },
+                { label: 'About Us', href: '/#about' },
+                { label: 'Services', href: '/#services' },
+                { label: 'Projects', href: '/#projects' },
+                { label: 'Contact', href: '/#contact' },
               ].map((link) => (
                 <li key={link.label}>
-                  <a 
-                    href={link.href} 
+                  <Link 
+                    to={link.href} 
                     className="text-white/70 hover:text-adhirachna-green flex items-center transition-colors duration-300"
                   >
                     <ChevronRight className="h-4 w-4 mr-2" />
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -83,13 +86,13 @@ const Footer = () => {
                 'Environmental Services',
               ].map((service) => (
                 <li key={service}>
-                  <a 
-                    href="#services" 
+                  <Link 
+                    to="/#services" 
                     className="text-white/70 hover:text-adhirachna-green flex items-center transition-colors duration-300"
                   >
                     <ChevronRight className="h-4 w-4 mr-2" />
                     {service}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -134,13 +137,13 @@ const Footer = () => {
               { label: 'Terms of Service', href: '/terms-of-service' },
               { label: 'Cookie Policy', href: '/cookie-policy' },
             ].map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="text-white/50 hover:text-adhirachna-green text-sm transition-colors duration-300"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
