@@ -25,19 +25,11 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <nav className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            {isScrolled ? (
-              <img 
-                src="/lovable-uploads/621de27a-0a5d-497f-91db-56b0a403ac42.png" 
-                alt="Adhirachna Engineering Solutions" 
-                className="h-16 md:h-20" 
-              />
-            ) : (
-              <img 
-                src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
-                alt="Adhirachna Engineering Solutions" 
-                className="h-16 md:h-20"
-              />
-            )}
+            <img 
+              src="/lovable-uploads/4c3bdf49-51a1-4395-979c-df13ea291dc1.png" 
+              alt="Adhirachna Engineering Solutions" 
+              className="h-16 md:h-20" 
+            />
           </Link>
 
           {/* Mobile menu button */}
@@ -54,13 +46,11 @@ const Navbar = () => {
 
           {/* Desktop navigation */}
           <ul className="hidden md:flex items-center space-x-8">
-            {['Home', 'About', 'Services', 'Projects', 'Contact'].map((item) => (
+            {['Home', 'About', 'Services', 'Projects', 'Blog', 'Contact'].map((item) => (
               <li key={item}>
                 <Link
-                  to={item === 'Home' ? '/' : `/#${item.toLowerCase()}`}
-                  className={`font-medium hover:text-adhirachna-green transition-colors ${
-                    isScrolled ? 'text-adhirachna-darkblue' : 'text-white'
-                  }`}
+                  to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                  className="font-medium text-black hover:text-adhirachna-green transition-colors"
                 >
                   {item}
                 </Link>
@@ -68,7 +58,7 @@ const Navbar = () => {
             ))}
             <li>
               <Link 
-                to="/#contact" 
+                to="/contact" 
                 className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
               >
                 Get In Touch
@@ -82,11 +72,11 @@ const Navbar = () => {
           <div className="md:hidden">
             <div className="fixed inset-0 bg-white bg-opacity-95 z-50 flex flex-col pt-16">
               <ul className="flex flex-col items-center space-y-6 text-xl mt-12">
-                {['Home', 'About', 'Services', 'Projects', 'Contact'].map((item) => (
+                {['Home', 'About', 'Services', 'Projects', 'Blog', 'Contact'].map((item) => (
                   <li key={item}>
                     <Link
-                      to={item === 'Home' ? '/' : `/#${item.toLowerCase()}`}
-                      className="font-medium text-adhirachna-darkblue hover:text-adhirachna-green transition-colors"
+                      to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                      className="font-medium text-black hover:text-adhirachna-green transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item}
@@ -95,7 +85,7 @@ const Navbar = () => {
                 ))}
                 <li className="pt-6">
                   <Link 
-                    to="/#contact" 
+                    to="/contact" 
                     className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
                     onClick={() => setIsMenuOpen(false)}
                   >

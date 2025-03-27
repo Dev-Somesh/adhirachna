@@ -15,6 +15,8 @@ import ContentManagement from "./pages/admin/ContentManagement";
 import TeamMembers from "./pages/admin/TeamMembers";
 import Messages from "./pages/admin/Messages";
 import Settings from "./pages/admin/Settings";
+import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            
+            {/* Blog pages */}
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogDetail />} />
             
             {/* Policy pages */}
             <Route path="/privacy-policy" element={<PolicyPage />} />

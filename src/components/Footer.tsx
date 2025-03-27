@@ -1,5 +1,5 @@
 
-import { ChevronRight, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { ChevronRight, Twitter, Linkedin, Instagram, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -11,7 +11,7 @@ const Footer = () => {
             <div className="mb-6">
               <Link to="/">
                 <img 
-                  src="/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png" 
+                  src="/lovable-uploads/4c3bdf49-51a1-4395-979c-df13ea291dc1.png" 
                   alt="Adhirachna Engineering Solutions" 
                   className="h-20 mb-4"
                 />
@@ -21,13 +21,6 @@ const Footer = () => {
               Leading infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions.
             </p>
             <div className="flex space-x-4">
-              <a 
-                href="#" 
-                className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-5 w-5" />
-              </a>
               <a 
                 href="#" 
                 className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
@@ -49,6 +42,13 @@ const Footer = () => {
               >
                 <Instagram className="h-5 w-5" />
               </a>
+              <a 
+                href="/blog" 
+                className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
+                aria-label="Blog"
+              >
+                <BookOpen className="h-5 w-5" />
+              </a>
             </div>
           </div>
           
@@ -57,10 +57,11 @@ const Footer = () => {
             <ul className="space-y-3">
               {[
                 { label: 'Home', href: '/' },
-                { label: 'About Us', href: '/#about' },
-                { label: 'Services', href: '/#services' },
-                { label: 'Projects', href: '/#projects' },
-                { label: 'Contact', href: '/#contact' },
+                { label: 'About Us', href: '/about' },
+                { label: 'Services', href: '/services' },
+                { label: 'Projects', href: '/projects' },
+                { label: 'Blog', href: '/blog' },
+                { label: 'Contact', href: '/contact' },
               ].map((link) => (
                 <li key={link.label}>
                   <Link 
@@ -79,15 +80,19 @@ const Footer = () => {
             <h4 className="text-xl font-medium mb-6">Our Services</h4>
             <ul className="space-y-3">
               {[
-                'Infrastructure Development',
-                'Structural Design',
-                'Project Management',
-                'Geotechnical Investigations',
-                'Environmental Services',
+                'Detailed Engineering Designs & Drawings',
+                'Planning and Project Management',
+                'Detailed Project Report (DPR)',
+                'Third Party Verification',
+                'Structural Health Monitoring',
+                'Structural Maintenance Work',
+                'Infrastructural Development',
+                'Estimation and Valuation',
+                'Interior Design',
               ].map((service) => (
                 <li key={service}>
                   <Link 
-                    to="/#services" 
+                    to="/services" 
                     className="text-white/70 hover:text-adhirachna-green flex items-center transition-colors duration-300"
                   >
                     <ChevronRight className="h-4 w-4 mr-2" />

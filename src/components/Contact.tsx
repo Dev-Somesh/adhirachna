@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useInView } from './ui/motion';
-import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Twitter, Instagram, Linkedin, BookOpen, MessageSquare } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -124,8 +124,24 @@ const Contact = () => {
                   <div>
                     <h4 className="font-medium text-adhirachna-darkblue mb-1">Call Us</h4>
                     <p className="text-adhirachna-gray">
-                      +91 123 456 7890<br />
-                      +91 987 654 3210
+                      +91 9602443346
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <MessageSquare className="h-6 w-6 text-adhirachna-blue mr-4 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-adhirachna-darkblue mb-1">WhatsApp</h4>
+                    <p className="text-adhirachna-gray">
+                      <a 
+                        href="https://wa.me/919602443346" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:text-adhirachna-green transition-colors"
+                      >
+                        Chat with us on WhatsApp
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -148,13 +164,6 @@ const Contact = () => {
                   <a 
                     href="#" 
                     className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
-                    aria-label="Facebook"
-                  >
-                    <Facebook className="h-5 w-5" />
-                  </a>
-                  <a 
-                    href="#" 
-                    className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
                     aria-label="Twitter"
                   >
                     <Twitter className="h-5 w-5" />
@@ -172,6 +181,13 @@ const Contact = () => {
                     aria-label="Instagram"
                   >
                     <Instagram className="h-5 w-5" />
+                  </a>
+                  <a 
+                    href="/blog" 
+                    className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
+                    aria-label="Blog"
+                  >
+                    <BookOpen className="h-5 w-5" />
                   </a>
                 </div>
               </div>
