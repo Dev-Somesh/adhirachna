@@ -1,5 +1,5 @@
 
-import { ChevronRight, Twitter, Linkedin, Instagram, BookOpen } from 'lucide-react';
+import { X, Linkedin, Instagram, BookOpen, ChevronRight, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -11,7 +11,7 @@ const Footer = () => {
             <div className="mb-6">
               <Link to="/">
                 <img 
-                  src="/lovable-uploads/4c3bdf49-51a1-4395-979c-df13ea291dc1.png" 
+                  src="/lovable-uploads/1bb22713-e329-4324-8be6-ed1a3a73cc9d.png" 
                   alt="Adhirachna Engineering Solutions" 
                   className="h-20 mb-4"
                 />
@@ -24,9 +24,9 @@ const Footer = () => {
               <a 
                 href="#" 
                 className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
-                aria-label="Twitter"
+                aria-label="X (formerly Twitter)"
               >
-                <Twitter className="h-5 w-5" />
+                <X className="h-5 w-5" />
               </a>
               <a 
                 href="#" 
@@ -104,28 +104,48 @@ const Footer = () => {
           </div>
           
           <div>
-            <h4 className="text-xl font-medium mb-6">Newsletter</h4>
-            <p className="text-white/70 mb-4">
-              Subscribe to our newsletter to receive updates on our latest projects and insights.
-            </p>
-            <form className="mb-4">
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="px-4 py-3 bg-white/10 rounded-l-lg focus:outline-none focus:bg-white/20 flex-grow"
-                />
-                <button
-                  type="submit"
-                  className="bg-adhirachna-green px-4 py-3 rounded-r-lg hover:bg-adhirachna-darkgreen transition-colors duration-300"
-                >
-                  Subscribe
-                </button>
-              </div>
-            </form>
-            <p className="text-white/50 text-sm">
-              We respect your privacy. No spam, ever.
-            </p>
+            <h4 className="text-xl font-medium mb-6">Contact Info</h4>
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <MapPin className="h-5 w-5 text-adhirachna-green mr-3 mt-1 flex-shrink-0" />
+                <span className="text-white/70">
+                  Villa No. 04, Aditi Villas<br />
+                  Jagatpura, Jaipur<br />
+                  Rajasthan, 302017
+                </span>
+              </li>
+              <li className="flex items-center">
+                <Phone className="h-5 w-5 text-adhirachna-green mr-3 flex-shrink-0" />
+                <a href="tel:+919602443346" className="text-white/70 hover:text-adhirachna-green transition-colors">
+                  +91 9602443346
+                </a>
+              </li>
+              <li className="flex items-center">
+                <Mail className="h-5 w-5 text-adhirachna-green mr-3 flex-shrink-0" />
+                <a href="mailto:info@adhirachna.com" className="text-white/70 hover:text-adhirachna-green transition-colors">
+                  info@adhirachna.com
+                </a>
+              </li>
+            </ul>
+            
+            <div className="mt-6">
+              <h4 className="text-xl font-medium mb-4">Newsletter</h4>
+              <form className="mb-4">
+                <div className="flex">
+                  <input
+                    type="email"
+                    placeholder="Your email"
+                    className="px-4 py-3 bg-white/10 rounded-l-lg focus:outline-none focus:bg-white/20 flex-grow"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-adhirachna-green px-4 py-3 rounded-r-lg hover:bg-adhirachna-darkgreen transition-colors duration-300"
+                  >
+                    Subscribe
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
         

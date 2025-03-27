@@ -4,9 +4,11 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogSidebar from '@/components/BlogSidebar';
-import { Calendar, User, Eye, Tag, ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Calendar, User, Eye, Tag, ArrowLeft, Facebook, X, Linkedin, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useInView } from '@/components/ui/motion';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
 
 // Mock data for blog posts
 const mockBlogPosts = [
@@ -66,8 +68,12 @@ const BlogDetail = () => {
   const { id } = useParams();
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [pageUrl, setPageUrl] = useState('');
 
   useEffect(() => {
+    // Get current URL for sharing
+    setPageUrl(window.location.href);
+    
     // Simulate fetching post from API
     setLoading(true);
     const foundPost = mockBlogPosts.find(p => p.id === parseInt(id as string));
@@ -80,6 +86,26 @@ const BlogDetail = () => {
       setLoading(false);
     }, 500);
   }, [id]);
+
+  const handleShareLink = () => {
+    navigator.clipboard.writeText(pageUrl);
+    toast({
+      title: "Link Copied",
+      description: "The article URL has been copied to your clipboard",
+    });
+  };
+
+  const shareToLinkedIn = () => {
+    if (!post) return;
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(post.title)}`;
+    window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const shareToTwitter = () => {
+    if (!post) return;
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(post.title)}`;
+    window.open(twitterUrl, '_blank', 'noopener,noreferrer');
+  };
 
   if (loading) {
     return (
@@ -186,33 +212,45 @@ const BlogDetail = () => {
                     </div>
                   </div>
                   
-                  <div className="mt-8">
-                    <h3 className="text-lg font-semibold text-adhirachna-darkblue mb-4">Share this post</h3>
-                    <div className="flex items-center gap-3">
-                      <a 
-                        href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-full bg-[#3b5998] flex items-center justify-center text-white hover:bg-opacity-90"
+                  {/* Enhanced Social Sharing Section */}
+                  <div className="mt-8 bg-adhirachna-light p-6 rounded-xl">
+                    <h3 className="text-lg font-semibold text-adhirachna-darkblue mb-4">Share this article</h3>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Button 
+                        onClick={shareToLinkedIn} 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center gap-2 bg-white hover:bg-[#0077b5] hover:text-white"
                       >
-                        <Facebook className="h-5 w-5" />
-                      </a>
-                      <a 
-                        href={`https://twitter.com/intent/tweet?url=${window.location.href}&text=${post.title}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-full bg-[#1da1f2] flex items-center justify-center text-white hover:bg-opacity-90"
+                        <Linkedin className="h-4 w-4" />
+                        <span>LinkedIn</span>
+                      </Button>
+                      <Button 
+                        onClick={shareToTwitter} 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center gap-2 bg-white hover:bg-black hover:text-white"
                       >
-                        <Twitter className="h-5 w-5" />
-                      </a>
-                      <a 
-                        href={`https://www.linkedin.com/shareArticle?mini=true&url=${window.location.href}&title=${post.title}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-full bg-[#0077b5] flex items-center justify-center text-white hover:bg-opacity-90"
+                        <X className="h-4 w-4" />
+                        <span>X (Twitter)</span>
+                      </Button>
+                      <Button 
+                        onClick={handleShareLink} 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center gap-2 bg-white hover:bg-adhirachna-green hover:text-white"
                       >
-                        <Linkedin className="h-5 w-5" />
-                      </a>
+                        <Share2 className="h-4 w-4" />
+                        <span>Copy Link</span>
+                      </Button>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-sm text-adhirachna-gray">
+                      <input 
+                        type="text" 
+                        value={pageUrl} 
+                        readOnly 
+                        className="flex-grow bg-white p-2 rounded border text-sm text-adhirachna-darkblue" 
+                      />
                     </div>
                   </div>
                 </div>

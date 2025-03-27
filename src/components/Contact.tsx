@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useInView } from './ui/motion';
-import { MapPin, Phone, Mail, Clock, Twitter, Instagram, Linkedin, BookOpen, MessageSquare } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, X, Instagram, Linkedin, BookOpen, MessageSquare } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -41,18 +41,28 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Encode data for email script
+      // Prepare form data for submission to FormSubmit.co
       const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('email', data.email);
-      formData.append('phone', data.phone || 'Not provided');
-      formData.append('subject', data.subject);
-      formData.append('message', data.message);
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value as string);
+      });
 
-      // Send to serverless function or form handling service
-      const response = await fetch('https://formsubmit.co/info@adhirachna.com', {
+      // Set FormSubmit.co endpoint for the specific email
+      const endpoint = 'https://formsubmit.co/info@adhirachna.com';
+      
+      // Add FormSubmit.co specific fields if needed
+      formData.append('_subject', `New message from ${data.name}: ${data.subject}`);
+      formData.append('_template', 'table'); // Nice table format
+      formData.append('_captcha', 'false'); // Disable captcha for better UX
+      formData.append('_replyto', data.email); // Enable direct reply to sender
+      
+      // Send the form
+      const response = await fetch(endpoint, {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
       if (response.ok) {
@@ -70,6 +80,7 @@ const Contact = () => {
         description: "There was a problem sending your message. Please try again later.",
         variant: "destructive",
       });
+      console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,9 +175,9 @@ const Contact = () => {
                   <a 
                     href="#" 
                     className="h-10 w-10 rounded-full bg-adhirachna-lightgray flex items-center justify-center hover:bg-adhirachna-blue hover:text-white transition-colors duration-300"
-                    aria-label="Twitter"
+                    aria-label="X (formerly Twitter)"
                   >
-                    <Twitter className="h-5 w-5" />
+                    <X className="h-5 w-5" />
                   </a>
                   <a 
                     href="#" 
@@ -205,7 +216,17 @@ const Contact = () => {
               </h3>
               
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form 
+                  onSubmit={form.handleSubmit(onSubmit)} 
+                  className="space-y-6"
+                  action="https://formsubmit.co/info@adhirachna.com" 
+                  method="POST"
+                >
+                  {/* Hidden fields for FormSubmit.co configuration */}
+                  <input type="hidden" name="_template" value="table" />
+                  <input type="hidden" name="_captcha" value="false" />
+                  <input type="hidden" name="_subject" value="New contact form submission" />
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
@@ -218,6 +239,7 @@ const Contact = () => {
                               placeholder="Your name" 
                               className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
                               {...field} 
+                              name="name"
                             />
                           </FormControl>
                           <FormMessage />
@@ -237,6 +259,7 @@ const Contact = () => {
                               placeholder="Your email" 
                               className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
                               {...field} 
+                              name="email"
                             />
                           </FormControl>
                           <FormMessage />
@@ -258,6 +281,7 @@ const Contact = () => {
                               placeholder="Your phone (optional)" 
                               className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
                               {...field} 
+                              name="phone"
                             />
                           </FormControl>
                           <FormMessage />
@@ -275,6 +299,7 @@ const Contact = () => {
                             <select
                               className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
                               {...field}
+                              name="subject"
                             >
                               <option value="" disabled>Select a subject</option>
                               <option value="General Inquiry">General Inquiry</option>
@@ -302,6 +327,7 @@ const Contact = () => {
                             placeholder="Your message"
                             className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
                             {...field}
+                            name="message"
                           />
                         </FormControl>
                         <FormMessage />
