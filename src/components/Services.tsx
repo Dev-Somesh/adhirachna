@@ -1,6 +1,6 @@
 
 import { useInView } from './ui/motion';
-import { FileText, Planning, Report, Verification, Health, Maintenance, Development, Estimation, Interior } from 'lucide-react';
+import { FileText, ClipboardList, FileBarChart, Shield, ActivitySquare, Hammer, Building, Calculator, Paintbrush } from 'lucide-react';
 
 const services = [
   {
@@ -11,42 +11,42 @@ const services = [
   {
     title: 'Planning and Project Management',
     description: 'Strategic planning and efficient project management to ensure timely delivery within budget.',
-    icon: <Planning className="h-10 w-10 text-adhirachna-green" />,
+    icon: <ClipboardList className="h-10 w-10 text-adhirachna-green" />,
   },
   {
     title: 'Detailed Project Report (DPR)',
     description: 'In-depth project reporting with thorough analysis and recommendations for success.',
-    icon: <Report className="h-10 w-10 text-adhirachna-green" />,
+    icon: <FileBarChart className="h-10 w-10 text-adhirachna-green" />,
   },
   {
     title: 'Third Party Verification',
     description: 'Independent verification services to ensure compliance with standards and specifications.',
-    icon: <Verification className="h-10 w-10 text-adhirachna-green" />,
+    icon: <Shield className="h-10 w-10 text-adhirachna-green" />,
   },
   {
     title: 'Structural Health Monitoring',
     description: 'Advanced monitoring solutions to assess and maintain structural integrity over time.',
-    icon: <Health className="h-10 w-10 text-adhirachna-green" />,
+    icon: <ActivitySquare className="h-10 w-10 text-adhirachna-green" />,
   },
   {
     title: 'Structural Maintenance Work',
     description: 'Expert maintenance services to extend the lifespan and ensure safety of structures.',
-    icon: <Maintenance className="h-10 w-10 text-adhirachna-green" />,
+    icon: <Hammer className="h-10 w-10 text-adhirachna-green" />,
   },
   {
     title: 'Infrastructural Development',
     description: 'Innovative solutions for developing resilient and sustainable infrastructure.',
-    icon: <Development className="h-10 w-10 text-adhirachna-green" />,
+    icon: <Building className="h-10 w-10 text-adhirachna-green" />,
   },
   {
     title: 'Estimation and Valuation',
     description: 'Accurate estimation and valuation services for project budgeting and financial planning.',
-    icon: <Estimation className="h-10 w-10 text-adhirachna-green" />,
+    icon: <Calculator className="h-10 w-10 text-adhirachna-green" />,
   },
   {
     title: 'Interior Design',
     description: 'Creative and functional interior design solutions to enhance aesthetics and usability.',
-    icon: <Interior className="h-10 w-10 text-adhirachna-green" />,
+    icon: <Paintbrush className="h-10 w-10 text-adhirachna-green" />,
   },
 ];
 
