@@ -1,36 +1,52 @@
 
 import { useInView } from './ui/motion';
+import { FileText, Planning, Report, Verification, Health, Maintenance, Development, Estimation, Interior } from 'lucide-react';
 
 const services = [
   {
-    title: 'Infrastructure Development',
-    description: 'Comprehensive solutions for roads, highways, and urban infrastructure projects with a focus on durability and sustainability.',
-    icon: '🏗️',
+    title: 'Detailed Engineering Designs & Drawings',
+    description: 'Comprehensive and precise engineering designs tailored for optimal functionality and safety.',
+    icon: <FileText className="h-10 w-10 text-adhirachna-green" />,
   },
   {
-    title: 'Structural Design Engineering',
-    description: 'Expert design services for resilient and efficient structures that meet the highest safety and quality standards.',
-    icon: '🏢',
+    title: 'Planning and Project Management',
+    description: 'Strategic planning and efficient project management to ensure timely delivery within budget.',
+    icon: <Planning className="h-10 w-10 text-adhirachna-green" />,
   },
   {
-    title: 'Project Management',
-    description: 'End-to-end project planning, execution, and management services ensuring timely delivery within budget constraints.',
-    icon: '📊',
+    title: 'Detailed Project Report (DPR)',
+    description: 'In-depth project reporting with thorough analysis and recommendations for success.',
+    icon: <Report className="h-10 w-10 text-adhirachna-green" />,
   },
   {
-    title: 'Geotechnical Investigations',
-    description: 'Detailed soil testing and analysis services to determine the optimal foundation design for your structures.',
-    icon: '🧪',
+    title: 'Third Party Verification',
+    description: 'Independent verification services to ensure compliance with standards and specifications.',
+    icon: <Verification className="h-10 w-10 text-adhirachna-green" />,
   },
   {
-    title: 'Environmental Services',
-    description: 'Comprehensive environmental impact assessments and sustainable engineering practices for eco-friendly projects.',
-    icon: '🌱',
+    title: 'Structural Health Monitoring',
+    description: 'Advanced monitoring solutions to assess and maintain structural integrity over time.',
+    icon: <Health className="h-10 w-10 text-adhirachna-green" />,
   },
   {
-    title: 'Quality Assurance',
-    description: 'Rigorous quality control and assurance protocols to maintain the highest standards in all our projects.',
-    icon: '✓',
+    title: 'Structural Maintenance Work',
+    description: 'Expert maintenance services to extend the lifespan and ensure safety of structures.',
+    icon: <Maintenance className="h-10 w-10 text-adhirachna-green" />,
+  },
+  {
+    title: 'Infrastructural Development',
+    description: 'Innovative solutions for developing resilient and sustainable infrastructure.',
+    icon: <Development className="h-10 w-10 text-adhirachna-green" />,
+  },
+  {
+    title: 'Estimation and Valuation',
+    description: 'Accurate estimation and valuation services for project budgeting and financial planning.',
+    icon: <Estimation className="h-10 w-10 text-adhirachna-green" />,
+  },
+  {
+    title: 'Interior Design',
+    description: 'Creative and functional interior design solutions to enhance aesthetics and usability.',
+    icon: <Interior className="h-10 w-10 text-adhirachna-green" />,
   },
 ];
 
@@ -53,11 +69,11 @@ const Services = () => {
                 isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
             >
-              <div className="text-4xl mb-4">{service.icon}</div>
-              <h3 className="text-xl font-semibold mb-3 text-adhirachna-darkblue">
+              <div className="mb-4 flex justify-center">{service.icon}</div>
+              <h3 className="text-xl font-semibold mb-3 text-adhirachna-darkblue text-center">
                 {service.title}
               </h3>
-              <p className="text-adhirachna-gray">
+              <p className="text-adhirachna-gray text-center">
                 {service.description}
               </p>
             </div>

@@ -1,8 +1,7 @@
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useInView } from './ui/motion';
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -25,8 +24,6 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 const Contact = () => {
   const { ref, isInView } = useInView();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   // Initialize form
   const form = useForm<ContactFormValues>({
@@ -41,15 +38,6 @@ const Contact = () => {
   });
 
   const onSubmit = async (data: ContactFormValues) => {
-    if (!captchaValue) {
-      toast({
-        title: "CAPTCHA Required",
-        description: "Please complete the CAPTCHA verification.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -60,7 +48,6 @@ const Contact = () => {
       formData.append('phone', data.phone || 'Not provided');
       formData.append('subject', data.subject);
       formData.append('message', data.message);
-      formData.append('g-recaptcha-response', captchaValue);
 
       // Send to serverless function or form handling service
       const response = await fetch('https://formsubmit.co/info@adhirachna.com', {
@@ -74,8 +61,6 @@ const Contact = () => {
           description: "Thank you for your message. We will get back to you soon!",
         });
         form.reset();
-        recaptchaRef.current?.reset();
-        setCaptchaValue(null);
       } else {
         throw new Error('Form submission failed');
       }
@@ -88,10 +73,6 @@ const Contact = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleCaptchaChange = (value: string | null) => {
-    setCaptchaValue(value);
   };
 
   return (
@@ -312,19 +293,11 @@ const Contact = () => {
                     )}
                   />
                   
-                  <div className="mb-6">
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // This is Google's test key - replace with your actual key in production
-                      onChange={handleCaptchaChange}
-                    />
-                  </div>
-                  
                   <div>
                     <button 
                       type="submit" 
                       className="btn-primary w-full" 
-                      disabled={isSubmitting || !captchaValue}
+                      disabled={isSubmitting}
                     >
                       {isSubmitting ? "Sending..." : "Send Message"}
                     </button>
