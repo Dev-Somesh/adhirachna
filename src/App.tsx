@@ -17,6 +17,10 @@ import Messages from "./pages/admin/Messages";
 import Settings from "./pages/admin/Settings";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
+import About from "./pages/About";
+import Services from "./pages/Services";
+import Projects from "./pages/Projects";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +33,12 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            
+            {/* Main navigation pages */}
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/contact" element={<Contact />} />
             
             {/* Blog pages */}
             <Route path="/blog" element={<Blog />} />

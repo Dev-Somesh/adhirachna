@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +16,20 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile menu when changing routes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  const menuItems = [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+    { name: 'Services', path: '/services' },
+    { name: 'Projects', path: '/projects' },
+    { name: 'Blog', path: '/blog' },
+    { name: 'Contact', path: '/contact' }
+  ];
 
   return (
     <header 
@@ -36,6 +51,7 @@ const Navbar = () => {
           <button
             className="md:hidden focus:outline-none"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? (
               <X className="h-6 w-6 text-adhirachna-darkblue" />
@@ -46,13 +62,15 @@ const Navbar = () => {
 
           {/* Desktop navigation */}
           <ul className="hidden md:flex items-center space-x-8">
-            {['Home', 'About', 'Services', 'Projects', 'Blog', 'Contact'].map((item) => (
-              <li key={item}>
+            {menuItems.map((item) => (
+              <li key={item.name}>
                 <Link
-                  to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                  className="font-medium text-black hover:text-adhirachna-green transition-colors"
+                  to={item.path}
+                  className={`font-medium text-black hover:text-adhirachna-green transition-colors ${
+                    location.pathname === item.path ? 'text-adhirachna-green' : ''
+                  }`}
                 >
-                  {item}
+                  {item.name}
                 </Link>
               </li>
             ))}
@@ -72,14 +90,15 @@ const Navbar = () => {
           <div className="md:hidden">
             <div className="fixed inset-0 bg-white bg-opacity-95 z-50 flex flex-col pt-16">
               <ul className="flex flex-col items-center space-y-6 text-xl mt-12">
-                {['Home', 'About', 'Services', 'Projects', 'Blog', 'Contact'].map((item) => (
-                  <li key={item}>
+                {menuItems.map((item) => (
+                  <li key={item.name}>
                     <Link
-                      to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                      className="font-medium text-black hover:text-adhirachna-green transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
+                      to={item.path}
+                      className={`font-medium text-black hover:text-adhirachna-green transition-colors ${
+                        location.pathname === item.path ? 'text-adhirachna-green' : ''
+                      }`}
                     >
-                      {item}
+                      {item.name}
                     </Link>
                   </li>
                 ))}
@@ -87,7 +106,6 @@ const Navbar = () => {
                   <Link 
                     to="/contact" 
                     className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
-                    onClick={() => setIsMenuOpen(false)}
                   >
                     Get In Touch
                   </Link>
