@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Database } from '@/integrations/supabase/types';
 
 interface BlogPost {
   id: string;

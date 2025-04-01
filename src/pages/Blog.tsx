@@ -11,6 +11,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import type { Database } from '@/integrations/supabase/types';
 
 interface BlogPost {
   id: string;

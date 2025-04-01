@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Eye, Edit, Trash2, Plus, Tag, Upload, Loader2 } from "lucide-react";
@@ -23,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Database } from '@/integrations/supabase/types';
 
 interface BlogPost {
   id: string;
