@@ -40,6 +40,17 @@ interface BlogPost {
 
 // Function to fetch blog posts from Supabase
 const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+  // Check if user is authenticated first
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    toast({
+      title: "Authentication Required",
+      description: "You must be logged in to manage blog posts.",
+      variant: "destructive"
+    });
+    throw new Error("Authentication required");
+  }
+
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
@@ -54,6 +65,12 @@ const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 
 // Function to create a new blog post
 const createBlogPost = async (post: Omit<BlogPost, 'id'>): Promise<BlogPost> => {
+  // Check if user is authenticated first
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    throw new Error("Authentication required");
+  }
+
   const { data, error } = await supabase
     .from('blog_posts')
     .insert([post])
@@ -69,6 +86,12 @@ const createBlogPost = async (post: Omit<BlogPost, 'id'>): Promise<BlogPost> => 
 
 // Function to update a blog post
 const updateBlogPost = async (post: BlogPost): Promise<BlogPost> => {
+  // Check if user is authenticated first
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    throw new Error("Authentication required");
+  }
+
   const { data, error } = await supabase
     .from('blog_posts')
     .update(post)
@@ -85,6 +108,12 @@ const updateBlogPost = async (post: BlogPost): Promise<BlogPost> => {
 
 // Function to delete a blog post
 const deleteBlogPost = async (id: string): Promise<void> => {
+  // Check if user is authenticated first
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    throw new Error("Authentication required");
+  }
+
   const { error } = await supabase
     .from('blog_posts')
     .delete()
@@ -97,6 +126,12 @@ const deleteBlogPost = async (id: string): Promise<void> => {
 
 // Function to upload image to Supabase Storage
 const uploadImage = async (file: File): Promise<string> => {
+  // Check if user is authenticated first
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    throw new Error("Authentication required");
+  }
+
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
   const filePath = `blog/${fileName}`;
