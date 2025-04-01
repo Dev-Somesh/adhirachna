@@ -1,92 +1,71 @@
 
 import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogCard from '@/components/BlogCard';
 import BlogSidebar from '@/components/BlogSidebar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
-// Mock data for blog posts
-const mockBlogPosts = [
-  {
-    id: 1,
-    title: 'The Future of Sustainable Infrastructure',
-    excerpt: 'Exploring innovative approaches to building eco-friendly and resilient infrastructure for our growing cities.',
-    author: 'Rahul Sharma',
-    date: '2023-06-15',
-    category: 'Sustainability',
-    image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
-    tags: ['sustainability', 'innovation', 'infrastructure'],
-    views: 1250,
-  },
-  {
-    id: 2,
-    title: 'Structural Health Monitoring: Best Practices',
-    excerpt: 'An in-depth look at the latest technologies and methodologies for monitoring structural integrity.',
-    author: 'Priya Patel',
-    date: '2023-07-22',
-    category: 'Technology',
-    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
-    tags: ['technology', 'monitoring', 'structures'],
-    views: 980,
-  },
-  {
-    id: 3,
-    title: 'Managing Complex Engineering Projects',
-    excerpt: 'Key strategies and tools for successful management of large-scale engineering initiatives.',
-    author: 'Amit Kumar',
-    date: '2023-08-10',
-    category: 'Project Management',
-    image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
-    tags: ['project management', 'strategies', 'tools'],
-    views: 1500,
-  },
-  {
-    id: 4,
-    title: 'The Role of AI in Modern Engineering',
-    excerpt: 'How artificial intelligence is transforming the engineering landscape and creating new possibilities.',
-    author: 'Neha Gupta',
-    date: '2023-09-05',
-    category: 'Technology',
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-    tags: ['technology', 'AI', 'innovation'],
-    views: 2100,
-  },
-  {
-    id: 5,
-    title: 'Advancements in Structural Analysis',
-    excerpt: 'Recent developments and innovations in structural analysis methodologies and software.',
-    author: 'Vikram Singh',
-    date: '2023-10-18',
-    category: 'Engineering',
-    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
-    tags: ['engineering', 'analysis', 'software'],
-    views: 870,
-  },
-];
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  author: string;
+  date: string;
+  category: string;
+  image: string;
+  tags: string[];
+  views: number;
+}
 
-// Define categories
-const categories = [
-  { name: 'All', count: mockBlogPosts.length },
-  { name: 'Sustainability', count: mockBlogPosts.filter(post => post.category === 'Sustainability').length },
-  { name: 'Technology', count: mockBlogPosts.filter(post => post.category === 'Technology').length },
-  { name: 'Project Management', count: mockBlogPosts.filter(post => post.category === 'Project Management').length },
-  { name: 'Engineering', count: mockBlogPosts.filter(post => post.category === 'Engineering').length },
-];
+interface Category {
+  name: string;
+  count: number;
+}
+
+// Function to fetch blog posts
+const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+  // Update views when someone visits the blog page (for analytics)
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('published', true)
+    .order('date', { ascending: false });
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data || [];
+};
 
 const Blog = () => {
   const { ref, isInView } = useInView();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortBy, setSortBy] = useState('recent');
-  const [filteredPosts, setFilteredPosts] = useState(mockBlogPosts);
-
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'recent');
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  
+  // Fetch blog posts
+  const { data: posts = [], isLoading, error } = useQuery({
+    queryKey: ['blogPosts'],
+    queryFn: fetchBlogPosts
+  });
+  
+  // Update filtered posts when data changes
   useEffect(() => {
+    if (!posts) return;
+    
     // Filter by search term and category
-    let results = mockBlogPosts;
+    let results = [...posts];
     
     if (searchTerm) {
       results = results.filter(post => 
@@ -108,8 +87,35 @@ const Blog = () => {
     }
     
     setFilteredPosts(results);
-  }, [searchTerm, selectedCategory, sortBy]);
-
+  }, [posts, searchTerm, selectedCategory, sortBy]);
+  
+  // Update URL params when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('search', searchTerm);
+    if (selectedCategory !== 'All') params.set('category', selectedCategory);
+    if (sortBy !== 'recent') params.set('sort', sortBy);
+    
+    setSearchParams(params);
+  }, [searchTerm, selectedCategory, sortBy, setSearchParams]);
+  
+  // Generate categories from posts
+  const categories: Category[] = useMemo(() => {
+    if (!posts) return [{ name: 'All', count: 0 }];
+    
+    const categoryCounts = posts.reduce((acc, post) => {
+      acc[post.category] = (acc[post.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const categoryList = Object.entries(categoryCounts).map(([name, count]) => ({
+      name,
+      count
+    }));
+    
+    return [{ name: 'All', count: posts.length }, ...categoryList];
+  }, [posts]);
+  
   return (
     <>
       <Navbar />
@@ -155,7 +161,19 @@ const Blog = () => {
                 </div>
               </div>
               
-              {filteredPosts.length > 0 ? (
+              {isLoading ? (
+                <div className="flex justify-center items-center p-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-adhirachna-green" />
+                </div>
+              ) : error ? (
+                <div className="text-center py-12 bg-white rounded-lg shadow-soft">
+                  <h3 className="text-xl font-medium text-adhirachna-darkblue mb-2">Error loading posts</h3>
+                  <p className="text-adhirachna-gray mb-4">
+                    {error instanceof Error ? error.message : "Unknown error occurred"}
+                  </p>
+                  <Button onClick={() => window.location.reload()}>Try Again</Button>
+                </div>
+              ) : filteredPosts.length > 0 ? (
                 <div 
                   className={`grid grid-cols-1 md:grid-cols-2 gap-8 transition-opacity duration-500 ${
                     isInView ? 'opacity-100' : 'opacity-0'
@@ -180,7 +198,7 @@ const Blog = () => {
                 categories={categories} 
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
-                recentPosts={mockBlogPosts.slice(0, 3)}
+                recentPosts={posts.slice(0, 3)}
               />
             </div>
           </div>

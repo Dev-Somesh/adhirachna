@@ -9,7 +9,7 @@ type Category = {
 };
 
 type BlogPost = {
-  id: number;
+  id: string;
   title: string;
   date: string;
   image: string;
@@ -57,30 +57,34 @@ const BlogSidebar = ({
       <div className="bg-white rounded-lg shadow-soft p-6">
         <h3 className="text-xl font-semibold text-adhirachna-darkblue mb-4">Recent Posts</h3>
         <div className="space-y-4">
-          {recentPosts.map((post) => (
-            <div key={post.id} className="flex gap-3">
-              <Link to={`/blog/${post.id}`} className="flex-shrink-0">
-                <div className="w-20 h-20 rounded overflow-hidden">
-                  <img 
-                    src={post.image} 
-                    alt={post.title} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </Link>
-              <div>
-                <Link to={`/blog/${post.id}`}>
-                  <h4 className="font-medium text-adhirachna-darkblue hover:text-adhirachna-green transition-colors line-clamp-2">
-                    {post.title}
-                  </h4>
+          {recentPosts.length > 0 ? (
+            recentPosts.map((post) => (
+              <div key={post.id} className="flex gap-3">
+                <Link to={`/blog/${post.id}`} className="flex-shrink-0">
+                  <div className="w-20 h-20 rounded overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 </Link>
-                <div className="flex items-center text-adhirachna-gray text-xs mt-1">
-                  <Calendar className="w-3 h-3 mr-1" />
-                  <span>{formatDistanceToNow(new Date(post.date), { addSuffix: true })}</span>
+                <div>
+                  <Link to={`/blog/${post.id}`}>
+                    <h4 className="font-medium text-adhirachna-darkblue hover:text-adhirachna-green transition-colors line-clamp-2">
+                      {post.title}
+                    </h4>
+                  </Link>
+                  <div className="flex items-center text-adhirachna-gray text-xs mt-1">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    <span>{formatDistanceToNow(new Date(post.date), { addSuffix: true })}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-adhirachna-gray text-sm">No recent posts available.</p>
+          )}
         </div>
       </div>
       

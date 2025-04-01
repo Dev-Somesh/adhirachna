@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
 type BlogPost = {
-  id: number;
+  id: string;
   title: string;
   excerpt: string;
   author: string;

@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { Eye, Edit, Trash2, Plus, Tag, Upload } from "lucide-react";
+import { Eye, Edit, Trash2, Plus, Tag, Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,42 +21,114 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-// Mock data - this would be replaced by Supabase data
-const initialPosts = [
-  {
-    id: 1,
-    title: "The Future of Sustainable Engineering",
-    excerpt: "Exploring innovative approaches to sustainable engineering practices in modern construction.",
-    author: "Rahul Sharma",
-    date: "2023-06-15",
-    category: "Sustainability",
-    image: "/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-    tags: ["sustainability", "innovation", "engineering"],
-    views: 128,
-    published: true
-  },
-  {
-    id: 2,
-    title: "Structural Health Monitoring Technologies",
-    excerpt: "A deep dive into the latest technologies for structural health monitoring and assessment.",
-    author: "Priya Patel",
-    date: "2023-07-22",
-    category: "Technology",
-    image: "/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-    tags: ["technology", "monitoring", "structures"],
-    views: 95,
-    published: true
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  category: string;
+  image: string;
+  tags: string[];
+  views: number;
+  published: boolean;
+}
+
+// Function to fetch blog posts from Supabase
+const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .order('date', { ascending: false });
+  
+  if (error) {
+    throw new Error(error.message);
   }
-];
+  
+  return data || [];
+};
+
+// Function to create a new blog post
+const createBlogPost = async (post: Omit<BlogPost, 'id'>): Promise<BlogPost> => {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .insert([post])
+    .select()
+    .single();
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+// Function to update a blog post
+const updateBlogPost = async (post: BlogPost): Promise<BlogPost> => {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .update(post)
+    .eq('id', post.id)
+    .select()
+    .single();
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+// Function to delete a blog post
+const deleteBlogPost = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('blog_posts')
+    .delete()
+    .eq('id', id);
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Function to upload image to Supabase Storage
+const uploadImage = async (file: File): Promise<string> => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+  const filePath = `blog/${fileName}`;
+  
+  const { error } = await supabase.storage
+    .from('blog-images')
+    .upload(filePath, file);
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  const { data } = supabase.storage
+    .from('blog-images')
+    .getPublicUrl(filePath);
+  
+  return data.publicUrl;
+};
 
 const BlogManagement = () => {
-  const [posts, setPosts] = useState(initialPosts);
-  const [currentPost, setCurrentPost] = useState<any>(null);
+  const queryClient = useQueryClient();
+  
+  // Query to fetch blog posts
+  const { data: posts = [], isLoading, error } = useQuery({
+    queryKey: ['blogPosts'],
+    queryFn: fetchBlogPosts
+  });
+  
+  const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -69,9 +141,96 @@ const BlogManagement = () => {
     image: ""
   });
   
+  // Create mutation
+  const createMutation = useMutation({
+    mutationFn: createBlogPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+      toast({
+        title: "Post Created",
+        description: `"${formData.title}" has been created successfully.`
+      });
+      setDialogOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error Creating Post",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: updateBlogPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+      toast({
+        title: "Post Updated",
+        description: `"${formData.title}" has been updated successfully.`
+      });
+      setDialogOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error Updating Post",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: deleteBlogPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+      toast({
+        title: "Post Deleted",
+        description: "The post has been deleted successfully."
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error Deleting Post",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    
+    const file = e.target.files[0];
+    setUploadingImage(true);
+    
+    try {
+      const imageUrl = await uploadImage(file);
+      setFormData(prev => ({ ...prev, image: imageUrl }));
+      toast({
+        title: "Image Uploaded",
+        description: "The image has been uploaded successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error Uploading Image",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingImage(false);
+    }
   };
   
   const resetForm = () => {
@@ -88,7 +247,7 @@ const BlogManagement = () => {
     setIsEditing(false);
   };
   
-  const openEditDialog = (post: any) => {
+  const openEditDialog = (post: BlogPost) => {
     setCurrentPost(post);
     setFormData({
       title: post.title,
@@ -109,34 +268,25 @@ const BlogManagement = () => {
   };
   
   const handleSave = () => {
-    // Here you would save to Supabase in a real implementation
-    const date = new Date().toISOString().split('T')[0];
+    const date = new Date().toISOString();
     
     if (isEditing && currentPost) {
       // Update existing post
-      const updatedPosts = posts.map(post => 
-        post.id === currentPost.id 
-          ? {
-              ...post,
-              title: formData.title,
-              excerpt: formData.excerpt,
-              content: formData.content,
-              author: formData.author,
-              category: formData.category,
-              tags: formData.tags.split(",").map(tag => tag.trim()),
-              image: formData.image
-            }
-          : post
-      );
-      setPosts(updatedPosts);
-      toast({
-        title: "Post Updated",
-        description: `"${formData.title}" has been updated successfully.`
-      });
+      const updatedPost: BlogPost = {
+        ...currentPost,
+        title: formData.title,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        author: formData.author,
+        category: formData.category,
+        tags: formData.tags.split(",").map(tag => tag.trim()),
+        image: formData.image
+      };
+      
+      updateMutation.mutate(updatedPost);
     } else {
       // Create new post
       const newPost = {
-        id: posts.length > 0 ? Math.max(...posts.map(p => p.id)) + 1 : 1,
         title: formData.title,
         excerpt: formData.excerpt,
         content: formData.content,
@@ -148,28 +298,28 @@ const BlogManagement = () => {
         views: 0,
         published: true
       };
-      setPosts([...posts, newPost]);
-      toast({
-        title: "Post Created",
-        description: `"${formData.title}" has been created successfully.`
-      });
+      
+      createMutation.mutate(newPost as any);
     }
-    
-    setDialogOpen(false);
-    resetForm();
   };
   
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this post?")) {
-      // Here you would delete from Supabase in a real implementation
-      const updatedPosts = posts.filter(post => post.id !== id);
-      setPosts(updatedPosts);
-      toast({
-        title: "Post Deleted",
-        description: "The post has been deleted successfully."
-      });
+      deleteMutation.mutate(id);
     }
   };
+  
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Blog Posts</h2>
+        <p className="text-gray-600">{error instanceof Error ? error.message : "Unknown error"}</p>
+        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['blogPosts'] })} className="mt-4">
+          Try Again
+        </Button>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -181,38 +331,52 @@ const BlogManagement = () => {
       </div>
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Views</TableHead>
-              <TableHead className="w-[120px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {posts.map(post => (
-              <TableRow key={post.id}>
-                <TableCell className="font-medium">{post.title}</TableCell>
-                <TableCell>{post.category}</TableCell>
-                <TableCell>{post.date}</TableCell>
-                <TableCell>{post.views}</TableCell>
-                <TableCell className="flex space-x-2">
-                  <Button size="sm" variant="outline" onClick={() => window.open(`/blog/${post.id}`, '_blank')}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => openEditDialog(post)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="outline" className="text-red-500" onClick={() => handleDelete(post.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
+        {isLoading ? (
+          <div className="p-8 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-gray-500">Loading blog posts...</p>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="p-8 text-center">
+            <p className="text-gray-500 mb-4">No blog posts found.</p>
+            <Button onClick={openNewPostDialog}>
+              <Plus className="mr-2 h-4 w-4" /> Create Your First Post
+            </Button>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Views</TableHead>
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {posts.map(post => (
+                <TableRow key={post.id}>
+                  <TableCell className="font-medium">{post.title}</TableCell>
+                  <TableCell>{post.category}</TableCell>
+                  <TableCell>{new Date(post.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{post.views}</TableCell>
+                  <TableCell className="flex space-x-2">
+                    <Button size="sm" variant="outline" onClick={() => window.open(`/blog/${post.id}`, '_blank')}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => openEditDialog(post)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-red-500" onClick={() => handleDelete(post.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
       
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -230,6 +394,7 @@ const BlogManagement = () => {
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="Enter post title"
+                required
               />
             </div>
             
@@ -242,6 +407,7 @@ const BlogManagement = () => {
                 onChange={handleInputChange}
                 placeholder="Brief summary of the post"
                 rows={2}
+                required
               />
             </div>
             
@@ -254,6 +420,7 @@ const BlogManagement = () => {
                 onChange={handleInputChange}
                 placeholder="Full post content"
                 rows={8}
+                required
               />
             </div>
             
@@ -266,6 +433,7 @@ const BlogManagement = () => {
                   value={formData.author}
                   onChange={handleInputChange}
                   placeholder="Author name"
+                  required
                 />
               </div>
               
@@ -277,6 +445,7 @@ const BlogManagement = () => {
                   value={formData.category}
                   onChange={handleInputChange}
                   placeholder="Post category"
+                  required
                 />
               </div>
             </div>
@@ -296,15 +465,47 @@ const BlogManagement = () => {
             
             <div className="grid gap-2">
               <label htmlFor="image" className="text-sm font-medium flex items-center">
-                <Upload className="h-4 w-4 mr-2" /> Featured Image URL
+                <Upload className="h-4 w-4 mr-2" /> Featured Image
               </label>
-              <Input
-                id="image"
-                name="image"
-                value={formData.image}
-                onChange={handleInputChange}
-                placeholder="Image URL"
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  id="image"
+                  name="image"
+                  value={formData.image}
+                  onChange={handleInputChange}
+                  placeholder="Image URL"
+                  className="flex-1"
+                />
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="imageUpload"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <Button type="button" disabled={uploadingImage}>
+                    {uploadingImage ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload"
+                    )}
+                  </Button>
+                </div>
+              </div>
+              {formData.image && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500 mb-1">Image Preview:</p>
+                  <img
+                    src={formData.image}
+                    alt="Preview"
+                    className="h-32 w-auto object-cover rounded border"
+                  />
+                </div>
+              )}
             </div>
           </div>
           
@@ -312,8 +513,15 @@ const BlogManagement = () => {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              {isEditing ? "Update" : "Create"} Post
+            <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
+              {(createMutation.isPending || updateMutation.isPending) ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {isEditing ? "Updating..." : "Creating..."}
+                </>
+              ) : (
+                isEditing ? "Update Post" : "Create Post"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
