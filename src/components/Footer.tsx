@@ -22,33 +22,39 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <a 
-                href="#" 
+                href="https://twitter.com" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
                 aria-label="X (formerly Twitter)"
               >
                 <X className="h-5 w-5" />
               </a>
               <a 
-                href="#" 
+                href="https://linkedin.com" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
               </a>
               <a 
-                href="#" 
+                href="https://instagram.com" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
                 aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
               </a>
-              <a 
-                href="/blog" 
+              <Link
+                to="/blog" 
                 className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-adhirachna-green transition-colors duration-300"
                 aria-label="Blog"
               >
                 <BookOpen className="h-5 w-5" />
-              </a>
+              </Link>
             </div>
           </div>
           

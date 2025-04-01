@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { Navigate, Link, Outlet, useNavigate } from "react-router-dom";
-import { Home, Settings, LogOut, Users, FileText, Mail } from "lucide-react";
+import { Home, Settings, LogOut, Users, FileText, Mail, BookOpen } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 const AdminLayout = () => {
@@ -93,6 +93,15 @@ const AdminLayout = () => {
               >
                 <FileText className="mr-3 h-5 w-5" />
                 Content Management
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/admin/blog" 
+                className="flex items-center p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
+              >
+                <BookOpen className="mr-3 h-5 w-5" />
+                Blog Management
               </Link>
             </li>
             <li>

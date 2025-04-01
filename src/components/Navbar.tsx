@@ -77,7 +77,7 @@ const Navbar = () => {
             <li>
               <Link 
                 to="/contact" 
-                className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
+                className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white rounded-md"
               >
                 Get In Touch
               </Link>
@@ -89,7 +89,7 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="fixed inset-0 bg-white bg-opacity-95 z-50 flex flex-col pt-16">
-              <ul className="flex flex-col items-center space-y-6 text-xl mt-12">
+              <ul className="flex flex-col items-center space-y-6 text-xl mt-12 bg-adhirachna-darkblue/5 p-6 rounded-lg mx-4 backdrop-blur-sm">
                 {menuItems.map((item) => (
                   <li key={item.name}>
                     <Link
@@ -97,6 +97,7 @@ const Navbar = () => {
                       className={`font-medium text-black hover:text-adhirachna-green transition-colors ${
                         location.pathname === item.path ? 'text-adhirachna-green' : ''
                       }`}
+                      onClick={() => setIsMenuOpen(false)}
                     >
                       {item.name}
                     </Link>
@@ -105,7 +106,8 @@ const Navbar = () => {
                 <li className="pt-6">
                   <Link 
                     to="/contact" 
-                    className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen"
+                    className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     Get In Touch
                   </Link>
