@@ -58,7 +58,8 @@ const AdminLayout = () => {
         if (event === 'SIGNED_IN' && session) {
           setAuthenticated(true);
           localStorage.setItem("adhirachna_admin_logged_in", "true");
-        } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        } else if (event === 'SIGNED_OUT') {
+          // Fixed: Removed comparison with 'USER_DELETED' which was causing the type error
           setAuthenticated(false);
           localStorage.removeItem("adhirachna_admin_logged_in");
           navigate("/login");
