@@ -109,7 +109,7 @@ const Login = () => {
     setError(null);
     
     try {
-      // Demo credentials
+      // Demo credentials - using hardcoded demo credentials for clarity
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: "demo@adhirachna.com",
         password: "demo12345",
