@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2, Tag, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import ImageUploader from "./ImageUploader";
 
 interface BlogPost {
   id: string;
@@ -42,6 +43,38 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Check authentication status when component mounts
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.log("BlogPostForm auth check:", !!data.session);
+      setIsAuthenticated(!!data.session);
+      
+      if (!data.session) {
+        toast({
+          title: "Authentication Required",
+          description: "You must be logged in to manage blog posts.",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    checkAuth();
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed in BlogPostForm:", event, !!session);
+        setIsAuthenticated(!!session);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -49,14 +82,20 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
   };
   
   const handleSave = async () => {
-    // Check auth before trying to save
-    const auth = await supabase.auth.getSession();
-    console.log("Auth check before save:", !!auth.data.session);
-    
-    if (!auth.data.session) {
+    if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "You must be logged in to save blog posts.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate form data before saving
+    if (!formData.title || !formData.excerpt || !formData.content || !formData.author || !formData.category) {
+      toast({
+        title: "Missing Required Fields",
+        description: "Please fill in all required fields before saving.",
         variant: "destructive"
       });
       return;
@@ -68,24 +107,33 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
     try {
       // Force refresh auth session before saving
       await supabase.auth.refreshSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("Authentication session has expired. Please log in again.");
+      }
+      
+      console.log("Current auth session before save:", !!session);
       
       if (isEditing && currentPost) {
         // Update existing post
-        const updatedPost: BlogPost = {
-          ...currentPost,
+        const updatedPost = {
           title: formData.title,
           excerpt: formData.excerpt,
           content: formData.content,
           author: formData.author,
           category: formData.category,
           tags: formData.tags.split(",").map(tag => tag.trim()),
-          image: formData.image
+          image: formData.image,
+          updated_at: new Date().toISOString()
         };
+        
+        console.log("Updating blog post:", currentPost.id, updatedPost);
         
         const { data, error } = await supabase
           .from('blog_posts')
           .update(updatedPost)
-          .eq('id', updatedPost.id)
+          .eq('id', currentPost.id)
           .select()
           .single();
         
@@ -110,14 +158,20 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
           published: true
         };
         
-        console.log("Creating new post:", newPost);
+        console.log("Creating new blog post:", newPost);
+        
         const { data, error } = await supabase
           .from('blog_posts')
           .insert([newPost])
           .select()
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error creating post:", error);
+          throw error;
+        }
+        
+        console.log("Blog post created successfully:", data);
         
         toast({
           title: "Post Created",
@@ -140,6 +194,12 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
   
   return (
     <div className="grid gap-4 py-4">
+      {!isAuthenticated && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Error:</strong> You are not authenticated. Please log in to manage blog posts.
+        </div>
+      )}
+      
       <div className="grid gap-2">
         <label htmlFor="title" className="text-sm font-medium">Title</label>
         <Input
@@ -262,7 +322,10 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={isSubmitting || uploadingImage}>
+        <Button 
+          onClick={handleSave} 
+          disabled={isSubmitting || uploadingImage || !isAuthenticated}
+        >
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

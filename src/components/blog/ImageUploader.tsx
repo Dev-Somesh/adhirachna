@@ -1,8 +1,9 @@
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface ImageUploaderProps {
   onUploadStart: () => void;
@@ -22,20 +23,42 @@ const ImageUploader = ({ onUploadStart, onUploadComplete, onUploadError }: Image
       onUploadStart();
       setIsUploading(true);
       
+      console.log("Attempting to upload file to Supabase storage...");
+      
+      // First check if we're authenticated
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        throw new Error("You must be logged in to upload images");
+      }
+      
       const { error } = await supabase.storage
         .from('blog-images')
         .upload(filePath, file);
       
       if (error) throw error;
       
+      console.log("File uploaded successfully, getting public URL...");
+      
       const { data } = supabase.storage
         .from('blog-images')
         .getPublicUrl(filePath);
       
+      console.log("Public URL obtained:", data.publicUrl);
       onUploadComplete(data.publicUrl);
+      
+      toast({
+        title: "Image uploaded",
+        description: "Your image has been uploaded successfully."
+      });
     } catch (error) {
       console.error("Error uploading image:", error);
       onUploadError(error instanceof Error ? error : new Error("Unknown upload error"));
+      
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload image",
+        variant: "destructive"
+      });
     } finally {
       setIsUploading(false);
     }
@@ -59,14 +82,17 @@ const ImageUploader = ({ onUploadStart, onUploadComplete, onUploadError }: Image
         onChange={handleImageUpload}
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
       />
-      <Button type="button" disabled={isUploading}>
+      <Button type="button" variant="secondary" disabled={isUploading}>
         {isUploading ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             Uploading...
           </>
         ) : (
-          "Upload"
+          <>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload
+          </>
         )}
       </Button>
     </div>

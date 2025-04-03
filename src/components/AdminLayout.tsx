@@ -1,42 +1,86 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Link, Outlet, useNavigate } from "react-router-dom";
-import { Home, Settings, LogOut, Users, FileText, Mail, BookOpen } from "lucide-react";
+import { Home, Settings, LogOut, Users, FileText, Mail, BookOpen, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { supabase, signOut } from "@/integrations/supabase/client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const isLoggedIn = localStorage.getItem("adhirachna_admin_logged_in") === "true";
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
   
-  // If not logged in, redirect to login page
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  const handleLogout = () => {
-    localStorage.removeItem("adhirachna_admin_logged_in");
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out.",
-    });
-    navigate("/login");
-  };
-
-  // Track session activity
   useEffect(() => {
+    const checkAuth = async () => {
+      setLoading(true);
+      try {
+        // First check if there's a persisted session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session error:", error);
+          setAuthenticated(false);
+          localStorage.removeItem("adhirachna_admin_logged_in");
+          toast({
+            title: "Authentication Error",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        if (session) {
+          console.log("User is authenticated:", !!session);
+          setAuthenticated(true);
+          localStorage.setItem("adhirachna_admin_logged_in", "true");
+        } else {
+          console.log("No active session found");
+          setAuthenticated(false);
+          localStorage.removeItem("adhirachna_admin_logged_in");
+        }
+      } catch (err) {
+        console.error("Auth check error:", err);
+        setAuthenticated(false);
+        localStorage.removeItem("adhirachna_admin_logged_in");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuth();
+    
+    // Setup auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed in AdminLayout:", event, !!session);
+        
+        if (event === 'SIGNED_IN' && session) {
+          setAuthenticated(true);
+          localStorage.setItem("adhirachna_admin_logged_in", "true");
+        } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+          setAuthenticated(false);
+          localStorage.removeItem("adhirachna_admin_logged_in");
+          navigate("/login");
+        }
+      }
+    );
+    
+    // Track session activity
     const checkActivity = () => {
       const lastActivity = localStorage.getItem("adhirachna_last_activity");
       const now = new Date().getTime();
       
       if (lastActivity && now - parseInt(lastActivity) > 30 * 60 * 1000) { // 30 minutes
         // Auto logout after 30 minutes of inactivity
-        localStorage.removeItem("adhirachna_admin_logged_in");
-        localStorage.removeItem("adhirachna_last_activity");
-        toast({
-          title: "Session Expired",
-          description: "Your session has expired due to inactivity.",
+        signOut().then(() => {
+          localStorage.removeItem("adhirachna_last_activity");
+          toast({
+            title: "Session Expired",
+            description: "Your session has expired due to inactivity.",
+          });
+          navigate("/login");
         });
-        navigate("/login");
       } else {
         localStorage.setItem("adhirachna_last_activity", now.toString());
       }
@@ -55,13 +99,49 @@ const AdminLayout = () => {
       window.addEventListener(event, activityListener);
     });
     
-    // Cleanup
     return () => {
+      subscription.unsubscribe();
       activityEvents.forEach(event => {
         window.removeEventListener(event, activityListener);
       });
     };
   }, [navigate]);
+  
+  // Handle logout function
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout Error",
+        description: error instanceof Error ? error.message : "Error during logout",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-adhirachna-blue mb-4" />
+        <p className="text-xl">Loading admin dashboard...</p>
+      </div>
+    );
+  }
+  
+  // If not logged in, redirect to login page
+  if (!authenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-adhirachna-light flex">

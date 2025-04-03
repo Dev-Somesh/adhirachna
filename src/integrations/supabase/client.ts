@@ -14,19 +14,49 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storage: localStorage
+    storage: localStorage,
+    flowType: 'implicit'
   }
 });
 
 // Helper function to check if user is authenticated
 export const isAuthenticated = async () => {
-  const { data } = await supabase.auth.getSession();
-  console.log("Auth session check:", data.session);
-  return !!data.session;
+  try {
+    // First, try to refresh the session if one exists
+    await supabase.auth.refreshSession();
+    
+    // Then get the current session
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error("Auth session check error:", error);
+      return false;
+    }
+    
+    console.log("Auth session check:", data.session);
+    return !!data.session;
+  } catch (err) {
+    console.error("Auth check error:", err);
+    return false;
+  }
 };
 
 // Get current user ID helper function
 export const getCurrentUserId = async () => {
   const { data } = await supabase.auth.getSession();
   return data.session?.user?.id;
+};
+
+// Manually sign out helper function
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error("Error signing out:", error);
+    throw error;
+  }
+  
+  // Also clear local storage item
+  localStorage.removeItem("adhirachna_admin_logged_in");
+  
+  return true;
 };
