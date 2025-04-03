@@ -13,6 +13,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
     storage: localStorage
   }
 });
@@ -20,5 +21,12 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 // Helper function to check if user is authenticated
 export const isAuthenticated = async () => {
   const { data } = await supabase.auth.getSession();
+  console.log("Auth session check:", data.session);
   return !!data.session;
+};
+
+// Get current user ID helper function
+export const getCurrentUserId = async () => {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user?.id;
 };

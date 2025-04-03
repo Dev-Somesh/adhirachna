@@ -20,7 +20,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { supabase, isAuthenticated } from "@/integrations/supabase/client";
+import { supabase, isAuthenticated, getCurrentUserId } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Database } from '@/integrations/supabase/types';
 
@@ -40,6 +40,7 @@ interface BlogPost {
 
 // Function to fetch blog posts from Supabase
 const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+  console.log("Fetching blog posts...");
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
@@ -50,6 +51,7 @@ const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     throw new Error(error.message);
   }
   
+  console.log("Blog posts fetched successfully:", data.length);
   return data || [];
 };
 
@@ -57,7 +59,11 @@ const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 const createBlogPost = async (post: Omit<BlogPost, 'id'>): Promise<BlogPost> => {
   // Log authentication status for debugging
   const auth = await isAuthenticated();
-  console.log("Creating post, authenticated:", auth);
+  const userId = await getCurrentUserId();
+  console.log("Creating post, authenticated:", auth, "User ID:", userId);
+
+  // Force refresh auth session before creating post
+  await supabase.auth.refreshSession();
   
   const { data, error } = await supabase
     .from('blog_posts')
@@ -124,6 +130,7 @@ const uploadImage = async (file: File): Promise<string> => {
 
 const BlogManagement = () => {
   const queryClient = useQueryClient();
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   
   // Query to fetch blog posts
   const { data: posts = [], isLoading, error } = useQuery({
@@ -161,10 +168,21 @@ const BlogManagement = () => {
     },
     onError: (error) => {
       console.error("Mutation error:", error);
-      toast({
-        title: "Error Creating Post",
-        description: error.message,
-        variant: "destructive"
+      // Check auth again if we get an error
+      isAuthenticated().then(auth => {
+        if (!auth) {
+          toast({
+            title: "Authentication Error",
+            description: "You need to be logged in to create posts.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error Creating Post",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
       });
     }
   });
@@ -274,7 +292,18 @@ const BlogManagement = () => {
     setDialogOpen(true);
   };
   
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Check auth before trying to save
+    const auth = await isAuthenticated();
+    if (!auth) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to save blog posts.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const date = new Date().toISOString();
     
     if (isEditing && currentPost) {
@@ -306,6 +335,7 @@ const BlogManagement = () => {
         published: true
       };
       
+      console.log("Creating new post:", newPost);
       createMutation.mutate(newPost as any);
     }
   };
@@ -331,10 +361,13 @@ const BlogManagement = () => {
   // Check authentication status when component mounts
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      console.log("Current session:", data.session);
+      // Check authentication status
+      const auth = await isAuthenticated();
+      setAuthenticated(auth);
       
-      if (!data.session) {
+      console.log("Authentication check in BlogManagement:", auth);
+      
+      if (!auth) {
         toast({
           title: "Authentication Required",
           description: "You must be logged in to manage blog posts.",
@@ -349,6 +382,7 @@ const BlogManagement = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, !!session);
+        setAuthenticated(!!session);
       }
     );
     
@@ -365,6 +399,13 @@ const BlogManagement = () => {
   
   return (
     <div className="space-y-6">
+      {/* Display authentication status for debugging */}
+      {authenticated === false && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Error:</strong> You are not authenticated. Please log in to manage blog posts.
+        </div>
+      )}
+      
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Blog Management</h2>
         <Button onClick={openNewPostDialog}>
