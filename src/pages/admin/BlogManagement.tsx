@@ -20,7 +20,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isAuthenticated } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Database } from '@/integrations/supabase/types';
 
@@ -40,14 +40,13 @@ interface BlogPost {
 
 // Function to fetch blog posts from Supabase
 const fetchBlogPosts = async (): Promise<BlogPost[]> => {
-  // Instead of throwing errors for auth, just fetch the posts
-  // Admin page is already protected by the AdminLayout component
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
     .order('date', { ascending: false });
   
   if (error) {
+    console.error("Error fetching blog posts:", error);
     throw new Error(error.message);
   }
   
@@ -56,6 +55,10 @@ const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 
 // Function to create a new blog post
 const createBlogPost = async (post: Omit<BlogPost, 'id'>): Promise<BlogPost> => {
+  // Log authentication status for debugging
+  const auth = await isAuthenticated();
+  console.log("Creating post, authenticated:", auth);
+  
   const { data, error } = await supabase
     .from('blog_posts')
     .insert([post])
@@ -63,6 +66,7 @@ const createBlogPost = async (post: Omit<BlogPost, 'id'>): Promise<BlogPost> => 
     .single();
   
   if (error) {
+    console.error("Error creating blog post:", error);
     throw new Error(error.message);
   }
   
@@ -156,6 +160,7 @@ const BlogManagement = () => {
       resetForm();
     },
     onError: (error) => {
+      console.error("Mutation error:", error);
       toast({
         title: "Error Creating Post",
         description: error.message,
@@ -323,7 +328,7 @@ const BlogManagement = () => {
     );
   }
   
-  // Verify that we're logged in when component mounts
+  // Check authentication status when component mounts
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
@@ -339,9 +344,19 @@ const BlogManagement = () => {
     };
     
     checkAuth();
+    
+    // Setup auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed:", event, !!session);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
   
-
   // Add this helper function to your component
   const isAuthenticated = async () => {
     const { data } = await supabase.auth.getSession();
