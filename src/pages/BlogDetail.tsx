@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -243,15 +244,19 @@ const BlogDetail = () => {
                       <span className="text-adhirachna-darkblue font-medium">Tags:</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag: string) => (
-                        <Link 
-                          key={tag} 
-                          to={`/blog?tag=${tag}`}
-                          className="px-3 py-1 bg-adhirachna-light text-adhirachna-darkblue rounded-full text-sm hover:bg-adhirachna-green hover:text-white transition-colors"
-                        >
-                          {tag}
-                        </Link>
-                      ))}
+                      {post.tags && post.tags.length > 0 ? (
+                        post.tags.map((tag: string) => (
+                          <Link 
+                            key={tag} 
+                            to={`/blog?tag=${tag}`}
+                            className="px-3 py-1 bg-adhirachna-light text-adhirachna-darkblue rounded-full text-sm hover:bg-adhirachna-green hover:text-white transition-colors"
+                          >
+                            {tag}
+                          </Link>
+                        ))
+                      ) : (
+                        <span className="text-adhirachna-gray text-sm">No tags</span>
+                      )}
                     </div>
                   </div>
                   
