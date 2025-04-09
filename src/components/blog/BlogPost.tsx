@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Calendar, User, Eye, Tag, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
-import { BlogPost } from '@/types/blog';
+import type { BlogPost } from '@/types/blog';
 
 interface BlogPostProps {
   post: BlogPost;
