@@ -32,12 +32,16 @@ export type ContactSection = {
   enabled: boolean;
 };
 
+export type MemberRole = "master_admin" | "admin" | "manager" | "team_member";
+
 export type TeamMember = {
   id: string;
   name: string;
   position: string;
   image: string;
   bio: string;
+  role?: MemberRole;
+  showOnWebsite?: boolean;
 };
 
 export type StatsData = {
@@ -124,21 +128,27 @@ const defaultSiteContent: SiteContent = {
       name: "Anurag Pareek",
       position: "Co-founder & CEO",
       image: "https://randomuser.me/api/portraits/men/1.jpg",
-      bio: "Co-founder of Adhirachna Engineering Solutions with extensive experience in architectural engineering."
+      bio: "Co-founder of Adhirachna Engineering Solutions with extensive experience in architectural engineering.",
+      role: "master_admin",
+      showOnWebsite: true
     },
     {
       id: "2",
       name: "Priya Sharma",
       position: "Chief Operating Officer",
       image: "https://randomuser.me/api/portraits/women/2.jpg",
-      bio: "Experienced operations leader with a background in infrastructure project management."
+      bio: "Experienced operations leader with a background in infrastructure project management.",
+      role: "admin",
+      showOnWebsite: true
     },
     {
       id: "3",
       name: "Rajesh Kumar",
       position: "Lead Engineer",
       image: "https://randomuser.me/api/portraits/men/3.jpg",
-      bio: "Structural engineering expert with over 10 years of experience in the field."
+      bio: "Structural engineering expert with over 10 years of experience in the field.",
+      role: "team_member",
+      showOnWebsite: true
     }
   ],
   stats: {

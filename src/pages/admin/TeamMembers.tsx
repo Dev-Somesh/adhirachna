@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { PlusCircle, Pencil, Trash, Eye } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { useSiteContent, TeamMember } from "@/context/SiteContext";
+import { useSiteContent, TeamMember, MemberRole } from "@/context/SiteContext";
 import { Link } from "react-router-dom";
 import { 
   Select,
@@ -12,9 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Define roles for team members
-type MemberRole = "master_admin" | "admin" | "manager" | "team_member";
-
+// Define labels for roles
 const roleLabels: Record<MemberRole, string> = {
   master_admin: "Master Admin",
   admin: "Admin",
@@ -22,25 +19,17 @@ const roleLabels: Record<MemberRole, string> = {
   team_member: "Team Member"
 };
 
-// Extended TeamMember type with role
-interface ExtendedTeamMember extends TeamMember {
-  role?: MemberRole;
-  showOnWebsite?: boolean;
-}
-
 const TeamMembers = () => {
   const { siteContent, updateTeamMember, addTeamMember, removeTeamMember } = useSiteContent();
   const [isEditing, setIsEditing] = useState(false);
-  const [editingMember, setEditingMember] = useState<ExtendedTeamMember | null>(null);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   
   const handleEdit = (member: TeamMember) => {
-    // Convert TeamMember to ExtendedTeamMember if needed
-    const extendedMember: ExtendedTeamMember = {
+    setEditingMember({
       ...member,
-      role: (member as ExtendedTeamMember).role || "team_member",
-      showOnWebsite: (member as ExtendedTeamMember).showOnWebsite !== false // default to true
-    };
-    setEditingMember(extendedMember);
+      role: member.role || "team_member",
+      showOnWebsite: member.showOnWebsite !== false // default to true
+    });
     setIsEditing(true);
   };
   
@@ -74,8 +63,7 @@ const TeamMembers = () => {
         image, 
         bio, 
         role, 
-        showOnWebsite,
-        id: "" // This will be replaced with a generated ID in the context
+        showOnWebsite
       });
       toast({
         title: "Team Member Added",
@@ -235,55 +223,51 @@ const TeamMembers = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {siteContent.teamMembers.map(member => {
-            // Cast to extended member
-            const extendedMember = member as ExtendedTeamMember;
-            return (
-              <div key={member.id} className="glass-card p-6">
-                <div className="flex items-center mb-4">
-                  <img 
-                    src={member.image} 
-                    alt={member.name} 
-                    className="w-16 h-16 rounded-full object-cover mr-4"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder.svg';
-                    }}
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-adhirachna-darkblue">{member.name}</h3>
-                    <p className="text-adhirachna-blue">{member.position}</p>
-                    <div className="flex items-center mt-1">
-                      <span className="text-xs bg-adhirachna-light text-adhirachna-darkblue px-2 py-0.5 rounded">
-                        {extendedMember.role ? roleLabels[extendedMember.role as MemberRole] : "Team Member"}
+          {siteContent.teamMembers.map(member => (
+            <div key={member.id} className="glass-card p-6">
+              <div className="flex items-center mb-4">
+                <img 
+                  src={member.image} 
+                  alt={member.name} 
+                  className="w-16 h-16 rounded-full object-cover mr-4"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                  }}
+                />
+                <div>
+                  <h3 className="text-lg font-semibold text-adhirachna-darkblue">{member.name}</h3>
+                  <p className="text-adhirachna-blue">{member.position}</p>
+                  <div className="flex items-center mt-1">
+                    <span className="text-xs bg-adhirachna-light text-adhirachna-darkblue px-2 py-0.5 rounded">
+                      {member.role ? roleLabels[member.role as MemberRole] : "Team Member"}
+                    </span>
+                    {member.showOnWebsite !== false && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2">
+                        Visible
                       </span>
-                      {extendedMember.showOnWebsite !== false && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2">
-                          Visible
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-                
-                <p className="text-adhirachna-gray mb-4">{member.bio}</p>
-                
-                <div className="flex justify-end space-x-2">
-                  <button
-                    className="p-2 text-adhirachna-gray hover:text-adhirachna-blue transition-colors"
-                    onClick={() => handleEdit(member)}
-                  >
-                    <Pencil className="h-5 w-5" />
-                  </button>
-                  <button
-                    className="p-2 text-adhirachna-gray hover:text-red-500 transition-colors"
-                    onClick={() => handleDelete(member.id)}
-                  >
-                    <Trash className="h-5 w-5" />
-                  </button>
-                </div>
               </div>
-            );
-          })}
+              
+              <p className="text-adhirachna-gray mb-4">{member.bio}</p>
+              
+              <div className="flex justify-end space-x-2">
+                <button
+                  className="p-2 text-adhirachna-gray hover:text-adhirachna-blue transition-colors"
+                  onClick={() => handleEdit(member)}
+                >
+                  <Pencil className="h-5 w-5" />
+                </button>
+                <button
+                  className="p-2 text-adhirachna-gray hover:text-red-500 transition-colors"
+                  onClick={() => handleDelete(member.id)}
+                >
+                  <Trash className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
