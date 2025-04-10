@@ -5,10 +5,17 @@ import Footer from '../components/Footer';
 import { Helmet } from 'react-helmet';
 import { useInView } from '../components/ui/motion';
 import { CheckCircle } from 'lucide-react';
+import { useSiteContent } from '@/context/SiteContext';
 
 const About = () => {
   const { ref, isInView } = useInView();
   const { ref: refValues, isInView: isValuesInView } = useInView();
+  const { siteContent } = useSiteContent();
+
+  // Filter team members that should show on the website
+  const visibleTeamMembers = siteContent.teamMembers.filter(member => 
+    (member as any).showOnWebsite !== false
+  );
 
   return (
     <>
@@ -123,59 +130,36 @@ const About = () => {
             </section>
 
             {/* Our Team */}
-            <section className="mt-16 mb-12">
-              <h2 className="text-3xl font-semibold mb-8 text-adhirachna-darkblue">Our Team</h2>
-              <p className="text-lg text-adhirachna-gray mb-12">
-                Meet the dedicated professionals behind Adhirachna Engineering Solutions.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="glass-card p-6 text-center">
-                  <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
-                    <img 
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                      alt="Anurag Pareek" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-1 text-adhirachna-darkblue">Anurag Pareek</h3>
-                  <p className="text-adhirachna-blue mb-3">Founder & CEO</p>
-                  <p className="text-adhirachna-gray mb-4">
-                    With over 10 years of experience in engineering, Anurag leads our team with vision and expertise.
-                  </p>
+            {visibleTeamMembers.length > 0 && (
+              <section className="mt-16 mb-12">
+                <h2 className="text-3xl font-semibold mb-8 text-adhirachna-darkblue">Our Team</h2>
+                <p className="text-lg text-adhirachna-gray mb-12">
+                  Meet the dedicated professionals behind Adhirachna Engineering Solutions.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {visibleTeamMembers.map((member) => (
+                    <div key={member.id} className="glass-card p-6 text-center">
+                      <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
+                        <img 
+                          src={member.image} 
+                          alt={member.name} 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/placeholder.svg';
+                          }}
+                        />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-1 text-adhirachna-darkblue">{member.name}</h3>
+                      <p className="text-adhirachna-blue mb-3">{member.position}</p>
+                      <p className="text-adhirachna-gray mb-4">
+                        {member.bio}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="glass-card p-6 text-center">
-                  <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
-                    <img 
-                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                      alt="Priya Sharma" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-1 text-adhirachna-darkblue">Priya Sharma</h3>
-                  <p className="text-adhirachna-blue mb-3">Chief Engineer</p>
-                  <p className="text-adhirachna-gray mb-4">
-                    Specializing in structural design, Priya ensures all our projects meet the highest engineering standards.
-                  </p>
-                </div>
-
-                <div className="glass-card p-6 text-center">
-                  <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
-                    <img 
-                      src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                      alt="Rahul Verma" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-1 text-adhirachna-darkblue">Rahul Verma</h3>
-                  <p className="text-adhirachna-blue mb-3">Project Manager</p>
-                  <p className="text-adhirachna-gray mb-4">
-                    Rahul's exceptional organizational skills ensure all our projects are delivered on time and within budget.
-                  </p>
-                </div>
-              </div>
-            </section>
+              </section>
+            )}
           </div>
         </main>
         

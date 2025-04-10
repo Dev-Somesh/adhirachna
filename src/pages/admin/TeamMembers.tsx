@@ -4,14 +4,43 @@ import { PlusCircle, Pencil, Trash, Eye } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useSiteContent, TeamMember } from "@/context/SiteContext";
 import { Link } from "react-router-dom";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Define roles for team members
+type MemberRole = "master_admin" | "admin" | "manager" | "team_member";
+
+const roleLabels: Record<MemberRole, string> = {
+  master_admin: "Master Admin",
+  admin: "Admin",
+  manager: "Manager",
+  team_member: "Team Member"
+};
+
+// Extended TeamMember type with role
+interface ExtendedTeamMember extends TeamMember {
+  role?: MemberRole;
+  showOnWebsite?: boolean;
+}
 
 const TeamMembers = () => {
   const { siteContent, updateTeamMember, addTeamMember, removeTeamMember } = useSiteContent();
   const [isEditing, setIsEditing] = useState(false);
-  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [editingMember, setEditingMember] = useState<ExtendedTeamMember | null>(null);
   
   const handleEdit = (member: TeamMember) => {
-    setEditingMember(member);
+    // Convert TeamMember to ExtendedTeamMember if needed
+    const extendedMember: ExtendedTeamMember = {
+      ...member,
+      role: (member as ExtendedTeamMember).role || "team_member",
+      showOnWebsite: (member as ExtendedTeamMember).showOnWebsite !== false // default to true
+    };
+    setEditingMember(extendedMember);
     setIsEditing(true);
   };
   
@@ -38,8 +67,16 @@ const TeamMembers = () => {
       });
     } else {
       // Add new member
-      const { name, position, image, bio } = editingMember;
-      addTeamMember({ name, position, image, bio });
+      const { name, position, image, bio, role, showOnWebsite } = editingMember;
+      addTeamMember({ 
+        name, 
+        position, 
+        image, 
+        bio, 
+        role, 
+        showOnWebsite,
+        id: "" // This will be replaced with a generated ID in the context
+      });
       toast({
         title: "Team Member Added",
         description: "A new team member has been added successfully. They will now appear on the website."
@@ -56,7 +93,9 @@ const TeamMembers = () => {
       name: "",
       position: "",
       image: "https://randomuser.me/api/portraits/lego/1.jpg", // Default image
-      bio: ""
+      bio: "",
+      role: "team_member",
+      showOnWebsite: true
     });
     setIsEditing(true);
   };
@@ -72,12 +111,12 @@ const TeamMembers = () => {
         <h2 className="text-2xl font-bold">Team Members</h2>
         <div className="flex space-x-4">
           <Link 
-            to="/" 
+            to="/about" 
             target="_blank"
             className="btn-secondary flex items-center"
           >
             <Eye className="mr-2 h-5 w-5" />
-            Preview Website
+            Preview Team Page
           </Link>
           <button 
             className="btn-primary flex items-center"
@@ -145,6 +184,38 @@ const TeamMembers = () => {
               ></textarea>
             </div>
             
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-adhirachna-darkblue mb-2">Role</label>
+                <Select 
+                  value={editingMember?.role || "team_member"}
+                  onValueChange={(value) => setEditingMember({...editingMember!, role: value as MemberRole})}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(roleLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox"
+                    checked={editingMember?.showOnWebsite !== false}
+                    onChange={e => setEditingMember({...editingMember!, showOnWebsite: e.target.checked})}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-adhirachna-blue"></div>
+                  <span className="ml-3 text-adhirachna-darkblue">Show on Website</span>
+                </label>
+              </div>
+            </div>
+            
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
@@ -164,38 +235,55 @@ const TeamMembers = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {siteContent.teamMembers.map(member => (
-            <div key={member.id} className="glass-card p-6">
-              <div className="flex items-center mb-4">
-                <img 
-                  src={member.image} 
-                  alt={member.name} 
-                  className="w-16 h-16 rounded-full object-cover mr-4"
-                />
-                <div>
-                  <h3 className="text-lg font-semibold text-adhirachna-darkblue">{member.name}</h3>
-                  <p className="text-adhirachna-blue">{member.position}</p>
+          {siteContent.teamMembers.map(member => {
+            // Cast to extended member
+            const extendedMember = member as ExtendedTeamMember;
+            return (
+              <div key={member.id} className="glass-card p-6">
+                <div className="flex items-center mb-4">
+                  <img 
+                    src={member.image} 
+                    alt={member.name} 
+                    className="w-16 h-16 rounded-full object-cover mr-4"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    }}
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-adhirachna-darkblue">{member.name}</h3>
+                    <p className="text-adhirachna-blue">{member.position}</p>
+                    <div className="flex items-center mt-1">
+                      <span className="text-xs bg-adhirachna-light text-adhirachna-darkblue px-2 py-0.5 rounded">
+                        {extendedMember.role ? roleLabels[extendedMember.role as MemberRole] : "Team Member"}
+                      </span>
+                      {extendedMember.showOnWebsite !== false && (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2">
+                          Visible
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <p className="text-adhirachna-gray mb-4">{member.bio}</p>
+                
+                <div className="flex justify-end space-x-2">
+                  <button
+                    className="p-2 text-adhirachna-gray hover:text-adhirachna-blue transition-colors"
+                    onClick={() => handleEdit(member)}
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                  <button
+                    className="p-2 text-adhirachna-gray hover:text-red-500 transition-colors"
+                    onClick={() => handleDelete(member.id)}
+                  >
+                    <Trash className="h-5 w-5" />
+                  </button>
                 </div>
               </div>
-              
-              <p className="text-adhirachna-gray mb-4">{member.bio}</p>
-              
-              <div className="flex justify-end space-x-2">
-                <button
-                  className="p-2 text-adhirachna-gray hover:text-adhirachna-blue transition-colors"
-                  onClick={() => handleEdit(member)}
-                >
-                  <Pencil className="h-5 w-5" />
-                </button>
-                <button
-                  className="p-2 text-adhirachna-gray hover:text-red-500 transition-colors"
-                  onClick={() => handleDelete(member.id)}
-                >
-                  <Trash className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -6,6 +6,8 @@ import { z } from "zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -28,6 +30,10 @@ type SettingsFormValues = z.infer<typeof settingsSchema>;
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState<"general" | "password">("general");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   const passwordForm = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
@@ -48,28 +54,68 @@ const Settings = () => {
     },
   });
   
-  const onPasswordSubmit = (data: PasswordFormValues) => {
-    // In a real app, this would update the password on the server
-    console.log("Password update data:", data);
-    
-    // Check if current password is "admin" (simulating validation)
-    if (data.currentPassword !== "admin") {
+  const onPasswordSubmit = async (data: PasswordFormValues) => {
+    setLoading(true);
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to update your password",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // First verify current password by trying to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email as string,
+        password: data.currentPassword,
+      });
+      
+      if (signInError) {
+        toast({
+          title: "Error",
+          description: "Current password is incorrect",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Now update the password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: data.newPassword,
+      });
+      
+      if (updateError) {
+        toast({
+          title: "Error",
+          description: updateError.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Show success message
+      toast({
+        title: "Password Updated",
+        description: "Your password has been updated successfully",
+      });
+      
+      // Reset form
+      passwordForm.reset();
+    } catch (error) {
+      console.error("Password update error:", error);
       toast({
         title: "Error",
-        description: "Current password is incorrect",
+        description: "An unexpected error occurred while updating your password",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-    
-    // Show success message
-    toast({
-      title: "Password Updated",
-      description: "Your password has been updated successfully",
-    });
-    
-    // Reset form
-    passwordForm.reset();
   };
   
   const onSettingsSubmit = (data: SettingsFormValues) => {
@@ -81,6 +127,12 @@ const Settings = () => {
       title: "Settings Updated",
       description: "Your company settings have been updated successfully",
     });
+  };
+
+  const togglePasswordVisibility = (field: "current" | "new" | "confirm") => {
+    if (field === "current") setShowCurrentPassword(!showCurrentPassword);
+    else if (field === "new") setShowNewPassword(!showNewPassword);
+    else setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
@@ -204,7 +256,19 @@ const Settings = () => {
                     <FormItem>
                       <FormLabel>Current Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <div className="relative">
+                          <Input 
+                            type={showCurrentPassword ? "text" : "password"} 
+                            {...field} 
+                          />
+                          <button 
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-adhirachna-gray hover:text-adhirachna-darkblue"
+                            onClick={() => togglePasswordVisibility("current")}
+                          >
+                            {showCurrentPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -218,7 +282,19 @@ const Settings = () => {
                     <FormItem>
                       <FormLabel>New Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <div className="relative">
+                          <Input 
+                            type={showNewPassword ? "text" : "password"} 
+                            {...field} 
+                          />
+                          <button 
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-adhirachna-gray hover:text-adhirachna-darkblue"
+                            onClick={() => togglePasswordVisibility("new")}
+                          >
+                            {showNewPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormDescription>
                         Password must be at least 6 characters.
@@ -235,7 +311,19 @@ const Settings = () => {
                     <FormItem>
                       <FormLabel>Confirm New Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <div className="relative">
+                          <Input 
+                            type={showConfirmPassword ? "text" : "password"} 
+                            {...field} 
+                          />
+                          <button 
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-adhirachna-gray hover:text-adhirachna-darkblue"
+                            onClick={() => togglePasswordVisibility("confirm")}
+                          >
+                            {showConfirmPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -253,8 +341,9 @@ const Settings = () => {
                   <button
                     type="submit"
                     className="btn-primary"
+                    disabled={loading}
                   >
-                    Update Password
+                    {loading ? "Updating..." : "Update Password"}
                   </button>
                 </div>
               </form>

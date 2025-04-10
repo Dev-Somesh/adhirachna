@@ -13,7 +13,6 @@ import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import ContentManagement from "./pages/admin/ContentManagement";
 import TeamMembers from "./pages/admin/TeamMembers";
-import Messages from "./pages/admin/Messages";
 import Settings from "./pages/admin/Settings";
 import BlogManagement from "./pages/admin/BlogManagement";
 import Blog from "./pages/Blog";
@@ -67,7 +66,6 @@ const App = () => (
               <Route path="content" element={<ContentManagement />} />
               <Route path="blog" element={<BlogManagement />} />
               <Route path="team" element={<TeamMembers />} />
-              <Route path="messages" element={<Messages />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             

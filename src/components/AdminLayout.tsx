@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { Navigate, Link, Outlet, useNavigate } from "react-router-dom";
-import { Home, Settings, LogOut, Users, FileText, Mail, BookOpen, Loader2 } from "lucide-react";
+import { Home, Settings, LogOut, Users, FileText, BookOpen } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { supabase, signOut } from "@/integrations/supabase/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -59,7 +59,6 @@ const AdminLayout = () => {
           setAuthenticated(true);
           localStorage.setItem("adhirachna_admin_logged_in", "true");
         } else if (event === 'SIGNED_OUT') {
-          // Fixed: Removed comparison with 'USER_DELETED' which was causing the type error
           setAuthenticated(false);
           localStorage.removeItem("adhirachna_admin_logged_in");
           navigate("/login");
@@ -192,15 +191,6 @@ const AdminLayout = () => {
               >
                 <Users className="mr-3 h-5 w-5" />
                 Team Members
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/admin/messages" 
-                className="flex items-center p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
-              >
-                <Mail className="mr-3 h-5 w-5" />
-                Messages
               </Link>
             </li>
             <li>

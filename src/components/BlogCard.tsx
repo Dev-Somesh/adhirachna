@@ -1,7 +1,8 @@
 
-import { Calendar, Eye } from 'lucide-react';
+import { Calendar, Eye, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { useState } from 'react';
 
 type BlogPost = {
   id: string;
@@ -19,18 +20,32 @@ interface BlogCardProps {
   post: BlogPost;
 }
 
+const placeholderImages = [
+  '/placeholder.svg',
+  'https://images.unsplash.com/photo-1603899122634-f086ca5f5ddd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1581092160607-ee22621dd758?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+];
+
 const BlogCard = ({ post }: BlogCardProps) => {
+  const [imageSrc, setImageSrc] = useState(post.image || placeholderImages[0]);
+  const [placeholderIndex, setPlaceholderIndex] = useState(1);
+
+  const handleImageError = () => {
+    // Choose next placeholder image in rotation
+    setImageSrc(placeholderImages[placeholderIndex % placeholderImages.length]);
+    setPlaceholderIndex(prev => prev + 1);
+  };
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-soft hover:shadow-md transition-shadow">
       <Link to={`/blog/${post.id}`}>
         <div className="h-48 overflow-hidden">
           <img 
-            src={post.image || '/placeholder.svg'} 
+            src={imageSrc} 
             alt={post.title} 
             className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/placeholder.svg';
-            }}
+            onError={handleImageError}
           />
         </div>
       </Link>
@@ -55,6 +70,26 @@ const BlogCard = ({ post }: BlogCardProps) => {
         <p className="text-adhirachna-gray mb-4 line-clamp-2">
           {post.excerpt}
         </p>
+
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-4">
+            {post.tags.slice(0, 3).map((tag, index) => (
+              <Link 
+                key={index} 
+                to={`/blog?tag=${encodeURIComponent(tag)}`}
+                className="text-xs bg-adhirachna-light text-adhirachna-darkblue px-2 py-1 rounded-full hover:bg-adhirachna-blue/20 transition-colors flex items-center"
+              >
+                <Tag className="w-3 h-3 mr-1" />
+                {tag}
+              </Link>
+            ))}
+            {post.tags.length > 3 && (
+              <span className="text-xs bg-adhirachna-light text-adhirachna-darkblue px-2 py-1 rounded-full">
+                +{post.tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
         
         <div className="flex items-center justify-between">
           <div className="flex items-center text-adhirachna-gray text-sm">
