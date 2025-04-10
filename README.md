@@ -3,7 +3,7 @@
 ## Project info
 
 **URL**: https://lovable.dev/projects/e93674f8-89ad-4352-9f6c-14f77d9693d0
-
+[![Netlify Status](https://api.netlify.com/api/v1/badges/ffae4aca-ada0-4b8d-b600-7833e23d7535/deploy-status)](https://app.netlify.com/sites/adhirachna/deploys)
 ## How can I edit this code?
 
 There are several ways of editing your application.
