@@ -7,28 +7,12 @@ import BlogCard from '@/components/BlogCard';
 import BlogSidebar from '@/components/BlogSidebar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, Loader2, X } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import type { Database } from '@/integrations/supabase/types';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  author: string;
-  date: string;
-  category: string;
-  image: string;
-  tags: string[];
-  views: number;
-}
-
-interface Category {
-  name: string;
-  count: number;
-}
+import type { BlogPost, Category } from '@/types/blog';
 
 // Function to fetch blog posts
 const fetchBlogPosts = async (): Promise<BlogPost[]> => {
@@ -52,8 +36,10 @@ const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
+  const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'recent');
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  const [allTags, setAllTags] = useState<string[]>([]);
   
   // Fetch blog posts
   const { data: posts = [], isLoading, error } = useQuery({
@@ -61,23 +47,48 @@ const Blog = () => {
     queryFn: fetchBlogPosts
   });
   
+  // Extract all unique tags from posts
+  useEffect(() => {
+    if (posts && posts.length > 0) {
+      const tagsSet = new Set<string>();
+      
+      posts.forEach(post => {
+        if (post.tags && Array.isArray(post.tags)) {
+          post.tags.forEach(tag => tagsSet.add(tag));
+        }
+      });
+      
+      setAllTags(Array.from(tagsSet));
+    }
+  }, [posts]);
+  
   // Update filtered posts when data changes
   useEffect(() => {
     if (!posts) return;
     
-    // Filter by search term and category
+    // Filter by search term, category, and tag
     let results = [...posts];
     
     if (searchTerm) {
       results = results.filter(post => 
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        (post.tags && Array.isArray(post.tags) && post.tags.some(tag => 
+          tag.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
       );
     }
     
     if (selectedCategory !== 'All') {
       results = results.filter(post => post.category === selectedCategory);
+    }
+    
+    if (selectedTag) {
+      results = results.filter(post => 
+        post.tags && 
+        Array.isArray(post.tags) && 
+        post.tags.includes(selectedTag)
+      );
     }
     
     // Sort posts
@@ -88,17 +99,18 @@ const Blog = () => {
     }
     
     setFilteredPosts(results);
-  }, [posts, searchTerm, selectedCategory, sortBy]);
+  }, [posts, searchTerm, selectedCategory, selectedTag, sortBy]);
   
   // Update URL params when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchTerm) params.set('search', searchTerm);
     if (selectedCategory !== 'All') params.set('category', selectedCategory);
+    if (selectedTag) params.set('tag', selectedTag);
     if (sortBy !== 'recent') params.set('sort', sortBy);
     
     setSearchParams(params);
-  }, [searchTerm, selectedCategory, sortBy, setSearchParams]);
+  }, [searchTerm, selectedCategory, selectedTag, sortBy, setSearchParams]);
   
   // Generate categories from posts
   const categories: Category[] = useMemo(() => {
@@ -116,6 +128,15 @@ const Blog = () => {
     
     return [{ name: 'All', count: posts.length }, ...categoryList];
   }, [posts]);
+
+  // Handle tag selection
+  const handleTagClick = (tag: string) => {
+    if (selectedTag === tag) {
+      setSelectedTag('');
+    } else {
+      setSelectedTag(tag);
+    }
+  };
   
   return (
     <>
@@ -161,6 +182,42 @@ const Blog = () => {
                   </Button>
                 </div>
               </div>
+
+              {/* Show selected tag if any */}
+              {selectedTag && (
+                <div className="mb-4 flex items-center">
+                  <span className="mr-2 text-adhirachna-darkblue">Filtered by tag:</span>
+                  <Badge 
+                    className="bg-adhirachna-green text-white flex items-center gap-1 cursor-pointer" 
+                    onClick={() => setSelectedTag('')}
+                  >
+                    {selectedTag}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                </div>
+              )}
+
+              {/* Show all available tags */}
+              {allTags.length > 0 && (
+                <div className="mb-6">
+                  <div className="text-sm text-adhirachna-darkblue mb-2">Popular tags:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {allTags.slice(0, 10).map(tag => (
+                      <Badge
+                        key={tag}
+                        className={`cursor-pointer ${
+                          selectedTag === tag 
+                            ? 'bg-adhirachna-green text-white' 
+                            : 'bg-adhirachna-light text-adhirachna-darkblue hover:bg-adhirachna-green hover:text-white'
+                        }`}
+                        onClick={() => handleTagClick(tag)}
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               {isLoading ? (
                 <div className="flex justify-center items-center p-12">
@@ -200,6 +257,9 @@ const Blog = () => {
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
                 recentPosts={posts.slice(0, 3)}
+                allTags={allTags}
+                selectedTag={selectedTag}
+                onTagClick={handleTagClick}
               />
             </div>
           </div>

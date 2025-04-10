@@ -45,6 +45,20 @@ const BlogDetail = () => {
     
     return [{ name: 'All', count: allPosts.length }, ...categoryList];
   }, [allPosts, allPostsLoading]);
+
+  // Extract all unique tags
+  const allTags = useMemo(() => {
+    if (!allPosts || allPosts.length === 0) return [];
+    
+    const tagsSet = new Set<string>();
+    allPosts.forEach(post => {
+      if (post.tags && Array.isArray(post.tags)) {
+        post.tags.forEach(tag => tagsSet.add(tag));
+      }
+    });
+    
+    return Array.from(tagsSet);
+  }, [allPosts]);
   
   // Scroll to top when post changes
   useEffect(() => {
@@ -91,14 +105,15 @@ const BlogDetail = () => {
               }`}
             >
               <BlogPost post={post} />
-              <div className="bg-white rounded-lg shadow-soft p-6">
-                <SocialShare postTitle={post.title} />
+              <div className="mt-8 bg-white rounded-lg shadow-soft p-6">
+                <SocialShare postTitle={post.title} slug={post.id} />
               </div>
             </div>
             
             <BlogSidebarWrapper 
               categories={categories} 
-              recentPosts={allPosts.slice(0, 3)} 
+              recentPosts={allPosts.slice(0, 3)}
+              allTags={allTags}
             />
           </div>
         </div>

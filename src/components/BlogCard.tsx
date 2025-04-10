@@ -25,9 +25,12 @@ const BlogCard = ({ post }: BlogCardProps) => {
       <Link to={`/blog/${post.id}`}>
         <div className="h-48 overflow-hidden">
           <img 
-            src={post.image} 
+            src={post.image || '/placeholder.svg'} 
             alt={post.title} 
             className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }}
           />
         </div>
       </Link>

@@ -6,18 +6,26 @@ import { toast } from '@/components/ui/use-toast';
 
 interface SocialShareProps {
   postTitle: string;
+  slug?: string;
 }
 
-const SocialShare = ({ postTitle }: SocialShareProps) => {
+const SocialShare = ({ postTitle, slug }: SocialShareProps) => {
   const [pageUrl, setPageUrl] = useState('');
+  const [shortUrl, setShortUrl] = useState('');
   
   // Get current URL for sharing
   useEffect(() => {
-    setPageUrl(window.location.href);
-  }, []);
+    const url = window.location.href;
+    setPageUrl(url);
+    
+    // Create a cleaner short URL for sharing
+    const baseUrl = window.location.origin;
+    const cleanSlug = slug || url.split('/').pop() || '';
+    setShortUrl(`${baseUrl}/blog/${cleanSlug}`);
+  }, [slug]);
 
   const handleShareLink = () => {
-    navigator.clipboard.writeText(pageUrl);
+    navigator.clipboard.writeText(shortUrl);
     toast({
       title: "Link Copied",
       description: "The article URL has been copied to your clipboard",
@@ -25,17 +33,17 @@ const SocialShare = ({ postTitle }: SocialShareProps) => {
   };
   
   const shareToLinkedIn = () => {
-    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(postTitle)}`;
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shortUrl)}&title=${encodeURIComponent(postTitle)}`;
     window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
   };
   
   const shareToTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(postTitle)}`;
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shortUrl)}&text=${encodeURIComponent(postTitle)}`;
     window.open(twitterUrl, '_blank', 'noopener,noreferrer');
   };
   
   return (
-    <div className="mt-8 bg-adhirachna-light p-6 rounded-xl">
+    <div>
       <h3 className="text-lg font-semibold text-adhirachna-darkblue mb-4">Share this article</h3>
       <div className="flex flex-wrap items-center gap-3">
         <Button 
@@ -69,7 +77,7 @@ const SocialShare = ({ postTitle }: SocialShareProps) => {
       <div className="mt-4 flex items-center gap-2 text-sm text-adhirachna-gray">
         <input 
           type="text" 
-          value={pageUrl} 
+          value={shortUrl} 
           readOnly 
           className="flex-grow bg-white p-2 rounded border text-sm text-adhirachna-darkblue" 
         />

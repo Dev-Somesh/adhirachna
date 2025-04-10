@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Calendar, User, Eye, Tag, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
 import type { BlogPost } from '@/types/blog';
 
 interface BlogPostProps {
@@ -19,9 +20,12 @@ const BlogPost = ({ post }: BlogPostProps) => {
       <div className="bg-white rounded-lg shadow-soft overflow-hidden">
         <div className="h-96 overflow-hidden">
           <img 
-            src={post.image} 
+            src={post.image || '/placeholder.svg'} 
             alt={post.title} 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }}
           />
         </div>
         
@@ -59,7 +63,7 @@ const BlogPost = ({ post }: BlogPostProps) => {
               <span className="text-adhirachna-darkblue font-medium">Tags:</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {post.tags && post.tags.length > 0 ? (
+              {post.tags && Array.isArray(post.tags) && post.tags.length > 0 ? (
                 post.tags.map((tag: string) => (
                   <Link 
                     key={tag} 

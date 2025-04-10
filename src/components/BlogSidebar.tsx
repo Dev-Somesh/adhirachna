@@ -21,13 +21,19 @@ interface BlogSidebarProps {
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
   recentPosts: BlogPost[];
+  allTags?: string[];
+  selectedTag?: string;
+  onTagClick?: (tag: string) => void;
 }
 
 const BlogSidebar = ({ 
   categories, 
   selectedCategory, 
   setSelectedCategory, 
-  recentPosts 
+  recentPosts,
+  allTags = [], 
+  selectedTag = '',
+  onTagClick = () => {}
 }: BlogSidebarProps) => {
   return (
     <div className="space-y-8">
@@ -63,9 +69,12 @@ const BlogSidebar = ({
                 <Link to={`/blog/${post.id}`} className="flex-shrink-0">
                   <div className="w-20 h-20 rounded overflow-hidden">
                     <img 
-                      src={post.image} 
+                      src={post.image || '/placeholder.svg'} 
                       alt={post.title} 
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder.svg';
+                      }}
                     />
                   </div>
                 </Link>
@@ -91,15 +100,23 @@ const BlogSidebar = ({
       <div className="bg-white rounded-lg shadow-soft p-6">
         <h3 className="text-xl font-semibold text-adhirachna-darkblue mb-4">Tags</h3>
         <div className="flex flex-wrap gap-2">
-          {['infrastructure', 'sustainability', 'technology', 'innovation', 'engineering', 'project management', 'analysis', 'design', 'monitoring', 'structures'].map((tag) => (
-            <Link 
-              to={`/blog?tag=${tag}`} 
-              key={tag}
-              className="px-3 py-1 bg-adhirachna-light text-adhirachna-darkblue rounded-full text-sm hover:bg-adhirachna-green hover:text-white transition-colors"
-            >
-              {tag}
-            </Link>
-          ))}
+          {allTags.length > 0 ? (
+            allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => onTagClick(tag)}
+                className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                  selectedTag === tag
+                    ? 'bg-adhirachna-green text-white'
+                    : 'bg-adhirachna-light text-adhirachna-darkblue hover:bg-adhirachna-green hover:text-white'
+                }`}
+              >
+                {tag}
+              </button>
+            ))
+          ) : (
+            <p className="text-adhirachna-gray text-sm">No tags available.</p>
+          )}
         </div>
       </div>
     </div>
