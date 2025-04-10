@@ -122,6 +122,9 @@ const Settings = () => {
     // In a real app, this would save to a database
     console.log("Settings update data:", data);
     
+    // Store settings in localStorage for persistence
+    localStorage.setItem("adhirachna_company_settings", JSON.stringify(data));
+    
     // Show success message
     toast({
       title: "Settings Updated",

@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { useSiteContent } from "@/context/SiteContext";
 import { Eye } from "lucide-react";
@@ -23,11 +24,17 @@ type FormValues = {
 const ContentManagement = () => {
   const { siteContent, updateSection } = useSiteContent();
   const [activeTab, setActiveTab] = useState<SectionType>("hero");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Define form with type
   const form = useForm<FormValues>({
     defaultValues: getSectionData(activeTab)
   });
+  
+  // Update form when activeTab changes
+  useEffect(() => {
+    form.reset(getSectionData(activeTab));
+  }, [activeTab, form, siteContent]);
   
   // Function to get the appropriate section data based on the active tab
   function getSectionData(tab: SectionType): FormValues {
@@ -71,13 +78,27 @@ const ContentManagement = () => {
   };
   
   const onSubmit = (data: FormValues) => {
-    // Update the site content with the new data
-    updateSection(activeTab, data);
+    setIsSubmitting(true);
     
-    toast({
-      title: "Changes Saved",
-      description: "Your content changes have been saved and are now visible on the website."
-    });
+    try {
+      // Update the site content with the new data
+      updateSection(activeTab, data);
+      
+      toast({
+        title: "Changes Saved",
+        description: "Your content changes have been saved and are now visible on the website."
+      });
+    } catch (error) {
+      console.error("Error updating content:", error);
+      
+      toast({
+        title: "Error Saving Changes",
+        description: "There was a problem saving your changes. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Function to check if the current section has content field
@@ -184,11 +205,9 @@ const ContentManagement = () => {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                     <FormControl>
-                      <input
-                        type="checkbox"
+                      <Switch 
                         checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                        className="h-4 w-4"
+                        onCheckedChange={field.onChange}
                       />
                     </FormControl>
                     <FormLabel className="font-normal">
@@ -210,8 +229,9 @@ const ContentManagement = () => {
                 <button
                   type="submit"
                   className="btn-primary"
+                  disabled={isSubmitting}
                 >
-                  Save Changes
+                  {isSubmitting ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>
