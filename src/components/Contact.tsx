@@ -40,23 +40,18 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare form data for Netlify submission
-      const formData = new FormData();
-      formData.append('form-name', 'contact');
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
+      // Encode data properly for Netlify forms
+      const encodedData = Object.keys(data).map(
+        (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key as keyof ContactFormValues] as string)
+      ).join("&");
 
-      // Hidden bot field to prevent spam
-      formData.append('bot-field', '');
-
-      // Send the form using fetch
-      const response = await fetch('/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json',
+      // Submit form using fetch
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/x-www-form-urlencoded" 
         },
+        body: `form-name=contact&${encodedData}`,
       });
 
       if (response.ok) {
@@ -215,13 +210,16 @@ const Contact = () => {
               <form 
                 onSubmit={form.handleSubmit(onSubmit)} 
                 className="space-y-6"
-                data-netlify="true"
                 name="contact"
+                method="POST"
+                data-netlify="true"
                 netlify-honeypot="bot-field"
               >
                 {/* Hidden fields for Netlify Forms */}
                 <input type="hidden" name="form-name" value="contact" />
-                <input type="hidden" name="bot-field" />
+                <div hidden>
+                  <input name="bot-field" />
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
@@ -345,14 +343,9 @@ const Contact = () => {
           </div>
         </div>
       </div>
-      <form 
-        name="contact"
-        method="POST"
-        data-netlify="true"
-        data-netlify-honeypot="bot-field"
-        netlify-honeypot="bot-field"
-        hidden
-      >
+      
+      {/* This hidden form helps Netlify detect your form at build time */}
+      <form name="contact" netlify netlify-honeypot="bot-field" hidden>
         <input type="text" name="name" />
         <input type="email" name="email" />
         <input type="tel" name="phone" />

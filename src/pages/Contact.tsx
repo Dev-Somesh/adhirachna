@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -44,23 +43,18 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare form data for Netlify submission
-      const formData = new FormData();
-      formData.append('form-name', 'contact');
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
+      // Encode data properly for Netlify forms
+      const encodedData = Object.keys(data).map(
+        (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key as keyof ContactFormValues] as string)
+      ).join("&");
 
-      // Hidden bot field to prevent spam
-      formData.append('bot-field', '');
-
-      // Send the form using fetch
-      const response = await fetch('/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json',
+      // Submit form using fetch
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/x-www-form-urlencoded" 
         },
+        body: `form-name=contact&${encodedData}`,
       });
 
       if (response.ok) {
@@ -94,9 +88,8 @@ const Contact = () => {
       {/* Hidden form for Netlify to parse during build */}
       <form 
         name="contact" 
-        method="POST" 
-        data-netlify="true" 
-        data-netlify-honeypot="bot-field" 
+        netlify 
+        netlify-honeypot="bot-field" 
         hidden
       >
         <input type="text" name="name" />
@@ -243,14 +236,16 @@ const Contact = () => {
                     <form 
                       name="contact"
                       method="POST"
-                      data-netlify="true"
-                      data-netlify-honeypot="bot-field"
                       className="space-y-6"
                       onSubmit={form.handleSubmit(onSubmit)}
-                      // @ts-ignore - Netlify attributes are not in the HTML spec
+                      data-netlify="true"
+                      netlify-honeypot="bot-field"
                     >
                       {/* Hidden Netlify form fields */}
-                      <input type="hidden" name="bot-field" />
+                      <input type="hidden" name="form-name" value="contact" />
+                      <div hidden>
+                        <input name="bot-field" />
+                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
