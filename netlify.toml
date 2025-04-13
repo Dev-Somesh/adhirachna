@@ -1,7 +1,12 @@
 [build]
-  command = "npm install && npm run build:prod"
+  command = "npm install --legacy-peer-deps && npm run build:prod"
   publish = "dist"
-  environment = { NODE_VERSION = "18", NPM_VERSION = "10.8.2", NODE_ENV = "production" }
+  environment = { 
+    NODE_VERSION = "18", 
+    NPM_VERSION = "10.8.2", 
+    NODE_ENV = "production",
+    NODE_OPTIONS = "--experimental-modules --experimental-specifier-resolution=node"
+  }
 
 [build.processing]
   skip_processing = false
