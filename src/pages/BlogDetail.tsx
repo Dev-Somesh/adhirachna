@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -38,19 +37,20 @@ const BlogDetail = () => {
     queryFn: getBlogPosts
   });
 
+  
   // Convert Contentful posts to our internal format for the sidebar
   const convertedPosts = useMemo(() => {
     return allPosts.map(post => {
       const fields = post?.fields || {};
       
       return {
-        id: fields?.slug || post.sys.id,
-        title: fields?.title || 'Untitled',
-        date: fields?.date || fields?.publishDate || post.sys.createdAt,
-        image: fields?.featuredImage?.fields?.file?.url 
+        id: fields.slug || post.sys.id,
+        title: fields.title || 'Untitled',
+        date: fields.date || fields.publishDate || post.sys.createdAt,
+        image: fields.featuredImage?.fields?.file?.url 
           ? `https:${fields.featuredImage.fields.file.url}`
           : '/placeholder.svg',
-        views: fields?.viewCount || 0
+        views: fields.viewCount || 0
       };
     });
   }, [allPosts]);

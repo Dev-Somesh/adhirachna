@@ -14,15 +14,15 @@ const BlogPost = ({ post }: BlogPostProps) => {
   // Get fields with proper type safety
   const fields = post?.fields || {};
   
-  // Extract fields safely with optional chaining and defaults
-  const title = fields?.title || 'Untitled';
-  const author = fields?.author || 'Unknown';
-  const date = fields?.date || fields?.publishDate || post.sys.createdAt;
-  const content = fields?.content || fields?.body;
-  const category = fields?.category || 'Uncategorized';
-  const tags = fields?.tags || [];
-  const viewCount = fields?.viewCount || 0;
-  const imageUrl = fields?.featuredImage?.fields?.file?.url 
+  // Extract fields safely with explicit properties
+  const title = fields.title || 'Untitled';
+  const author = fields.author || 'Unknown';
+  const date = fields.date || fields.publishDate || post.sys.createdAt;
+  const content = fields.content || fields.body;
+  const category = fields.category || 'Uncategorized';
+  const tags = fields.tags || [];
+  const viewCount = fields.viewCount || 0;
+  const imageUrl = fields.featuredImage?.fields?.file?.url 
     ? `https:${fields.featuredImage.fields.file.url}`
     : '/placeholder.svg';
 
@@ -77,7 +77,7 @@ const BlogPost = ({ post }: BlogPostProps) => {
             </div>
           ) : (
             <div className="prose prose-adhirachna max-w-none mb-8">
-              <p>{fields?.excerpt || 'No content available'}</p>
+              <p>{fields.excerpt || 'No content available'}</p>
             </div>
           )}
           

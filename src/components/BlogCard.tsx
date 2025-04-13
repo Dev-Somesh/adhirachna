@@ -17,22 +17,22 @@ const placeholderImages = [
 ];
 
 const BlogCard = ({ post }: BlogCardProps) => {
-  // Get fields safely, ensuring it exists
+  // Safely access fields with more explicit type checking
   const fields = post?.fields || {};
   
   // Add explicit null/undefined checking with default values
-  const slug = fields?.slug || '';
-  const title = fields?.title || 'Untitled';
-  const excerpt = fields?.excerpt || '';
-  const author = fields?.author || 'Unknown';
-  const date = fields?.date || fields?.publishDate || post.sys.createdAt;
-  const category = fields?.category || 'Uncategorized';
-  const tags = fields?.tags || [];
-  const viewCount = fields?.viewCount || 0;
+  const slug = fields.slug || '';
+  const title = fields.title || 'Untitled';
+  const excerpt = fields.excerpt || '';
+  const author = fields.author || 'Unknown';
+  const date = fields.date || fields.publishDate || post.sys.createdAt;
+  const category = fields.category || 'Uncategorized';
+  const tags = fields.tags || [];
+  const viewCount = fields.viewCount || 0;
   
   // Get image URL from Contentful if available
   let initialImageSrc = '/placeholder.svg';
-  if (fields?.featuredImage?.fields?.file?.url) {
+  if (fields.featuredImage?.fields?.file?.url) {
     initialImageSrc = `https:${fields.featuredImage.fields.file.url}`;
   }
   

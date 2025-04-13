@@ -23,18 +23,18 @@ const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPost
     const fields = post?.fields || {};
     
     return {
-      id: fields?.slug || post.sys.id,
-      title: fields?.title || 'Untitled',
-      excerpt: fields?.excerpt || '',
+      id: fields.slug || post.sys.id,
+      title: fields.title || 'Untitled',
+      excerpt: fields.excerpt || '',
       content: '', // We don't store the full content in the list view
-      author: fields?.author || 'Unknown',
-      date: fields?.date || fields?.publishDate || post.sys.createdAt,
-      category: fields?.category || 'Uncategorized',
-      image: fields?.featuredImage?.fields?.file?.url 
+      author: fields.author || 'Unknown',
+      date: fields.date || fields.publishDate || post.sys.createdAt,
+      category: fields.category || 'Uncategorized',
+      image: fields.featuredImage?.fields?.file?.url 
         ? `https:${fields.featuredImage.fields.file.url}`
         : '/placeholder.svg',
-      tags: fields?.tags || [],
-      views: fields?.viewCount || 0,
+      tags: fields.tags || [],
+      views: fields.viewCount || 0,
       published: true
     };
   });

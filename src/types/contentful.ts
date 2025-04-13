@@ -1,5 +1,5 @@
 
-import { Entry, Asset, EntryFields } from 'contentful';
+import { Entry, Asset, EntryFields, EntryFieldTypes } from 'contentful';
 
 // Define the BlogPostFields interface that matches Contentful's structure
 export interface BlogPostFields {
@@ -17,7 +17,7 @@ export interface BlogPostFields {
   viewCount?: EntryFields.Integer;
 }
 
-// Define the BlogPostSkeleton interface with the correct structure
+// Define proper content type for BlogPostSkeleton
 export interface BlogPostSkeleton {
   contentTypeId: 'blogPost';
   fields: BlogPostFields;
