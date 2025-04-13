@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SiteProvider } from "./context/SiteContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -22,6 +22,9 @@ import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import { AuthProvider } from "@/context/AuthContext";
 import { ErrorBoundary } from "react-error-boundary";
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Create a React Query client with default options
 const queryClient = new QueryClient({
@@ -49,43 +52,82 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <AuthProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                
-                {/* Main navigation pages */}
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/contact" element={<Contact />} />
-                
-                {/* Blog pages */}
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:id" element={<BlogDetail />} />
-                
-                {/* Policy pages */}
-                <Route path="/privacy-policy" element={<PolicyPage />} />
-                <Route path="/terms-of-service" element={<PolicyPage />} />
-                <Route path="/cookie-policy" element={<PolicyPage />} />
-                
-                {/* Authentication */}
-                <Route path="/login" element={<Login />} />
-                
-                {/* Admin routes */}
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="content" element={<ContentManagement />} />
-                  <Route path="blog" element={<BlogManagement />} />
-                  <Route path="team" element={<TeamMembers />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route>
-                
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AuthProvider>
-          </BrowserRouter>
+          <AuthProvider>
+            <Router>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-grow">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    
+                    {/* Main navigation pages */}
+                    <Route path="/about" element={<About />} />
+                    <Route path="/services" element={<Services />} />
+                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/contact" element={<Contact />} />
+                    
+                    {/* Blog pages */}
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:id" element={<BlogDetail />} />
+                    
+                    {/* Policy pages */}
+                    <Route path="/privacy-policy" element={<PolicyPage />} />
+                    <Route path="/terms-of-service" element={<PolicyPage />} />
+                    <Route path="/cookie-policy" element={<PolicyPage />} />
+                    
+                    {/* Authentication */}
+                    <Route path="/login" element={<Login />} />
+                    
+                    {/* Protected Admin Routes */}
+                    <Route
+                      path="/admin"
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin/content"
+                      element={
+                        <ProtectedRoute>
+                          <ContentManagement />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin/blog"
+                      element={
+                        <ProtectedRoute>
+                          <BlogManagement />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin/team"
+                      element={
+                        <ProtectedRoute>
+                          <TeamMembers />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin/settings"
+                      element={
+                        <ProtectedRoute>
+                          <Settings />
+                        </ProtectedRoute>
+                      }
+                    />
+                    
+                    {/* Catch-all route */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+            </Router>
+          </AuthProvider>
         </TooltipProvider>
       </SiteProvider>
     </QueryClientProvider>

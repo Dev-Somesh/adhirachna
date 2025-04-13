@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -36,18 +36,28 @@ const Login = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      
-      if (session) {
-        navigate("/admin");
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session error:", error);
+          return;
+        }
+        
+        setIsAuthenticated(!!session);
+        
+        if (session) {
+          navigate("/admin");
+        }
+      } catch (err) {
+        console.error("Auth check error:", err);
       }
     };
     
     checkAuth();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed in Login:", event);
+      console.log("Auth state changed:", event, session);
       setIsAuthenticated(!!session);
       
       if (session) {
@@ -77,6 +87,7 @@ const Login = () => {
         description: "Login successful!",
         duration: 3000
       });
+      
       navigate("/admin");
     } catch (err) {
       console.error("Login error:", err);
@@ -109,6 +120,7 @@ const Login = () => {
         description: "Demo login successful!",
         duration: 3000
       });
+      
       navigate("/admin");
     } catch (err) {
       console.error("Demo login error:", err);
