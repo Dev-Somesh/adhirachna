@@ -4,10 +4,10 @@ import { Calendar, User, Eye, Tag, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
-import { BlogPost as BlogPostType } from '@/types/contentful';
+import { BlogPostEntry } from '@/types/contentful';
 
 interface BlogPostProps {
-  post: BlogPostType;
+  post: BlogPostEntry;
 }
 
 const BlogPost = ({ post }: BlogPostProps) => {

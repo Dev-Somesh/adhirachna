@@ -3,10 +3,10 @@ import { Calendar, Eye, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
-import { BlogPost } from '@/types/contentful';
+import { BlogPostEntry } from '@/types/contentful';
 
 interface BlogCardProps {
-  post: BlogPost;
+  post: BlogPostEntry;
 }
 
 const placeholderImages = [

@@ -1,5 +1,5 @@
 
-import { Entry, Asset, EntryFields, EntryFieldTypes } from 'contentful';
+import { Entry, Asset, EntryFields, EntrySkeletonType } from 'contentful';
 
 // Define the BlogPostFields interface that matches Contentful's structure
 export interface BlogPostFields {
@@ -25,3 +25,6 @@ export interface BlogPostSkeleton {
 
 // BlogPost type is an Entry with BlogPostFields
 export type BlogPost = Entry<BlogPostFields>;
+
+// Helper type to ensure proper typing of fields
+export type BlogPostEntry = Entry<BlogPostFields>;
