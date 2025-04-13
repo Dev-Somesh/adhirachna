@@ -1,6 +1,113 @@
-# Adhirachna - Infrastructure Solutions
+# Adhirachna Engineering Solutions
 
-A modern web application built with React, TypeScript, and Contentful CMS, showcasing infrastructure solutions and blog content.
+A modern web application for Adhirachna Engineering Solutions, built with React, TypeScript, and Vite.
+
+## Features
+
+- Modern React with TypeScript
+- Responsive design with Tailwind CSS
+- Authentication with Supabase
+- Content management with Contentful
+- SEO optimized
+- Performance optimized
+- Security best practices implemented
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+- Supabase account
+- Contentful account
+
+## Getting Started
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Dev-Somesh/adhirachna.git
+   cd adhirachna
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+   Update the `.env` file with your actual credentials.
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:prod` - Build for production with optimizations
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues
+- `npm run typecheck` - Run TypeScript type checking
+- `npm run test` - Run tests
+- `npm run format` - Format code with Prettier
+- `npm run analyze` - Analyze bundle size
+
+## Deployment
+
+### Production Build
+
+1. Create a production build:
+   ```bash
+   npm run build:prod
+   ```
+
+2. The built files will be in the `dist` directory.
+
+### Environment Variables
+
+Make sure to set the following environment variables in your production environment:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_CONTENTFUL_SPACE_ID`
+- `VITE_CONTENTFUL_ACCESS_TOKEN`
+- `VITE_RECAPTCHA_SITE_KEY`
+
+## Security
+
+This application implements several security measures:
+
+- Content Security Policy (CSP)
+- XSS Protection
+- Frame Protection
+- Secure Referrer Policy
+- CORS Configuration
+
+## Performance
+
+The application is optimized for performance with:
+
+- Code splitting
+- Lazy loading
+- Asset optimization
+- Caching headers
+- Bundle size optimization
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🚀 Features
 
@@ -20,32 +127,6 @@ A modern web application built with React, TypeScript, and Contentful CMS, showc
 - **Routing**: React Router
 - **State Management**: React Query
 - **Form Handling**: React Hook Form with Zod validation
-
-## 📦 Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/adhirachna.git
-cd adhirachna
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a `.env` file in the root directory with the following variables:
-```env
-VITE_CONTENTFUL_SPACE_ID=your-space-id
-VITE_CONTENTFUL_ACCESS_TOKEN=your-access-token
-VITE_CONTENTFUL_PREVIEW_TOKEN=your-preview-token
-VITE_CONTENTFUL_MANAGEMENT_TOKEN=your-management-token
-```
-
-4. Start the development server:
-```bash
-npm run dev
-```
 
 ## 🏗️ Project Structure
 
@@ -77,30 +158,6 @@ The project includes a `netlify.toml` configuration file with the following sett
 - Publish directory: `dist`
 - Node.js version: 18
 - SPA redirects for client-side routing
-
-## 🔧 Development Scripts
-
-- `npm run dev`: Start development server
-- `npm run build`: Build for production
-- `npm run preview`: Preview production build
-- `npm run lint`: Run ESLint
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- **Anurag Pareek** - Founder and CEO of Adhirachna
-- **Er. Somesh Bhardwaj** - Developer ([LinkedIn](https://www.linkedin.com/in/ersomeshbhardwaj/))
 
 ## 🙏 Acknowledgments
 
