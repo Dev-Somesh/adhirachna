@@ -40,18 +40,16 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Encode data properly for Netlify forms
-      const encodedData = Object.keys(data).map(
-        (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key as keyof ContactFormValues] as string)
-      ).join("&");
+      const formData = new FormData();
+      formData.append("form-name", "contact");
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value as string);
+      });
 
       // Submit form using fetch
       const response = await fetch("/", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/x-www-form-urlencoded" 
-        },
-        body: `form-name=contact&${encodedData}`,
+        body: formData,
       });
 
       if (response.ok) {
@@ -213,7 +211,7 @@ const Contact = () => {
                 name="contact"
                 method="POST"
                 data-netlify="true"
-                netlify-honeypot="bot-field"
+                data-netlify-honeypot="bot-field"
               >
                 {/* Hidden fields for Netlify Forms */}
                 <input type="hidden" name="form-name" value="contact" />

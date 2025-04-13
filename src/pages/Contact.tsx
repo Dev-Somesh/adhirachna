@@ -43,18 +43,16 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Encode data properly for Netlify forms
-      const encodedData = Object.keys(data).map(
-        (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key as keyof ContactFormValues] as string)
-      ).join("&");
+      const formData = new FormData();
+      formData.append("form-name", "contact");
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value as string);
+      });
 
       // Submit form using fetch
       const response = await fetch("/", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/x-www-form-urlencoded" 
-        },
-        body: `form-name=contact&${encodedData}`,
+        body: formData,
       });
 
       if (response.ok) {
@@ -84,21 +82,6 @@ const Contact = () => {
         <title>Contact Us | Adhirachna Engineering Solutions</title>
         <meta name="description" content="Get in touch with Adhirachna Engineering Solutions for inquiries, quotes, or to discuss your engineering project needs." />
       </Helmet>
-      
-      {/* Hidden form for Netlify to parse during build */}
-      <form 
-        name="contact" 
-        netlify 
-        netlify-honeypot="bot-field" 
-        hidden
-      >
-        <input type="text" name="name" />
-        <input type="email" name="email" />
-        <input type="tel" name="phone" />
-        <input type="text" name="subject" />
-        <textarea name="message"></textarea>
-        <input type="text" name="bot-field" />
-      </form>
       
       <div className="flex flex-col min-h-screen">
         <Navbar />
@@ -239,7 +222,7 @@ const Contact = () => {
                       className="space-y-6"
                       onSubmit={form.handleSubmit(onSubmit)}
                       data-netlify="true"
-                      netlify-honeypot="bot-field"
+                      data-netlify-honeypot="bot-field"
                     >
                       {/* Hidden Netlify form fields */}
                       <input type="hidden" name="form-name" value="contact" />
