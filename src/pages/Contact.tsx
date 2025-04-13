@@ -67,7 +67,6 @@ const Contact = () => {
         hidden
         // @ts-ignore - Netlify attributes are not in the HTML spec
       >
-        <input type="hidden" name="form-name" value="contact" />
         <input type="text" name="name" />
         <input type="email" name="email" />
         <input type="tel" name="phone" />
@@ -219,7 +218,6 @@ const Contact = () => {
                       // @ts-ignore - Netlify attributes are not in the HTML spec
                     >
                       {/* Hidden Netlify form fields */}
-                      <input type="hidden" name="form-name" value="contact" />
                       <input type="hidden" name="bot-field" />
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
