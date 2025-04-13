@@ -18,10 +18,10 @@ export interface BlogPostFields {
 }
 
 // Define the BlogPost type as a Contentful Entry with BlogPostFields
+export type BlogPost = Entry<BlogPostFields>;
+
+// This satisfies the EntrySkeletonType constraint needed for the content type param
 export interface BlogPostSkeleton extends EntrySkeletonType {
   contentTypeId: 'blogPost';
   fields: BlogPostFields;
 }
-
-// This is the actual type we'll use
-export type BlogPost = Entry<BlogPostFields>;

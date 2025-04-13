@@ -1,9 +1,9 @@
 
 import contentfulClient from '../lib/contentful';
-import { BlogPost } from '../types/contentful';
+import { BlogPost, BlogPostSkeleton } from '../types/contentful';
 
 export const getBlogPosts = async (): Promise<BlogPost[]> => {
-  const response = await contentfulClient.getEntries<BlogPostFields>({
+  const response = await contentfulClient.getEntries<BlogPostSkeleton>({
     content_type: 'blogPost',
     order: '-sys.createdAt',
   });
@@ -11,7 +11,7 @@ export const getBlogPosts = async (): Promise<BlogPost[]> => {
 };
 
 export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
-  const response = await contentfulClient.getEntries<BlogPostFields>({
+  const response = await contentfulClient.getEntries<BlogPostSkeleton>({
     content_type: 'blogPost',
     'fields.slug': slug,
     limit: 1,
@@ -22,7 +22,4 @@ export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
   }
   
   return response.items[0] as BlogPost;
-}; 
-
-// Add the missing import
-import { BlogPostFields } from '../types/contentful';
+};
