@@ -36,20 +36,24 @@ const Contact = () => {
     },
   });
 
+  const encode = (data: Record<string, any>) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
+  }
+
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("form-name", "contact");
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
-
-      // Submit form using fetch
+      // Submit form using fetch with the right headers and encoding
       const response = await fetch("/", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({
+          "form-name": "contact",
+          ...data
+        })
       });
 
       if (response.ok) {
@@ -59,6 +63,7 @@ const Contact = () => {
         });
         form.reset();
       } else {
+        console.error('Form submission response:', response);
         throw new Error('Form submission failed');
       }
     } catch (error) {
@@ -210,10 +215,10 @@ const Contact = () => {
                 className="space-y-6"
                 name="contact"
                 method="POST"
+                netlify="true"
                 data-netlify="true"
                 data-netlify-honeypot="bot-field"
               >
-                {/* Hidden fields for Netlify Forms */}
                 <input type="hidden" name="form-name" value="contact" />
                 <div hidden>
                   <input name="bot-field" />
@@ -342,8 +347,8 @@ const Contact = () => {
         </div>
       </div>
       
-      {/* This hidden form helps Netlify detect your form at build time */}
-      <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      {/* This hidden form helps Netlify detect your form */}
+      <form name="contact" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
         <input type="text" name="name" />
         <input type="email" name="email" />
         <input type="tel" name="phone" />

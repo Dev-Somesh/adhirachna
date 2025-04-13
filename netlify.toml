@@ -1,3 +1,4 @@
+
 [build]
   command = "npm run build"
   publish = "dist"
@@ -14,6 +15,10 @@
   command = "npm run dev"
   port = 5173
   targetPort = 5173
+
+# Form handling
+[build.processing.html]
+  pretty_urls = true
 
 # Security headers
 [[headers]]

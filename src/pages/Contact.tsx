@@ -39,20 +39,24 @@ const Contact = () => {
     },
   });
 
+  const encode = (data: Record<string, any>) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
+  }
+
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("form-name", "contact");
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
-
-      // Submit form using fetch
+      // Submit form using fetch with the right headers and encoding
       const response = await fetch("/", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({
+          "form-name": "contact",
+          ...data
+        })
       });
 
       if (response.ok) {
@@ -62,6 +66,7 @@ const Contact = () => {
         });
         form.reset();
       } else {
+        console.error('Form submission response:', response);
         throw new Error('Form submission failed');
       }
     } catch (error) {
@@ -369,6 +374,16 @@ const Contact = () => {
         
         <Footer />
       </div>
+      
+      {/* This hidden form helps Netlify detect your form */}
+      <form name="contact" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="tel" name="phone" />
+        <input type="text" name="subject" />
+        <textarea name="message"></textarea>
+        <input type="text" name="bot-field" />
+      </form>
     </>
   );
 };
