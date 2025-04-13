@@ -1,6 +1,8 @@
 
 import { ArrowDown } from 'lucide-react';
 import { useInView } from './ui/motion';
+import { Link } from 'react-router-dom';
+import { Button } from './ui/button';
 
 const Hero = () => {
   const { ref, isInView } = useInView();
@@ -34,12 +36,12 @@ const Hero = () => {
             Specialized in Architectural Engineering, Management Consulting, and Technical Services since 2023.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#services" className="btn-primary bg-adhirachna-green hover:bg-adhirachna-darkgreen">
+            <Link to="/services" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white h-10 px-4 py-2">
               Our Services
-            </a>
-            <a href="#projects" className="btn-secondary bg-white/50 text-adhirachna-darkblue border-adhirachna-darkblue hover:bg-white/70">
+            </Link>
+            <Link to="/projects" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white/50 text-adhirachna-darkblue border border-adhirachna-darkblue hover:bg-white/70 h-10 px-4 py-2">
               View Projects
-            </a>
+            </Link>
           </div>
         </div>
       </div>

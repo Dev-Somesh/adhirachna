@@ -2,9 +2,9 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Stats from '@/components/Stats';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSiteContent } from '@/context/SiteContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useInView } from '@/components/ui/motion';
 import { ArrowRight, FileText, Building, Shield, Paintbrush } from 'lucide-react';
 import Footer from '@/components/Footer';
@@ -165,9 +165,9 @@ const Index = () => {
                   </p>
                   
                   <div className="mt-8">
-                    <a href="/about" className="btn-secondary flex w-fit items-center">
+                    <Link to="/about" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white border border-adhirachna-gray text-adhirachna-darkblue hover:bg-adhirachna-light h-10 px-4 py-2">
                       Learn More About Us <ArrowRight className="ml-2 h-4 w-4" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -204,9 +204,9 @@ const Index = () => {
               </div>
               
               <div className="text-center mt-12">
-                <a href="/services" className="btn-primary">
+                <Link to="/services" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white h-10 px-4 py-2">
                   View All Services
-                </a>
+                </Link>
               </div>
             </div>
           </section>
@@ -249,9 +249,9 @@ const Index = () => {
             </div>
             
             <div className="text-center mt-12">
-              <a href="/projects" className="btn-secondary flex mx-auto w-fit items-center">
+              <Link to="/projects" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white border border-adhirachna-gray text-adhirachna-darkblue hover:bg-adhirachna-light h-10 px-4 py-2">
                 View All Projects <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -266,9 +266,9 @@ const Index = () => {
                   Contact us today to discuss how our engineering services can bring your vision to life.
                   Our team is ready to provide expert consultation and tailored solutions.
                 </p>
-                <a href="/contact" className="btn-primary bg-adhirachna-green hover:bg-adhirachna-darkgreen">
+                <Link to="/contact" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white h-10 px-4 py-2">
                   Get In Touch
-                </a>
+                </Link>
               </div>
             </div>
           </section>
