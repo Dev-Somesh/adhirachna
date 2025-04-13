@@ -4,6 +4,64 @@ import ContactForm from './ContactForm';
 
 const Contact = () => {
   const { ref, isInView } = useInView();
+<<<<<<< HEAD
+=======
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize form
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+    },
+  });
+
+  const encode = (data: Record<string, any>) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
+  }
+
+  const onSubmit = async (data: ContactFormValues) => {
+    setIsSubmitting(true);
+
+    try {
+      // Submit form using fetch with the right headers and encoding
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({
+          "form-name": "contact",
+          ...data
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent",
+          description: "Thank you for your message. We will get back to you soon!",
+        });
+        form.reset();
+      } else {
+        console.error('Form submission response:', response);
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message. Please try again later.",
+        variant: "destructive",
+      });
+      console.error('Form submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+>>>>>>> 6621b914a439cfb9e4f044d8ce30b28c0598fd5b
 
   return (
     <section id="contact" className="py-16 px-4 md:px-6" ref={ref as React.RefObject<HTMLDivElement>}>
@@ -135,10 +193,158 @@ const Contact = () => {
             <h2 className="text-2xl font-semibold mb-6 text-adhirachna-darkblue">
               Send Us a Message
             </h2>
+<<<<<<< HEAD
             <ContactForm />
+=======
+
+            <Form {...form}>
+              <form 
+                onSubmit={form.handleSubmit(onSubmit)} 
+                className="space-y-6"
+                name="contact"
+                method="POST"
+                netlify="true"
+                data-netlify="true"
+                data-netlify-honeypot="bot-field"
+              >
+                <input type="hidden" name="form-name" value="contact" />
+                <div hidden>
+                  <input name="bot-field" />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-adhirachna-darkblue">Name</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Your name" 
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
+                            {...field} 
+                            name="name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-adhirachna-darkblue">Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email" 
+                            placeholder="Your email" 
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
+                            {...field} 
+                            name="email"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-adhirachna-darkblue">Phone</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="tel" 
+                            placeholder="Your phone (optional)" 
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
+                            {...field} 
+                            name="phone"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-adhirachna-darkblue">Subject</FormLabel>
+                        <FormControl>
+                          <select
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
+                            {...field}
+                            name="subject"
+                          >
+                            <option value="" disabled>Select a subject</option>
+                            <option value="General Inquiry">General Inquiry</option>
+                            <option value="Project Consultation">Project Consultation</option>
+                            <option value="Partnership">Partnership</option>
+                            <option value="Career">Career</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-adhirachna-darkblue">Message</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={5}
+                          placeholder="Your message"
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
+                          {...field}
+                          name="message"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div>
+                  <button 
+                    type="submit" 
+                    className="w-full bg-adhirachna-blue hover:bg-adhirachna-blue/90 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-300" 
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Sending..." : "Send Message"}
+                  </button>
+                </div>
+              </form>
+            </Form>
+>>>>>>> 6621b914a439cfb9e4f044d8ce30b28c0598fd5b
           </div>
         </div>
       </div>
+      
+      {/* This hidden form helps Netlify detect your form */}
+      <form name="contact" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="tel" name="phone" />
+        <input type="text" name="subject" />
+        <textarea name="message"></textarea>
+        <input type="text" name="bot-field" />
+      </form>
     </section>
   );
 };

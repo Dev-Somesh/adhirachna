@@ -39,16 +39,46 @@ const Contact = () => {
     },
   });
 
+  const encode = (data: Record<string, any>) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
+  }
+
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
-    // Let Netlify handle the form submission
-    // The form will submit to Netlify automatically
-    toast({
-      title: "Message Sent",
-      description: "Thank you for your message. We will get back to you soon!",
-    });
-    form.reset();
-    setIsSubmitting(false);
+
+    try {
+      // Submit form using fetch with the right headers and encoding
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({
+          "form-name": "contact",
+          ...data
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent",
+          description: "Thank you for your message. We will get back to you soon!",
+        });
+        form.reset();
+      } else {
+        console.error('Form submission response:', response);
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message. Please try again later.",
+        variant: "destructive",
+      });
+      console.error('Form submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -57,23 +87,6 @@ const Contact = () => {
         <title>Contact Us | Adhirachna Engineering Solutions</title>
         <meta name="description" content="Get in touch with Adhirachna Engineering Solutions for inquiries, quotes, or to discuss your engineering project needs." />
       </Helmet>
-      
-      {/* Hidden form for Netlify to parse during build */}
-      <form 
-        name="contact" 
-        method="POST" 
-        data-netlify="true" 
-        data-netlify-honeypot="bot-field" 
-        hidden
-        // @ts-ignore - Netlify attributes are not in the HTML spec
-      >
-        <input type="text" name="name" />
-        <input type="email" name="email" />
-        <input type="tel" name="phone" />
-        <input type="text" name="subject" />
-        <textarea name="message"></textarea>
-        <input type="text" name="bot-field" />
-      </form>
       
       <div className="flex flex-col min-h-screen">
         <Navbar />
@@ -211,14 +224,16 @@ const Contact = () => {
                     <form 
                       name="contact"
                       method="POST"
-                      data-netlify="true"
-                      data-netlify-honeypot="bot-field"
                       className="space-y-6"
                       onSubmit={form.handleSubmit(onSubmit)}
-                      // @ts-ignore - Netlify attributes are not in the HTML spec
+                      data-netlify="true"
+                      data-netlify-honeypot="bot-field"
                     >
                       {/* Hidden Netlify form fields */}
-                      <input type="hidden" name="bot-field" />
+                      <input type="hidden" name="form-name" value="contact" />
+                      <div hidden>
+                        <input name="bot-field" />
+                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -359,6 +374,16 @@ const Contact = () => {
         
         <Footer />
       </div>
+      
+      {/* This hidden form helps Netlify detect your form */}
+      <form name="contact" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="tel" name="phone" />
+        <input type="text" name="subject" />
+        <textarea name="message"></textarea>
+        <input type="text" name="bot-field" />
+      </form>
     </>
   );
 };

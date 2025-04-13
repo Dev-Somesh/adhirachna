@@ -1,12 +1,16 @@
+
 <!DOCTYPE html>
 <html>
 <head>
   <title>Contact Form</title>
+  <meta charset="utf-8" />
 </head>
 <body>
-  <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+  <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/thank-you">
     <input type="hidden" name="form-name" value="contact" />
-    <input type="hidden" name="bot-field" />
+    <div hidden>
+      <input name="bot-field" />
+    </div>
     
     <div>
       <label>Name:</label>
@@ -43,4 +47,4 @@
     <button type="submit">Send Message</button>
   </form>
 </body>
-</html> 
+</html>
