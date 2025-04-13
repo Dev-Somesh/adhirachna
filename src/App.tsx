@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { SiteProvider } from "./context/SiteContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -25,6 +25,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Button } from "@/components/ui/button";
 
 // Create a React Query client with default options
 const queryClient = new QueryClient({
@@ -32,21 +33,48 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       refetchOnWindowFocus: false,
+      retry: 1,
     },
   },
 });
 
-function ErrorFallback({ error }: { error: Error }) {
+function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  const navigate = useNavigate();
+
   return (
-    <div className="p-4 text-red-500">
-      <h2>Something went wrong:</h2>
-      <pre>{error.message}</pre>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+      <div className="max-w-md p-6 rounded-lg shadow-lg bg-background">
+        <h2 className="mb-4 text-2xl font-bold text-red-500">Something went wrong</h2>
+        <pre className="p-4 mb-4 overflow-auto text-sm text-left rounded-md bg-muted">
+          {error.message}
+        </pre>
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              resetErrorBoundary();
+              navigate('/');
+            }}
+          >
+            Go Home
+          </Button>
+          <Button
+            variant="default"
+            onClick={() => {
+              resetErrorBoundary();
+              window.location.reload();
+            }}
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
 
 const App = () => (
-  <ErrorBoundary FallbackComponent={ErrorFallback}>
+  <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
     <QueryClientProvider client={queryClient}>
       <SiteProvider>
         <TooltipProvider>
@@ -71,9 +99,9 @@ const App = () => (
                     <Route path="/blog/:id" element={<BlogDetail />} />
                     
                     {/* Policy pages */}
-                    <Route path="/privacy-policy" element={<PolicyPage />} />
-                    <Route path="/terms-of-service" element={<PolicyPage />} />
-                    <Route path="/cookie-policy" element={<PolicyPage />} />
+                    <Route path="/privacy-policy" element={<PolicyPage type="privacy" />} />
+                    <Route path="/terms-of-service" element={<PolicyPage type="terms" />} />
+                    <Route path="/cookie-policy" element={<PolicyPage type="cookie" />} />
                     
                     {/* Authentication */}
                     <Route path="/login" element={<Login />} />
@@ -83,7 +111,9 @@ const App = () => (
                       path="/admin"
                       element={
                         <ProtectedRoute>
-                          <Dashboard />
+                          <AdminLayout>
+                            <Dashboard />
+                          </AdminLayout>
                         </ProtectedRoute>
                       }
                     />
@@ -91,7 +121,9 @@ const App = () => (
                       path="/admin/content"
                       element={
                         <ProtectedRoute>
-                          <ContentManagement />
+                          <AdminLayout>
+                            <ContentManagement />
+                          </AdminLayout>
                         </ProtectedRoute>
                       }
                     />
@@ -99,7 +131,9 @@ const App = () => (
                       path="/admin/blog"
                       element={
                         <ProtectedRoute>
-                          <BlogManagement />
+                          <AdminLayout>
+                            <BlogManagement />
+                          </AdminLayout>
                         </ProtectedRoute>
                       }
                     />
@@ -107,7 +141,9 @@ const App = () => (
                       path="/admin/team"
                       element={
                         <ProtectedRoute>
-                          <TeamMembers />
+                          <AdminLayout>
+                            <TeamMembers />
+                          </AdminLayout>
                         </ProtectedRoute>
                       }
                     />
@@ -115,7 +151,9 @@ const App = () => (
                       path="/admin/settings"
                       element={
                         <ProtectedRoute>
-                          <Settings />
+                          <AdminLayout>
+                            <Settings />
+                          </AdminLayout>
                         </ProtectedRoute>
                       }
                     />
