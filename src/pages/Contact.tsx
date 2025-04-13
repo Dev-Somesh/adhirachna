@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -41,14 +42,46 @@ const Contact = () => {
 
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
-    // Let Netlify handle the form submission
-    // The form will submit to Netlify automatically
-    toast({
-      title: "Message Sent",
-      description: "Thank you for your message. We will get back to you soon!",
-    });
-    form.reset();
-    setIsSubmitting(false);
+
+    try {
+      // Prepare form data for Netlify submission
+      const formData = new FormData();
+      formData.append('form-name', 'contact');
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value as string);
+      });
+
+      // Hidden bot field to prevent spam
+      formData.append('bot-field', '');
+
+      // Send the form using fetch
+      const response = await fetch('/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent",
+          description: "Thank you for your message. We will get back to you soon!",
+        });
+        form.reset();
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message. Please try again later.",
+        variant: "destructive",
+      });
+      console.error('Form submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -65,7 +98,6 @@ const Contact = () => {
         data-netlify="true" 
         data-netlify-honeypot="bot-field" 
         hidden
-        // @ts-ignore - Netlify attributes are not in the HTML spec
       >
         <input type="text" name="name" />
         <input type="email" name="email" />

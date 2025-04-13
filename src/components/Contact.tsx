@@ -40,16 +40,17 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare form data for submission
+      // Prepare form data for Netlify submission
       const formData = new FormData();
+      formData.append('form-name', 'contact');
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value as string);
       });
 
-      // Add Netlify Forms specific fields
-      formData.append('form-name', 'contact');
+      // Hidden bot field to prevent spam
+      formData.append('bot-field', '');
 
-      // Send the form
+      // Send the form using fetch
       const response = await fetch('/', {
         method: 'POST',
         body: formData,
@@ -344,6 +345,21 @@ const Contact = () => {
           </div>
         </div>
       </div>
+      <form 
+        name="contact"
+        method="POST"
+        data-netlify="true"
+        data-netlify-honeypot="bot-field"
+        netlify-honeypot="bot-field"
+        hidden
+      >
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="tel" name="phone" />
+        <input type="text" name="subject" />
+        <textarea name="message"></textarea>
+        <input type="text" name="bot-field" />
+      </form>
     </section>
   );
 };
