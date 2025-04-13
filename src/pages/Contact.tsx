@@ -58,13 +58,15 @@ const Contact = () => {
         <meta name="description" content="Get in touch with Adhirachna Engineering Solutions for inquiries, quotes, or to discuss your engineering project needs." />
       </Helmet>
       
-      {/* Hidden form for Netlify */}
-      <form name="contact" data-netlify="true" hidden>
+      {/* Hidden form for Netlify to parse during build */}
+      <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+        <input type="hidden" name="form-name" value="contact" />
         <input type="text" name="name" />
         <input type="email" name="email" />
         <input type="tel" name="phone" />
         <input type="text" name="subject" />
         <textarea name="message"></textarea>
+        <input type="text" name="bot-field" />
       </form>
       
       <div className="flex flex-col min-h-screen">
