@@ -59,7 +59,14 @@ const Contact = () => {
       </Helmet>
       
       {/* Hidden form for Netlify to parse during build */}
-      <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+      <form 
+        name="contact" 
+        method="POST" 
+        data-netlify="true" 
+        data-netlify-honeypot="bot-field" 
+        hidden
+        // @ts-ignore - Netlify attributes are not in the HTML spec
+      >
         <input type="hidden" name="form-name" value="contact" />
         <input type="text" name="name" />
         <input type="email" name="email" />
@@ -209,6 +216,7 @@ const Contact = () => {
                       data-netlify-honeypot="bot-field"
                       className="space-y-6"
                       onSubmit={form.handleSubmit(onSubmit)}
+                      // @ts-ignore - Netlify attributes are not in the HTML spec
                     >
                       {/* Hidden Netlify form fields */}
                       <input type="hidden" name="form-name" value="contact" />
