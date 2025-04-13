@@ -40,7 +40,7 @@ const Navbar = () => {
         <nav className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/Adhirachna logo.png" 
+              src="/lovable-uploads/AdhirachnaVector.png" 
               alt="Adhirachna Engineering Solutions" 
               className="h-16 md:h-20" 
               onError={(e) => {

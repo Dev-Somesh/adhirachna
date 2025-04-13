@@ -1,17 +1,10 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Stats from '@/components/Stats';
-<<<<<<< Updated upstream
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSiteContent } from '@/context/SiteContext';
 import { useLocation, Link } from 'react-router-dom';
 import { useInView } from '@/components/ui/motion';
-=======
-import { useEffect, useState, useRef } from 'react';
-import { useSiteContent } from '@/context/SiteContext';
-import { useLocation } from 'react-router-dom';
-import { useInView } from 'framer-motion';
->>>>>>> Stashed changes
 import { ArrowRight, FileText, Building, Shield, Paintbrush } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { Helmet } from 'react-helmet';
