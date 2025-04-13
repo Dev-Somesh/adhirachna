@@ -1,5 +1,6 @@
 require('dotenv').config();
 const contentfulManagement = require('contentful-management');
+import { supabase, isAuthenticated, getCurrentUserId, signOut } from "@/integrations/supabase/client";
 
 // Initialize Contentful Management client
 const client = contentfulManagement.createClient({

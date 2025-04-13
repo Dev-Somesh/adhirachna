@@ -4,6 +4,26 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://yrfndyttopwyxjrqhqfd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyZm5keXR0b3B3eXhqcnFocWZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1MjI1NDIsImV4cCI6MjA1OTA5ODU0Mn0.oI6I7QBfzvi_6SJU0IAX80KafLHQQ3EuH5_fQY_NcFk";
 
+// Create a safe storage implementation that checks for window availability
+const safeStorage = {
+  getItem: (key: string) => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+    return null;
+  },
+  setItem: (key: string, value: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  },
+  removeItem: (key: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(key);
+    }
+  }
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -12,7 +32,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storage: localStorage,
+    storage: safeStorage,
     flowType: 'implicit'
   }
 });
@@ -54,7 +74,7 @@ export const signOut = async () => {
   }
   
   // Also clear local storage item
-  localStorage.removeItem("adhirachna_admin_logged_in");
+  safeStorage.removeItem("adhirachna_admin_logged_in");
   
   return true;
 };
