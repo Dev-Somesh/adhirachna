@@ -46,6 +46,9 @@ const Contact = () => {
         formData.append(key, value as string);
       });
 
+      // Add Netlify Forms specific fields
+      formData.append('form-name', 'contact');
+
       // Send the form
       const response = await fetch('/', {
         method: 'POST',
