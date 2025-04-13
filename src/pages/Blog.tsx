@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -11,10 +12,12 @@ import { Search, Loader2, X } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import type { BlogPost, Category } from '@/types/blog';
+import type { BlogPost as BlogPostFromSupabase, Category } from '@/types/blog';
+import type { BlogPost as ContentfulBlogPost } from '@/types/contentful';
+import { getBlogPosts } from '@/services/blogService';
 
-// Function to fetch blog posts
-const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+// Function to fetch blog posts from Supabase
+const fetchBlogPosts = async (): Promise<BlogPostFromSupabase[]> => {
   // Update views when someone visits the blog page (for analytics)
   const { data, error } = await supabase
     .from('blog_posts')
@@ -29,6 +32,24 @@ const fetchBlogPosts = async (): Promise<BlogPost[]> => {
   return data || [];
 };
 
+// Function to convert Contentful posts to our internal format
+const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPostFromSupabase[] => {
+  return contentfulPosts.map(post => ({
+    id: post.fields.slug || post.sys.id,
+    title: post.fields.title || 'Untitled',
+    excerpt: post.fields.excerpt || '',
+    content: '', // We don't store the full content in the list view
+    author: post.fields.author || 'Unknown',
+    date: post.fields.date || post.fields.publishDate || post.sys.createdAt,
+    category: post.fields.category || 'Uncategorized',
+    image: post.fields.featuredImage?.fields?.file?.url 
+      ? `https:${post.fields.featuredImage.fields.file.url}`
+      : '/placeholder.svg',
+    tags: post.fields.tags || [],
+    views: post.fields.viewCount || 0
+  }));
+};
+
 const Blog = () => {
   const { ref, isInView } = useInView();
   const navigate = useNavigate();
@@ -37,14 +58,19 @@ const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
   const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'recent');
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<BlogPostFromSupabase[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
   
-  // Fetch blog posts
-  const { data: posts = [], isLoading, error } = useQuery({
-    queryKey: ['blogPosts'],
-    queryFn: fetchBlogPosts
+  // Fetch blog posts from Contentful
+  const { data: contentfulPosts = [], isLoading: contentfulLoading } = useQuery({
+    queryKey: ['contentfulBlogPosts'],
+    queryFn: getBlogPosts
   });
+  
+  // Convert Contentful posts to our internal format
+  const posts = useMemo(() => {
+    return convertContentfulPosts(contentfulPosts);
+  }, [contentfulPosts]);
   
   // Extract all unique tags from posts
   useEffect(() => {
@@ -218,17 +244,9 @@ const Blog = () => {
                 </div>
               )}
               
-              {isLoading ? (
+              {contentfulLoading ? (
                 <div className="flex justify-center items-center p-12">
                   <Loader2 className="h-8 w-8 animate-spin text-adhirachna-green" />
-                </div>
-              ) : error ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow-soft">
-                  <h3 className="text-xl font-medium text-adhirachna-darkblue mb-2">Error loading posts</h3>
-                  <p className="text-adhirachna-gray mb-4">
-                    {error instanceof Error ? error.message : "Unknown error occurred"}
-                  </p>
-                  <Button onClick={() => window.location.reload()}>Try Again</Button>
                 </div>
               ) : filteredPosts.length > 0 ? (
                 <div 
@@ -236,8 +254,8 @@ const Blog = () => {
                     isInView ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
-                  {filteredPosts.map((post) => (
-                    <BlogCard key={post.id} post={post} />
+                  {filteredPosts.map((_, index) => (
+                    <BlogCard key={index} post={contentfulPosts[index]} />
                   ))}
                 </div>
               ) : (

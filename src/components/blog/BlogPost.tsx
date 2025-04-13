@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Calendar, User, Eye, Tag, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
@@ -12,15 +13,15 @@ interface BlogPostProps {
 const BlogPost = ({ post }: BlogPostProps) => {
   const { fields } = post;
   
-  // Extract fields safely
-  const title = fields.title || 'Untitled';
-  const author = fields.author || 'Unknown';
-  const date = fields.date || fields.publishDate || post.sys.createdAt;
-  const content = fields.content || fields.body;
-  const category = fields.category || 'Uncategorized';
-  const tags = fields.tags || [];
-  const viewCount = fields.viewCount || 0;
-  const imageUrl = fields.featuredImage?.fields?.file?.url 
+  // Extract fields safely with optional chaining
+  const title = fields?.title || 'Untitled';
+  const author = fields?.author || 'Unknown';
+  const date = fields?.date || fields?.publishDate || post.sys.createdAt;
+  const content = fields?.content || fields?.body;
+  const category = fields?.category || 'Uncategorized';
+  const tags = fields?.tags || [];
+  const viewCount = fields?.viewCount || 0;
+  const imageUrl = fields?.featuredImage?.fields?.file?.url 
     ? `https:${fields.featuredImage.fields.file.url}`
     : '/placeholder.svg';
 
@@ -75,7 +76,7 @@ const BlogPost = ({ post }: BlogPostProps) => {
             </div>
           ) : (
             <div className="prose prose-adhirachna max-w-none mb-8">
-              <p>{fields.excerpt || 'No content available'}</p>
+              <p>{fields?.excerpt || 'No content available'}</p>
             </div>
           )}
           

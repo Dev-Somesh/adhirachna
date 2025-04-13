@@ -1,6 +1,8 @@
+
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createManagementClient } from 'contentful-management';
 import { BlogPostFields } from '../types/contentful';
+import { Asset } from 'contentful';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -36,40 +38,36 @@ async function migrateBlogPosts() {
 
     // Migrate each blog post to Contentful
     for (const post of blogPosts) {
-      const fields: BlogPostFields = {
-        title: post.title,
-        slug: post.id, // Using UUID as slug
-        content: post.content,
-        excerpt: post.excerpt,
-        featuredImage: {
-          fields: {
-            file: {
-              url: post.image || '',
-            },
-          },
-        },
-        author: post.author,
-        publishDate: post.date,
+      // We'll create structured fields for Contentful
+      // Note: We're not creating an actual Asset object here, just the fields for the entry
+      const entryFields = {
+        title: { 'en-US': post.title },
+        slug: { 'en-US': post.id }, // Using UUID as slug
+        content: { 'en-US': post.content },
+        excerpt: { 'en-US': post.excerpt },
+        author: { 'en-US': post.author },
+        publishDate: { 'en-US': post.date },
       };
+
+      // If we have an image, we would need to properly upload it as an asset
+      // This is simplified here
+      if (post.image) {
+        console.log(`Image URL found for post ${post.title}: ${post.image}`);
+        // In a real implementation, you would upload the image to Contentful first
+        // and then link it as an asset
+      }
 
       // Check if entry already exists
       const existingEntries = await environment.getEntries({
         content_type: 'blogPost',
-        'fields.slug': fields.slug,
+        'fields.slug': post.id,
         limit: 1,
       });
 
       if (existingEntries.items.length === 0) {
         // Create new entry
         await environment.createEntry('blogPost', {
-          fields: {
-            title: { 'en-US': fields.title },
-            slug: { 'en-US': fields.slug },
-            content: { 'en-US': fields.content },
-            excerpt: { 'en-US': fields.excerpt },
-            author: { 'en-US': fields.author },
-            publishDate: { 'en-US': fields.publishDate },
-          },
+          fields: entryFields
         });
 
         console.log(`Created new post: ${post.title}`);
@@ -85,4 +83,4 @@ async function migrateBlogPosts() {
 }
 
 // Run the migration
-migrateBlogPosts(); 
+migrateBlogPosts();

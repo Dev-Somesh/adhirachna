@@ -9,8 +9,10 @@ import SocialShare from '@/components/blog/SocialShare';
 import BlogSidebarWrapper from '@/components/blog/BlogSidebarWrapper';
 import LoadingState from '@/components/blog/BlogDetail/LoadingState';
 import ErrorState from '@/components/blog/BlogDetail/ErrorState';
-import { useBlogPost, useAllBlogPosts } from '@/hooks/useBlogPost';
+import { useQuery } from '@tanstack/react-query';
+import { getBlogPostBySlug, getBlogPosts } from '@/services/blogService';
 import type { Category } from '@/types/blog';
+import type { BlogPost as ContentfulBlogPost } from '@/types/contentful';
 
 const BlogDetail = () => {
   const { ref, isInView } = useInView();
@@ -21,20 +23,41 @@ const BlogDetail = () => {
     data: post, 
     isLoading: postLoading, 
     error: postError 
-  } = useBlogPost(id);
+  } = useQuery({
+    queryKey: ['blogPost', id],
+    queryFn: () => getBlogPostBySlug(id || ''),
+    enabled: !!id,
+  });
   
   // Fetch all posts for the sidebar
   const { 
     data: allPosts = [], 
     isLoading: allPostsLoading 
-  } = useAllBlogPosts();
+  } = useQuery({
+    queryKey: ['contentfulBlogPosts'],
+    queryFn: getBlogPosts
+  });
+
+  // Convert Contentful posts to our internal format for the sidebar
+  const convertedPosts = useMemo(() => {
+    return allPosts.map(post => ({
+      id: post.fields.slug || post.sys.id,
+      title: post.fields.title || 'Untitled',
+      date: post.fields.date || post.fields.publishDate || post.sys.createdAt,
+      image: post.fields.featuredImage?.fields?.file?.url 
+        ? `https:${post.fields.featuredImage.fields.file.url}`
+        : '/placeholder.svg',
+      views: post.fields.viewCount || 0
+    }));
+  }, [allPosts]);
   
   // Generate categories from all posts
   const categories: Category[] = useMemo(() => {
     if (allPostsLoading || !allPosts) return [{ name: 'All', count: 0 }];
     
     const categoryCounts = allPosts.reduce((acc, post) => {
-      acc[post.category] = (acc[post.category] || 0) + 1;
+      const category = post.fields.category || 'Uncategorized';
+      acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
@@ -52,8 +75,9 @@ const BlogDetail = () => {
     
     const tagsSet = new Set<string>();
     allPosts.forEach(post => {
-      if (post.tags && Array.isArray(post.tags)) {
-        post.tags.forEach(tag => tagsSet.add(tag));
+      const tags = post.fields.tags;
+      if (tags && Array.isArray(tags)) {
+        tags.forEach(tag => tagsSet.add(tag));
       }
     });
     
@@ -106,13 +130,13 @@ const BlogDetail = () => {
             >
               <BlogPost post={post} />
               <div className="mt-8 bg-white rounded-lg shadow-soft p-6">
-                <SocialShare postTitle={post.title} slug={post.id} />
+                <SocialShare postTitle={post.fields.title} slug={post.fields.slug || post.sys.id} />
               </div>
             </div>
             
             <BlogSidebarWrapper 
               categories={categories} 
-              recentPosts={allPosts.slice(0, 3)}
+              recentPosts={convertedPosts.slice(0, 3)}
               allTags={allTags}
             />
           </div>
