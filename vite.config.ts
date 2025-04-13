@@ -60,6 +60,10 @@ export default defineConfig(({ mode }) => ({
     },
     chunkSizeWarningLimit: 1000,
     emptyOutDir: true,
+    target: "esnext",
+    modulePreload: {
+      polyfill: false,
+    },
   },
   optimizeDeps: {
     include: [
@@ -94,5 +98,8 @@ export default defineConfig(({ mode }) => ({
       "@radix-ui/react-toggle-group",
       "@radix-ui/react-tooltip"
     ],
+    esbuildOptions: {
+      target: "esnext",
+    },
   },
 }));
