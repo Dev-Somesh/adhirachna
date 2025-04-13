@@ -1,22 +1,19 @@
-import { EntrySkeletonType } from 'contentful';
+
+import { Entry, EntryFields, Asset } from 'contentful';
 
 export interface BlogPostFields {
   title: string;
   slug: string;
-  content: string;
+  content?: EntryFields.RichText;
+  body?: EntryFields.RichText;
   excerpt: string;
-  featuredImage: {
-    fields: {
-      file: {
-        url: string;
-      };
-    };
-  };
+  featuredImage?: Asset;
   author: string;
-  publishDate: string;
+  date?: string;
+  publishDate?: string;
+  category?: string;
+  tags?: string[];
+  viewCount?: number;
 }
 
-export interface BlogPost extends EntrySkeletonType {
-  contentTypeId: 'blogPost';
-  fields: BlogPostFields;
-} 
+export type BlogPost = Entry<BlogPostFields>;

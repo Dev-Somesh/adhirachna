@@ -3,13 +3,29 @@ import { Link } from 'react-router-dom';
 import { Calendar, User, Eye, Tag, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import type { BlogPost } from '@/types/blog';
+import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
+import { Entry } from 'contentful';
+import { BlogPostFields } from '@/types/contentful';
 
 interface BlogPostProps {
-  post: BlogPost;
+  post: Entry<BlogPostFields>;
 }
 
 const BlogPost = ({ post }: BlogPostProps) => {
+  const { fields } = post;
+  
+  // Extract fields safely
+  const title = fields.title || 'Untitled';
+  const author = fields.author || 'Unknown';
+  const date = fields.date || fields.publishDate || post.sys.createdAt;
+  const content = fields.content || fields.body;
+  const category = fields.category || 'Uncategorized';
+  const tags = fields.tags || [];
+  const viewCount = fields.viewCount || 0;
+  const imageUrl = fields.featuredImage?.fields?.file?.url 
+    ? `https:${fields.featuredImage.fields.file.url}`
+    : '/placeholder.svg';
+
   return (
     <>
       <Link to="/blog" className="inline-flex items-center text-adhirachna-blue hover:text-adhirachna-green mb-6">
@@ -20,8 +36,8 @@ const BlogPost = ({ post }: BlogPostProps) => {
       <div className="bg-white rounded-lg shadow-soft overflow-hidden">
         <div className="h-96 overflow-hidden">
           <img 
-            src={post.image || '/placeholder.svg'} 
-            alt={post.title} 
+            src={imageUrl}
+            alt={title}
             className="w-full h-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = '/placeholder.svg';
@@ -32,30 +48,38 @@ const BlogPost = ({ post }: BlogPostProps) => {
         <div className="p-8">
           <div className="mb-4">
             <span className="px-3 py-1 bg-adhirachna-green/10 text-adhirachna-green rounded-full text-sm font-medium">
-              {post.category}
+              {category}
             </span>
           </div>
           
           <h1 className="text-3xl md:text-4xl font-bold text-adhirachna-darkblue mb-4">
-            {post.title}
+            {title}
           </h1>
           
           <div className="flex flex-wrap items-center gap-6 text-adhirachna-gray mb-8">
             <div className="flex items-center">
               <User className="h-4 w-4 mr-2" />
-              <span>{post.author}</span>
+              <span>{author}</span>
             </div>
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-2" />
-              <span>{format(new Date(post.date), 'MMMM dd, yyyy')}</span>
+              <span>{format(new Date(date), 'MMMM dd, yyyy')}</span>
             </div>
             <div className="flex items-center">
               <Eye className="h-4 w-4 mr-2" />
-              <span>{post.views} views</span>
+              <span>{viewCount} views</span>
             </div>
           </div>
           
-          <div className="prose prose-adhirachna max-w-none mb-8" dangerouslySetInnerHTML={{ __html: post.content }} />
+          {content ? (
+            <div className="prose prose-adhirachna max-w-none mb-8">
+              {documentToReactComponents(content)}
+            </div>
+          ) : (
+            <div className="prose prose-adhirachna max-w-none mb-8">
+              <p>{fields.excerpt || 'No content available'}</p>
+            </div>
+          )}
           
           <div className="flex flex-wrap items-center gap-4 border-t border-b border-gray-200 py-6">
             <div className="flex items-center">
@@ -63,8 +87,8 @@ const BlogPost = ({ post }: BlogPostProps) => {
               <span className="text-adhirachna-darkblue font-medium">Tags:</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {post.tags && Array.isArray(post.tags) && post.tags.length > 0 ? (
-                post.tags.map((tag: string) => (
+              {tags && tags.length > 0 ? (
+                tags.map((tag: string) => (
                   <Link 
                     key={tag} 
                     to={`/blog?tag=${tag}`}
