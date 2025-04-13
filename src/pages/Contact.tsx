@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -44,27 +43,19 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare form data for submission to FormSubmit.co
-      const formData = new FormData();
+      // Encode the form data
+      const formData = new URLSearchParams();
+      formData.append('form-name', 'contact');
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value as string);
       });
 
-      // Set FormSubmit.co endpoint for the specific email
-      const endpoint = 'https://formsubmit.co/info@adhirachna.com';
-      
-      // Add FormSubmit.co specific fields if needed
-      formData.append('_subject', `New message from ${data.name}: ${data.subject}`);
-      formData.append('_template', 'table'); // Nice table format
-      formData.append('_captcha', 'false'); // Disable captcha for better UX
-      formData.append('_replyto', data.email); // Enable direct reply to sender
-      
       // Send the form
-      const response = await fetch(endpoint, {
+      const response = await fetch('/', {
         method: 'POST',
         body: formData,
         headers: {
-          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
 
@@ -232,13 +223,13 @@ const Contact = () => {
                     <form 
                       onSubmit={form.handleSubmit(onSubmit)} 
                       className="space-y-6"
-                      action="https://formsubmit.co/info@adhirachna.com" 
-                      method="POST"
+                      name="contact"
+                      data-netlify="true"
+                      data-netlify-honeypot="bot-field"
                     >
-                      {/* Hidden fields for FormSubmit.co configuration */}
-                      <input type="hidden" name="_template" value="table" />
-                      <input type="hidden" name="_captcha" value="false" />
-                      <input type="hidden" name="_subject" value="New contact form submission" />
+                      {/* Hidden Netlify form fields */}
+                      <input type="hidden" name="form-name" value="contact" />
+                      <input type="hidden" name="bot-field" />
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
