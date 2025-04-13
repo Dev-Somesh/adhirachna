@@ -41,16 +41,16 @@ const BlogDetail = () => {
   // Convert Contentful posts to our internal format for the sidebar
   const convertedPosts = useMemo(() => {
     return allPosts.map(post => {
-      const fields = post.fields || {};
+      const fields = post?.fields || {};
       
       return {
-        id: fields.slug || post.sys.id,
-        title: fields.title || 'Untitled',
-        date: fields.date || fields.publishDate || post.sys.createdAt,
-        image: fields.featuredImage?.fields?.file?.url 
+        id: fields?.slug || post.sys.id,
+        title: fields?.title || 'Untitled',
+        date: fields?.date || fields?.publishDate || post.sys.createdAt,
+        image: fields?.featuredImage?.fields?.file?.url 
           ? `https:${fields.featuredImage.fields.file.url}`
           : '/placeholder.svg',
-        views: fields.viewCount || 0
+        views: fields?.viewCount || 0
       };
     });
   }, [allPosts]);
@@ -60,7 +60,7 @@ const BlogDetail = () => {
     if (allPostsLoading || !allPosts) return [{ name: 'All', count: 0 }];
     
     const categoryCounts = allPosts.reduce((acc, post) => {
-      const category = post.fields?.category || 'Uncategorized';
+      const category = post?.fields?.category || 'Uncategorized';
       acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -79,7 +79,7 @@ const BlogDetail = () => {
     
     const tagsSet = new Set<string>();
     allPosts.forEach(post => {
-      const tags = post.fields?.tags;
+      const tags = post?.fields?.tags;
       if (tags && Array.isArray(tags)) {
         tags.forEach(tag => tagsSet.add(tag));
       }
@@ -135,8 +135,8 @@ const BlogDetail = () => {
               <BlogPost post={post} />
               <div className="mt-8 bg-white rounded-lg shadow-soft p-6">
                 <SocialShare 
-                  postTitle={post.fields?.title || ''} 
-                  slug={post.fields?.slug || post.sys.id} 
+                  postTitle={post?.fields?.title || ''} 
+                  slug={post?.fields?.slug || post.sys.id} 
                 />
               </div>
             </div>

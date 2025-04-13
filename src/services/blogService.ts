@@ -5,7 +5,7 @@ import { BlogPost, BlogPostSkeleton } from '../types/contentful';
 export const getBlogPosts = async (): Promise<BlogPost[]> => {
   const response = await contentfulClient.getEntries<BlogPostSkeleton>({
     content_type: 'blogPost',
-    order: ['-sys.createdAt'] as const, // Properly typed order parameter
+    order: '-sys.createdAt',
   });
   return response.items;
 };
@@ -13,7 +13,7 @@ export const getBlogPosts = async (): Promise<BlogPost[]> => {
 export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
   const response = await contentfulClient.getEntries<BlogPostSkeleton>({
     content_type: 'blogPost',
-    'fields.slug': slug, // This is now properly typed
+    'fields.slug': slug,
     limit: 1,
   });
   

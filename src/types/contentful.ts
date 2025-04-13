@@ -1,5 +1,5 @@
 
-import { Entry, Asset, EntrySkeletonType, EntryFields } from 'contentful';
+import { Entry, Asset, EntryFields } from 'contentful';
 
 // Define the BlogPostFields interface that matches Contentful's structure
 export interface BlogPostFields {
@@ -18,10 +18,10 @@ export interface BlogPostFields {
 }
 
 // Define the BlogPostSkeleton interface with the correct structure
-export interface BlogPostSkeleton extends EntrySkeletonType {
+export interface BlogPostSkeleton {
   contentTypeId: 'blogPost';
   fields: BlogPostFields;
 }
 
-// Use Entry<BlogPostFields> for the BlogPost type
+// BlogPost type is an Entry with BlogPostFields
 export type BlogPost = Entry<BlogPostFields>;
