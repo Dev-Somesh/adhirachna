@@ -17,11 +17,11 @@ export interface BlogPostFields {
   viewCount?: EntryFields.Integer;
 }
 
-// Define the BlogPost type as a Contentful Entry with BlogPostFields
-export type BlogPost = Entry<BlogPostFields>;
-
-// This satisfies the EntrySkeletonType constraint needed for the content type param
+// Define the BlogPostSkeleton interface with the correct structure
 export interface BlogPostSkeleton extends EntrySkeletonType {
   contentTypeId: 'blogPost';
   fields: BlogPostFields;
 }
+
+// Use Entry<BlogPostFields> for the BlogPost type
+export type BlogPost = Entry<BlogPostFields>;

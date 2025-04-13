@@ -5,15 +5,15 @@ import { BlogPost, BlogPostSkeleton } from '../types/contentful';
 export const getBlogPosts = async (): Promise<BlogPost[]> => {
   const response = await contentfulClient.getEntries<BlogPostSkeleton>({
     content_type: 'blogPost',
-    order: '-sys.createdAt',
+    order: ['-sys.createdAt'] as const, // Properly typed order parameter
   });
-  return response.items as BlogPost[];
+  return response.items;
 };
 
 export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
   const response = await contentfulClient.getEntries<BlogPostSkeleton>({
     content_type: 'blogPost',
-    'fields.slug': slug,
+    'fields.slug': slug, // This is now properly typed
     limit: 1,
   });
   
@@ -21,5 +21,5 @@ export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
     throw new Error(`Blog post with slug "${slug}" not found`);
   }
   
-  return response.items[0] as BlogPost;
+  return response.items[0];
 };
