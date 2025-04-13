@@ -1,9 +1,14 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Get current timestamp
 const timestamp = new Date().toISOString();
 const version = process.env.npm_package_version || '0.0.0';
+
+// Get the directory name using ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create or update .env file
 const envPath = path.join(__dirname, '..', '.env');

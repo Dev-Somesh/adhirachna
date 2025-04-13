@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "build:prod": "node scripts/set-build-env.js && vite build --mode production",
+    "build:prod": "node --experimental-modules scripts/set-build-env.js && vite build --mode production",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
