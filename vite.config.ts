@@ -58,6 +58,10 @@ export default defineConfig(({ mode }) => ({
     modulePreload: {
       polyfill: false,
     },
+    reportCompressedSize: true,
+    cssCodeSplit: true,
+    cssMinify: mode === "production",
+    assetsInlineLimit: 4096,
   },
   optimizeDeps: {
     include: [
@@ -73,6 +77,7 @@ export default defineConfig(({ mode }) => ({
     ],
     esbuildOptions: {
       target: "esnext",
+      minify: mode === "production",
     },
   },
 }));
