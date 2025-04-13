@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
   newPassword: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters")
+  confirmPassword: z.string().min(1, "Please confirm your new password")
 }).refine(data => data.newPassword === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -42,16 +41,18 @@ const Settings = () => {
       newPassword: "",
       confirmPassword: "",
     },
+    mode: "onChange",
   });
   
   const settingsForm = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      companyName: "Adhirachna Engineering Solutions",
-      email: "info@adhirachna.com",
-      phone: "+91 123 456 7890",
-      address: "Villa No. 04, Aditi Villas, Jagatpura, Jaipur, Rajasthan, 302017, India",
+      companyName: "",
+      email: "",
+      phone: "",
+      address: "",
     },
+    mode: "onChange",
   });
   
   const onPasswordSubmit = async (data: PasswordFormValues) => {
@@ -262,7 +263,9 @@ const Settings = () => {
                         <div className="relative">
                           <Input 
                             type={showCurrentPassword ? "text" : "password"} 
-                            {...field} 
+                            {...field}
+                            placeholder="Enter your current password"
+                            className="pr-10"
                           />
                           <button 
                             type="button"
@@ -288,7 +291,9 @@ const Settings = () => {
                         <div className="relative">
                           <Input 
                             type={showNewPassword ? "text" : "password"} 
-                            {...field} 
+                            {...field}
+                            placeholder="Enter your new password"
+                            className="pr-10"
                           />
                           <button 
                             type="button"
@@ -300,7 +305,7 @@ const Settings = () => {
                         </div>
                       </FormControl>
                       <FormDescription>
-                        Password must be at least 6 characters.
+                        Password must be at least 6 characters long
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -317,7 +322,9 @@ const Settings = () => {
                         <div className="relative">
                           <Input 
                             type={showConfirmPassword ? "text" : "password"} 
-                            {...field} 
+                            {...field}
+                            placeholder="Confirm your new password"
+                            className="pr-10"
                           />
                           <button 
                             type="button"

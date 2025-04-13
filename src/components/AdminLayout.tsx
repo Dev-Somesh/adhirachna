@@ -1,230 +1,134 @@
-import { useEffect, useState } from "react";
-import { Navigate, Link, Outlet, useNavigate } from "react-router-dom";
-import { Home, Settings, LogOut, Users, FileText, BookOpen } from "lucide-react";
+import { useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Users, 
+  Settings, 
+  Globe, 
+  LogOut,
+  Menu,
+  X
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
-import { supabase, signOut } from "@/integrations/supabase/client";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
 
 const AdminLayout = () => {
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
-  
-  useEffect(() => {
-    const checkAuth = async () => {
-      setLoading(true);
-      try {
-        // First check if there's a persisted session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Session error:", error);
-          setAuthenticated(false);
-          localStorage.removeItem("adhirachna_admin_logged_in");
-          toast({
-            title: "Authentication Error",
-            description: error.message,
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        if (session) {
-          console.log("User is authenticated:", !!session);
-          setAuthenticated(true);
-          localStorage.setItem("adhirachna_admin_logged_in", "true");
-        } else {
-          console.log("No active session found");
-          setAuthenticated(false);
-          localStorage.removeItem("adhirachna_admin_logged_in");
-        }
-      } catch (err) {
-        console.error("Auth check error:", err);
-        setAuthenticated(false);
-        localStorage.removeItem("adhirachna_admin_logged_in");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    checkAuth();
-    
-    // Setup auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth state changed in AdminLayout:", event, !!session);
-        
-        if (event === 'SIGNED_IN' && session) {
-          setAuthenticated(true);
-          localStorage.setItem("adhirachna_admin_logged_in", "true");
-        } else if (event === 'SIGNED_OUT') {
-          setAuthenticated(false);
-          localStorage.removeItem("adhirachna_admin_logged_in");
-          navigate("/login");
-        }
-      }
-    );
-    
-    // Track session activity
-    const checkActivity = () => {
-      const lastActivity = localStorage.getItem("adhirachna_last_activity");
-      const now = new Date().getTime();
-      
-      if (lastActivity && now - parseInt(lastActivity) > 30 * 60 * 1000) { // 30 minutes
-        // Auto logout after 30 minutes of inactivity
-        signOut().then(() => {
-          localStorage.removeItem("adhirachna_last_activity");
-          toast({
-            title: "Session Expired",
-            description: "Your session has expired due to inactivity.",
-          });
-          navigate("/login");
-        });
-      } else {
-        localStorage.setItem("adhirachna_last_activity", now.toString());
-      }
-    };
-    
-    // Check on load
-    checkActivity();
-    
-    // Setup event listeners for activity
-    const activityEvents = ["mousedown", "mousemove", "keydown", "scroll", "touchstart"];
-    const activityListener = () => {
-      localStorage.setItem("adhirachna_last_activity", new Date().getTime().toString());
-    };
-    
-    activityEvents.forEach(event => {
-      window.addEventListener(event, activityListener);
-    });
-    
-    return () => {
-      subscription.unsubscribe();
-      activityEvents.forEach(event => {
-        window.removeEventListener(event, activityListener);
-      });
-    };
-  }, [navigate]);
-  
-  // Handle logout function
-  const handleLogout = async () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleSignOut = async () => {
     try {
       await signOut();
-      
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: "Signed out successfully",
+        description: "You have been signed out of your account",
       });
-      
       navigate("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("Sign out error:", error);
       toast({
-        title: "Logout Error",
-        description: error instanceof Error ? error.message : "Error during logout",
-        variant: "destructive"
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
       });
     }
   };
-  
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-adhirachna-blue mb-4" />
-        <p className="text-xl">Loading admin dashboard...</p>
-      </div>
-    );
-  }
-  
-  // If not logged in, redirect to login page
-  if (!authenticated) {
-    return <Navigate to="/login" replace />;
-  }
+
+  const navigationItems = [
+    {
+      name: "Dashboard",
+      href: "/admin",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "Content Management",
+      href: "/admin/content",
+      icon: Globe,
+    },
+    {
+      name: "Blog Management",
+      href: "https://app.contentful.com",
+      icon: FileText,
+      external: true,
+    },
+    {
+      name: "Team Management",
+      href: "/admin/team",
+      icon: Users,
+    },
+    {
+      name: "System Settings",
+      href: "/admin/settings",
+      icon: Settings,
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-adhirachna-light flex">
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm p-4 flex justify-between items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </Button>
+        <h1 className="text-xl font-bold">Admin Panel</h1>
+      </div>
+
       {/* Sidebar */}
-      <div className="w-64 bg-adhirachna-darkblue text-white p-4 flex flex-col">
-        <div className="mb-8 flex justify-center">
-          <img 
-            src="/lovable-uploads/621de27a-0a5d-497f-91db-56b0a403ac42.png" 
-            alt="Adhirachna Engineering Solutions" 
-            className="h-12"
-          />
-        </div>
-        
-        <nav className="flex-1">
-          <ul className="space-y-2">
-            <li>
-              <Link 
-                to="/admin" 
-                className="flex items-center p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 transition-transform duration-200 ease-in-out`}
+      >
+        <div className="h-full flex flex-col">
+          <div className="p-6">
+            <h1 className="text-2xl font-bold">Admin Panel</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {user?.email}
+            </p>
+          </div>
+
+          <nav className="flex-1 px-3 py-4 space-y-1">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                target={item.external ? "_blank" : undefined}
+                className="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
               >
-                <Home className="mr-3 h-5 w-5" />
-                Dashboard
+                <item.icon className="h-5 w-5 mr-3" />
+                {item.name}
+                {item.external && (
+                  <span className="ml-2 text-xs text-gray-400">(External)</span>
+                )}
               </Link>
-            </li>
-            <li>
-              <Link 
-                to="/admin/content" 
-                className="flex items-center p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
-              >
-                <FileText className="mr-3 h-5 w-5" />
-                Content Management
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/admin/blog" 
-                className="flex items-center p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
-              >
-                <BookOpen className="mr-3 h-5 w-5" />
-                Blog Management
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/admin/team" 
-                className="flex items-center p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
-              >
-                <Users className="mr-3 h-5 w-5" />
-                Team Members
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/admin/settings" 
-                className="flex items-center p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
-              >
-                <Settings className="mr-3 h-5 w-5" />
-                Settings
-              </Link>
-            </li>
-          </ul>
-        </nav>
-        
-        <div className="mt-auto pt-4 border-t border-adhirachna-blue/20">
-          <button 
-            onClick={handleLogout}
-            className="flex items-center w-full p-3 rounded-lg hover:bg-adhirachna-blue/20 transition-colors"
-          >
-            <LogOut className="mr-3 h-5 w-5" />
-            Logout
-          </button>
+            ))}
+          </nav>
+
+          <div className="p-4 border-t">
+            <Button
+              variant="ghost"
+              className="w-full flex items-center justify-start"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-5 w-5 mr-3" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
-      
+
       {/* Main content */}
-      <div className="flex-1 overflow-auto">
-        <header className="bg-white shadow-sm p-4">
-          <h1 className="text-xl font-semibold text-adhirachna-darkblue">Admin Dashboard</h1>
-        </header>
-        
-        <main className="p-6">
+      <div className="lg:pl-64">
+        <div className="p-6">
           <Outlet />
-        </main>
+        </div>
       </div>
     </div>
   );

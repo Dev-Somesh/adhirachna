@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -41,78 +40,58 @@ const Navbar = () => {
         <nav className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/4c3bdf49-51a1-4395-979c-df13ea291dc1.png" 
+              src="/lovable-uploads/Adhirachna logo.png" 
               alt="Adhirachna Engineering Solutions" 
               className="h-16 md:h-20" 
+              onError={(e) => {
+                // Fallback to text if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                target.parentElement!.innerHTML = '<span class="text-2xl font-bold text-adhirachna-green">Adhirachna</span>';
+              }}
             />
           </Link>
 
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden focus:outline-none"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMenuOpen ? (
-              <X className="h-6 w-6 text-adhirachna-darkblue" />
-            ) : (
-              <Menu className="h-6 w-6 text-adhirachna-darkblue" />
-            )}
-          </button>
-
-          {/* Desktop navigation */}
-          <ul className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
-              <li key={item.name}>
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`text-sm font-medium transition-colors hover:text-adhirachna-green ${
+                  location.pathname === item.path ? 'text-adhirachna-green' : 'text-gray-700'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </nav>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 pb-4">
+            <div className="flex flex-col space-y-4">
+              {menuItems.map((item) => (
                 <Link
+                  key={item.name}
                   to={item.path}
-                  className={`font-medium text-black hover:text-adhirachna-green transition-colors ${
-                    location.pathname === item.path ? 'text-adhirachna-green' : ''
+                  className={`text-sm font-medium transition-colors hover:text-adhirachna-green ${
+                    location.pathname === item.path ? 'text-adhirachna-green' : 'text-gray-700'
                   }`}
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
-              </li>
-            ))}
-            <li>
-              <Link 
-                to="/contact" 
-                className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white rounded-md"
-              >
-                Get In Touch
-              </Link>
-            </li>
-          </ul>
-        </nav>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="fixed inset-0 bg-white bg-opacity-95 z-50 flex flex-col pt-16">
-              <ul className="flex flex-col items-center space-y-6 text-xl mt-12 bg-adhirachna-darkblue/5 p-6 rounded-lg mx-4 backdrop-blur-sm">
-                {menuItems.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      to={item.path}
-                      className={`font-medium text-black hover:text-adhirachna-green transition-colors ${
-                        location.pathname === item.path ? 'text-adhirachna-green' : ''
-                      }`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-                <li className="pt-6">
-                  <Link 
-                    to="/contact" 
-                    className="btn-primary py-2 px-4 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Get In Touch
-                  </Link>
-                </li>
-              </ul>
+              ))}
             </div>
           </div>
         )}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
@@ -14,24 +13,25 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters")
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginFormData = z.infer<typeof loginSchema>;
+
+const DEMO_CREDENTIALS = {
+  email: "demo@adhirachna.com",
+  password: "demo123456"
+};
 
 const Login = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema)
   });
 
   useEffect(() => {
@@ -40,20 +40,17 @@ const Login = () => {
       setIsAuthenticated(!!session);
       
       if (session) {
-        // Already logged in, redirect to admin
         navigate("/admin");
       }
     };
     
     checkAuth();
     
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed in Login:", event);
       setIsAuthenticated(!!session);
       
       if (session) {
-        // Just logged in, redirect to admin
         navigate("/admin");
       }
     });
@@ -63,85 +60,70 @@ const Login = () => {
     };
   }, [navigate]);
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
+  const onSubmit = async (data: LoginFormData) => {
+    setLoading(true);
     setError(null);
     
     try {
-      // Sign in with Supabase
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
-        password: data.password,
+        password: data.password
       });
       
-      if (authError) throw authError;
+      if (error) throw error;
       
-      if (authData.session) {
-        // Store session for future use
-        localStorage.setItem("adhirachna_admin_logged_in", "true");
-        
-        // Show success message
-        toast({
-          title: "Login Successful",
-          description: "Welcome to the admin dashboard",
-        });
-        
-        // Redirect is handled by the auth state change listener
-      } else {
-        throw new Error("Failed to authenticate");
-      }
+      toast({
+        title: "Success",
+        description: "Login successful!",
+        duration: 3000
+      });
+      navigate("/admin");
     } catch (err) {
       console.error("Login error:", err);
-      setError(err instanceof Error ? err.message : "Login failed");
-      
+      setError(err instanceof Error ? err.message : "An error occurred during login");
       toast({
-        title: "Login Failed",
-        description: err instanceof Error ? err.message : "Invalid email or password",
+        title: "Error",
+        description: "Login failed. Please check your credentials.",
         variant: "destructive",
+        duration: 3000
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const demoLogin = async () => {
-    setIsLoading(true);
+  const handleDemoLogin = async () => {
+    setLoading(true);
     setError(null);
     
     try {
-      // Demo credentials - using hardcoded demo credentials for clarity
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: "demo@adhirachna.com",
-        password: "demo12345",
+      const { error } = await supabase.auth.signInWithPassword({
+        email: DEMO_CREDENTIALS.email,
+        password: DEMO_CREDENTIALS.password
       });
       
-      if (authError) throw authError;
-      
-      if (authData.session) {
-        localStorage.setItem("adhirachna_admin_logged_in", "true");
-        
-        toast({
-          title: "Demo Login Successful",
-          description: "You are now using the demo account",
-        });
-      } else {
-        throw new Error("Failed to authenticate with demo account");
-      }
-    } catch (err) {
-      console.error("Demo login error:", err);
-      setError(err instanceof Error ? err.message : "Demo login failed");
+      if (error) throw error;
       
       toast({
-        title: "Demo Login Failed",
-        description: err instanceof Error ? err.message : "Failed to login with demo account",
+        title: "Success",
+        description: "Demo login successful!",
+        duration: 3000
+      });
+      navigate("/admin");
+    } catch (err) {
+      console.error("Demo login error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred during demo login");
+      toast({
+        title: "Error",
+        description: "Demo login failed. Please try again.",
         variant: "destructive",
+        duration: 3000
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  // If already authenticated, show loading until redirect happens
   if (isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -208,28 +190,36 @@ const Login = () => {
               <button
                 type="submit"
                 className="btn-primary w-full"
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <span className="flex items-center justify-center">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging in...
+                    Signing in...
                   </span>
                 ) : (
-                  "Login"
+                  "Sign in"
                 )}
               </button>
             </form>
           </Form>
 
-          <div className="mt-4">
+          <div className="mt-4 text-center">
             <button 
-              onClick={demoLogin} 
-              className="w-full text-center text-sm text-adhirachna-blue hover:text-adhirachna-darkblue"
-              disabled={isLoading}
+              onClick={handleDemoLogin} 
+              className="w-full text-center text-sm text-adhirachna-blue hover:text-adhirachna-darkblue mb-2"
+              disabled={loading}
             >
               Use Demo Account
             </button>
+            <div className="text-xs text-gray-500">
+              Demo Credentials:
+              <div className="mt-1">
+                Email: {DEMO_CREDENTIALS.email}
+                <br />
+                Password: {DEMO_CREDENTIALS.password}
+              </div>
+            </div>
           </div>
 
           <div className="mt-6 text-center">

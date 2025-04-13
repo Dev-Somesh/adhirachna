@@ -1,243 +1,245 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
-import { useSiteContent } from "@/context/SiteContext";
-import { Eye } from "lucide-react";
-import { Link } from "react-router-dom";
 
-// Type to represent all possible section types
-type SectionType = "hero" | "about" | "services" | "contact";
+const contentSchema = z.object({
+  heroTitle: z.string().min(1, "Title is required"),
+  heroDescription: z.string().min(1, "Description is required"),
+  aboutTitle: z.string().min(1, "Title is required"),
+  aboutDescription: z.string().min(1, "Description is required"),
+  servicesTitle: z.string().min(1, "Title is required"),
+  servicesDescription: z.string().min(1, "Description is required"),
+  contactTitle: z.string().min(1, "Title is required"),
+  contactDescription: z.string().min(1, "Description is required"),
+});
 
-// Type for form values based on section type
-type FormValues = {
-  title: string;
-  subtitle?: string;
-  content?: string;
-  enabled: boolean;
-};
+type ContentFormValues = z.infer<typeof contentSchema>;
 
 const ContentManagement = () => {
-  const { siteContent, updateSection } = useSiteContent();
-  const [activeTab, setActiveTab] = useState<SectionType>("hero");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Define form with type
-  const form = useForm<FormValues>({
-    defaultValues: getSectionData(activeTab)
+  const [activeTab, setActiveTab] = useState("home");
+  const [loading, setLoading] = useState(false);
+
+  const form = useForm<ContentFormValues>({
+    resolver: zodResolver(contentSchema),
+    defaultValues: {
+      heroTitle: "",
+      heroDescription: "",
+      aboutTitle: "",
+      aboutDescription: "",
+      servicesTitle: "",
+      servicesDescription: "",
+      contactTitle: "",
+      contactDescription: "",
+    },
   });
-  
-  // Update form when activeTab changes
-  useEffect(() => {
-    form.reset(getSectionData(activeTab));
-  }, [activeTab, form, siteContent]);
-  
-  // Function to get the appropriate section data based on the active tab
-  function getSectionData(tab: SectionType): FormValues {
-    switch (tab) {
-      case "hero":
-        return {
-          title: siteContent.hero.title,
-          subtitle: siteContent.hero.subtitle,
-          enabled: siteContent.hero.enabled
-        };
-      case "about":
-        return {
-          title: siteContent.about.title,
-          content: siteContent.about.content,
-          enabled: siteContent.about.enabled
-        };
-      case "services":
-        return {
-          title: siteContent.services.title,
-          subtitle: siteContent.services.subtitle,
-          enabled: siteContent.services.enabled
-        };
-      case "contact":
-        return {
-          title: siteContent.contact.title,
-          subtitle: siteContent.contact.subtitle,
-          enabled: siteContent.contact.enabled
-        };
-      default:
-        return {
-          title: "",
-          enabled: false
-        };
-    }
-  }
-  
-  // Update form values when tab changes
-  const handleTabChange = (tabId: SectionType) => {
-    setActiveTab(tabId);
-    form.reset(getSectionData(tabId));
-  };
-  
-  const onSubmit = (data: FormValues) => {
-    setIsSubmitting(true);
-    
+
+  const onSubmit = async (data: ContentFormValues) => {
+    setLoading(true);
     try {
-      // Update the site content with the new data
-      updateSection(activeTab, data);
+      // Here you would typically save to your database
+      console.log("Content update data:", data);
+      
+      // Store in localStorage for now
+      localStorage.setItem("adhirachna_website_content", JSON.stringify(data));
       
       toast({
-        title: "Changes Saved",
-        description: "Your content changes have been saved and are now visible on the website."
+        title: "Content Updated",
+        description: "Website content has been updated successfully",
       });
     } catch (error) {
-      console.error("Error updating content:", error);
-      
+      console.error("Content update error:", error);
       toast({
-        title: "Error Saving Changes",
-        description: "There was a problem saving your changes. Please try again.",
-        variant: "destructive"
+        title: "Error",
+        description: "Failed to update content",
+        variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
-  // Function to check if the current section has content field
-  const hasContentField = activeTab === "about";
-  // Function to check if the current section has subtitle field
-  const hasSubtitleField = activeTab === "hero" || activeTab === "services" || activeTab === "contact";
-
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold">Content Management</h2>
-        <Link 
-          to="/" 
-          target="_blank"
-          className="btn-secondary flex items-center"
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Content Management</h1>
+        <Button
+          variant="outline"
+          onClick={() => window.open('/', '_blank')}
         >
-          <Eye className="mr-2 h-5 w-5" />
           Preview Website
-        </Link>
+        </Button>
       </div>
-      
-      <div className="glass-card">
-        <div className="flex border-b overflow-x-auto">
-          {["hero", "about", "services", "contact"].map((sectionId) => (
-            <button
-              key={sectionId}
-              className={`px-6 py-3 font-medium whitespace-nowrap ${
-                activeTab === sectionId 
-                  ? "border-b-2 border-adhirachna-blue text-adhirachna-darkblue" 
-                  : "text-adhirachna-gray"
-              }`}
-              onClick={() => handleTabChange(sectionId as SectionType)}
-            >
-              {sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Section
-            </button>
-          ))}
-        </div>
-        
-        <div className="p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      This is the main heading for the {activeTab} section.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {hasSubtitleField && (
-                <FormField
-                  control={form.control}
-                  name="subtitle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Section Subtitle</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        A brief description that appears below the title.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-              
-              {hasContentField && (
-                <FormField
-                  control={form.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Content</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          {...field} 
-                          rows={5}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        The main content of the about section.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-              
-              <FormField
-                control={form.control}
-                name="enabled"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <Switch 
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      Enable this section
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="reset"
-                  className="px-4 py-2 border border-adhirachna-gray text-adhirachna-gray rounded hover:bg-adhirachna-lightgray transition-colors"
-                  onClick={() => form.reset(getSectionData(activeTab))}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </Form>
-        </div>
-      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="home">Home Page</TabsTrigger>
+          <TabsTrigger value="about">About Page</TabsTrigger>
+          <TabsTrigger value="services">Services Page</TabsTrigger>
+          <TabsTrigger value="contact">Contact Page</TabsTrigger>
+        </TabsList>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <TabsContent value="home">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Home Page Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="heroTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hero Title</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter hero title" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="heroDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hero Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter hero description" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="about">
+              <Card>
+                <CardHeader>
+                  <CardTitle>About Page Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="aboutTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>About Title</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter about title" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="aboutDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>About Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter about description" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="services">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Services Page Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="servicesTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Services Title</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter services title" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="servicesDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Services Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter services description" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="contact">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contact Page Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="contactTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Title</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter contact title" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="contactDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter contact description" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loading}>
+                {loading ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </Tabs>
     </div>
   );
 };

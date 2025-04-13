@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,8 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
+import { AuthProvider } from "@/context/AuthContext";
+import { ErrorBoundary } from "react-error-boundary";
 
 // Create a React Query client with default options
 const queryClient = new QueryClient({
@@ -32,50 +33,63 @@ const queryClient = new QueryClient({
   },
 });
 
+function ErrorFallback({ error }: { error: Error }) {
+  return (
+    <div className="p-4 text-red-500">
+      <h2>Something went wrong:</h2>
+      <pre>{error.message}</pre>
+    </div>
+  );
+}
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SiteProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            
-            {/* Main navigation pages */}
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/contact" element={<Contact />} />
-            
-            {/* Blog pages */}
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:id" element={<BlogDetail />} />
-            
-            {/* Policy pages */}
-            <Route path="/privacy-policy" element={<PolicyPage />} />
-            <Route path="/terms-of-service" element={<PolicyPage />} />
-            <Route path="/cookie-policy" element={<PolicyPage />} />
-            
-            {/* Authentication */}
-            <Route path="/login" element={<Login />} />
-            
-            {/* Admin routes */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="content" element={<ContentManagement />} />
-              <Route path="blog" element={<BlogManagement />} />
-              <Route path="team" element={<TeamMembers />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
-            
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SiteProvider>
-  </QueryClientProvider>
+  <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <QueryClientProvider client={queryClient}>
+      <SiteProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                
+                {/* Main navigation pages */}
+                <Route path="/about" element={<About />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/contact" element={<Contact />} />
+                
+                {/* Blog pages */}
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:id" element={<BlogDetail />} />
+                
+                {/* Policy pages */}
+                <Route path="/privacy-policy" element={<PolicyPage />} />
+                <Route path="/terms-of-service" element={<PolicyPage />} />
+                <Route path="/cookie-policy" element={<PolicyPage />} />
+                
+                {/* Authentication */}
+                <Route path="/login" element={<Login />} />
+                
+                {/* Admin routes */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="content" element={<ContentManagement />} />
+                  <Route path="blog" element={<BlogManagement />} />
+                  <Route path="team" element={<TeamMembers />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+                
+                {/* Catch-all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </SiteProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

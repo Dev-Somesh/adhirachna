@@ -1,124 +1,117 @@
-
-import { useEffect } from "react";
-import { toast } from "@/components/ui/use-toast";
-import { useSiteContent } from "@/context/SiteContext";
-import { useNavigate } from "react-router-dom";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Users, 
+  Settings, 
+  Globe, 
+  BarChart3,
+  ExternalLink
+} from "lucide-react";
 
 const Dashboard = () => {
-  const { siteContent } = useSiteContent();
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    // Show welcome message
-    toast({
-      title: "Welcome back!",
-      description: "You can manage your website content from here."
-    });
-  }, []);
-
-  // Sample data for website visits graph
-  const visitData = [
-    { name: 'Jan', visits: 2400 },
-    { name: 'Feb', visits: 1398 },
-    { name: 'Mar', visits: 9800 },
-    { name: 'Apr', visits: 3908 },
-    { name: 'May', visits: 4800 },
-    { name: 'Jun', visits: 3800 },
-    { name: 'Jul', visits: 4300 },
-  ];
-
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-8">Dashboard Overview</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-medium text-adhirachna-gray mb-2">Total Visits</h3>
-          <p className="text-3xl font-bold text-adhirachna-darkblue">{siteContent.stats.totalVisits.toLocaleString()}</p>
-        </div>
-        
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-medium text-adhirachna-gray mb-2">Total Messages</h3>
-          <p className="text-3xl font-bold text-adhirachna-darkblue">{siteContent.stats.totalMessages}</p>
-        </div>
-        
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-medium text-adhirachna-gray mb-2">New Messages</h3>
-          <p className="text-3xl font-bold text-adhirachna-green">{siteContent.stats.newMessages}</p>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <div className="flex items-center space-x-2 text-sm text-adhirachna-gray">
+          <span>Last updated: {new Date().toLocaleDateString()}</span>
         </div>
       </div>
-      
-      <div className="glass-card p-6 mb-8">
-        <h3 className="text-xl font-semibold mb-4">Website Traffic</h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={visitData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Line 
-                type="monotone" 
-                dataKey="visits" 
-                stroke="#16a34a" 
-                strokeWidth={2} 
-                activeDot={{ r: 8 }} 
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Quick Stats */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
+            <BarChart3 className="h-4 w-4 text-adhirachna-blue" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">1,234</div>
+            <p className="text-xs text-adhirachna-gray">+12% from last month</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Team Members</CardTitle>
+            <Users className="h-4 w-4 text-adhirachna-blue" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-adhirachna-gray">All departments</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Published Content</CardTitle>
+            <FileText className="h-4 w-4 text-adhirachna-blue" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">24</div>
+            <p className="text-xs text-adhirachna-gray">Pages & Blog Posts</p>
+          </CardContent>
+        </Card>
       </div>
-      
-      <div className="glass-card p-6 mb-8">
-        <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button 
-            className="btn-secondary"
-            onClick={() => navigate('/admin/content')}
-          >
-            Update Website Content
-          </button>
-          <button 
-            className="btn-secondary"
-            onClick={() => navigate('/admin/team')}
-          >
-            Manage Team Members
-          </button>
-          <button 
-            className="btn-secondary"
-            onClick={() => {
-              // Preview the website in a new tab
-              window.open('/', '_blank');
-            }}
-          >
-            Preview Website
-          </button>
-          <button 
-            className="btn-secondary"
-            onClick={() => navigate('/admin/messages')}
-          >
-            Check New Messages
-          </button>
-        </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Button variant="outline" className="h-auto p-4">
+          <div className="flex flex-col items-center space-y-2">
+            <Globe className="h-6 w-6" />
+            <span>Manage Website Content</span>
+          </div>
+        </Button>
+
+        <Button variant="outline" className="h-auto p-4">
+          <div className="flex flex-col items-center space-y-2">
+            <FileText className="h-6 w-6" />
+            <span>Blog Management</span>
+            <ExternalLink className="h-4 w-4" />
+          </div>
+        </Button>
+
+        <Button variant="outline" className="h-auto p-4">
+          <div className="flex flex-col items-center space-y-2">
+            <Users className="h-6 w-6" />
+            <span>Team Management</span>
+          </div>
+        </Button>
+
+        <Button variant="outline" className="h-auto p-4">
+          <div className="flex flex-col items-center space-y-2">
+            <Settings className="h-6 w-6" />
+            <span>System Settings</span>
+          </div>
+        </Button>
       </div>
-      
-      <div className="glass-card p-6">
-        <h3 className="text-xl font-semibold mb-4">Recent Activities</h3>
-        <div className="space-y-4">
-          {siteContent.stats.recentActivities.map((activity) => (
-            <div key={activity.id} className="p-4 bg-white rounded-lg shadow-sm">
-              <p className="text-adhirachna-darkblue">
-                <span className="font-medium">{activity.action}</span> {activity.description}
-              </p>
-              <p className="text-sm text-adhirachna-gray">{activity.timestamp}</p>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium">Content Update</p>
+                <p className="text-sm text-adhirachna-gray">Home page content was updated</p>
+              </div>
+              <span className="text-sm text-adhirachna-gray">2 hours ago</span>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium">New Team Member</p>
+                <p className="text-sm text-adhirachna-gray">John Doe joined the team</p>
+              </div>
+              <span className="text-sm text-adhirachna-gray">1 day ago</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

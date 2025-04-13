@@ -1,11 +1,17 @@
-
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Stats from '@/components/Stats';
+<<<<<<< Updated upstream
 import { useEffect } from 'react';
 import { useSiteContent } from '@/context/SiteContext';
 import { useLocation, Link } from 'react-router-dom';
 import { useInView } from '@/components/ui/motion';
+=======
+import { useEffect, useState, useRef } from 'react';
+import { useSiteContent } from '@/context/SiteContext';
+import { useLocation } from 'react-router-dom';
+import { useInView } from 'framer-motion';
+>>>>>>> Stashed changes
 import { ArrowRight, FileText, Building, Shield, Paintbrush } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { Helmet } from 'react-helmet';
@@ -13,9 +19,12 @@ import { Helmet } from 'react-helmet';
 const Index = () => {
   const { siteContent } = useSiteContent();
   const location = useLocation();
-  const { ref: servicesRef, isInView: isServicesInView } = useInView();
-  const { ref: projectsRef, isInView: isProjectsInView } = useInView();
-  const { ref: aboutRef, isInView: isAboutInView } = useInView();
+  const servicesRef = useRef(null);
+  const projectsRef = useRef(null);
+  const aboutRef = useRef(null);
+  const isServicesInView = useInView(servicesRef);
+  const isProjectsInView = useInView(projectsRef);
+  const isAboutInView = useInView(aboutRef);
   
   // Featured services for homepage
   const featuredServices = [
