@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -35,18 +34,18 @@ const fetchBlogPosts = async (): Promise<BlogPostFromSupabase[]> => {
 // Function to convert Contentful posts to our internal format
 const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPostFromSupabase[] => {
   return contentfulPosts.map(post => ({
-    id: post.fields.slug || post.sys.id,
-    title: post.fields.title || 'Untitled',
-    excerpt: post.fields.excerpt || '',
+    id: post.fields?.slug || post.sys.id,
+    title: post.fields?.title || 'Untitled',
+    excerpt: post.fields?.excerpt || '',
     content: '', // We don't store the full content in the list view
-    author: post.fields.author || 'Unknown',
-    date: post.fields.date || post.fields.publishDate || post.sys.createdAt,
-    category: post.fields.category || 'Uncategorized',
-    image: post.fields.featuredImage?.fields?.file?.url 
+    author: post.fields?.author || 'Unknown',
+    date: post.fields?.date || post.fields?.publishDate || post.sys.createdAt,
+    category: post.fields?.category || 'Uncategorized',
+    image: post.fields?.featuredImage?.fields?.file?.url 
       ? `https:${post.fields.featuredImage.fields.file.url}`
       : '/placeholder.svg',
-    tags: post.fields.tags || [],
-    views: post.fields.viewCount || 0
+    tags: post.fields?.tags || [],
+    views: post.fields?.viewCount || 0
   }));
 };
 
@@ -254,8 +253,8 @@ const Blog = () => {
                     isInView ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
-                  {filteredPosts.map((_, index) => (
-                    <BlogCard key={index} post={contentfulPosts[index]} />
+                  {contentfulPosts.map((post, index) => (
+                    <BlogCard key={post.sys.id} post={post} />
                   ))}
                 </div>
               ) : (

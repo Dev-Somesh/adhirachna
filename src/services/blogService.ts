@@ -1,6 +1,6 @@
 
 import contentfulClient from '../lib/contentful';
-import { BlogPostFields, BlogPost } from '../types/contentful';
+import { BlogPostFields, BlogPost, BlogPostSkeleton } from '../types/contentful';
 
 export const getBlogPosts = async (): Promise<BlogPost[]> => {
   const response = await contentfulClient.getEntries<BlogPostFields>({

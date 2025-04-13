@@ -11,18 +11,16 @@ interface BlogPostProps {
 }
 
 const BlogPost = ({ post }: BlogPostProps) => {
-  const { fields } = post;
-  
-  // Extract fields safely with optional chaining
-  const title = fields?.title || 'Untitled';
-  const author = fields?.author || 'Unknown';
-  const date = fields?.date || fields?.publishDate || post.sys.createdAt;
-  const content = fields?.content || fields?.body;
-  const category = fields?.category || 'Uncategorized';
-  const tags = fields?.tags || [];
-  const viewCount = fields?.viewCount || 0;
-  const imageUrl = fields?.featuredImage?.fields?.file?.url 
-    ? `https:${fields.featuredImage.fields.file.url}`
+  // Extract fields safely with optional chaining and defaults
+  const title = post.fields?.title || 'Untitled';
+  const author = post.fields?.author || 'Unknown';
+  const date = post.fields?.date || post.fields?.publishDate || post.sys.createdAt;
+  const content = post.fields?.content || post.fields?.body;
+  const category = post.fields?.category || 'Uncategorized';
+  const tags = post.fields?.tags || [];
+  const viewCount = post.fields?.viewCount || 0;
+  const imageUrl = post.fields?.featuredImage?.fields?.file?.url 
+    ? `https:${post.fields.featuredImage.fields.file.url}`
     : '/placeholder.svg';
 
   return (
@@ -76,7 +74,7 @@ const BlogPost = ({ post }: BlogPostProps) => {
             </div>
           ) : (
             <div className="prose prose-adhirachna max-w-none mb-8">
-              <p>{fields?.excerpt || 'No content available'}</p>
+              <p>{post.fields?.excerpt || 'No content available'}</p>
             </div>
           )}
           

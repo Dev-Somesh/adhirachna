@@ -11,9 +11,8 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    // We'll remove the lovable-tagger for now since it's causing issues
-    // mode === 'development' && componentTagger(),
-  ].filter(Boolean),
+    // We'll remove the lovable-tagger since it's causing issues
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

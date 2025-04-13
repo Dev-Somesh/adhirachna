@@ -2,7 +2,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createManagementClient } from 'contentful-management';
 import { BlogPostFields } from '../types/contentful';
-import { Asset } from 'contentful';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -54,7 +53,7 @@ async function migrateBlogPosts() {
       if (post.image) {
         console.log(`Image URL found for post ${post.title}: ${post.image}`);
         // In a real implementation, you would upload the image to Contentful first
-        // and then link it as an asset
+        // and then link it as an asset reference, not directly as a field
       }
 
       // Check if entry already exists
