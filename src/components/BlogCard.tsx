@@ -17,20 +17,23 @@ const placeholderImages = [
 ];
 
 const BlogCard = ({ post }: BlogCardProps) => {
+  // Make sure fields exists before accessing properties
+  const fields = post.fields || {};
+  
   // Add explicit null/undefined checking
-  const slug = post.fields?.slug || '';
-  const title = post.fields?.title || 'Untitled';
-  const excerpt = post.fields?.excerpt || '';
-  const author = post.fields?.author || 'Unknown';
-  const date = post.fields?.date || post.fields?.publishDate || post.sys.createdAt;
-  const category = post.fields?.category || 'Uncategorized';
-  const tags = post.fields?.tags || [];
-  const viewCount = post.fields?.viewCount || 0;
+  const slug = fields.slug || '';
+  const title = fields.title || 'Untitled';
+  const excerpt = fields.excerpt || '';
+  const author = fields.author || 'Unknown';
+  const date = fields.date || fields.publishDate || post.sys.createdAt;
+  const category = fields.category || 'Uncategorized';
+  const tags = fields.tags || [];
+  const viewCount = fields.viewCount || 0;
   
   // Get image URL from Contentful if available
   let initialImageSrc = '/placeholder.svg';
-  if (post.fields?.featuredImage?.fields?.file?.url) {
-    initialImageSrc = `https:${post.fields.featuredImage.fields.file.url}`;
+  if (fields.featuredImage?.fields?.file?.url) {
+    initialImageSrc = `https:${fields.featuredImage.fields.file.url}`;
   }
   
   const [imageSrc, setImageSrc] = useState(initialImageSrc);

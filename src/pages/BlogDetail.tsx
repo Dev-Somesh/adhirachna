@@ -40,15 +40,19 @@ const BlogDetail = () => {
 
   // Convert Contentful posts to our internal format for the sidebar
   const convertedPosts = useMemo(() => {
-    return allPosts.map(post => ({
-      id: post.fields?.slug || post.sys.id,
-      title: post.fields?.title || 'Untitled',
-      date: post.fields?.date || post.fields?.publishDate || post.sys.createdAt,
-      image: post.fields?.featuredImage?.fields?.file?.url 
-        ? `https:${post.fields.featuredImage.fields.file.url}`
-        : '/placeholder.svg',
-      views: post.fields?.viewCount || 0
-    }));
+    return allPosts.map(post => {
+      const fields = post.fields || {};
+      
+      return {
+        id: fields.slug || post.sys.id,
+        title: fields.title || 'Untitled',
+        date: fields.date || fields.publishDate || post.sys.createdAt,
+        image: fields.featuredImage?.fields?.file?.url 
+          ? `https:${fields.featuredImage.fields.file.url}`
+          : '/placeholder.svg',
+        views: fields.viewCount || 0
+      };
+    });
   }, [allPosts]);
   
   // Generate categories from all posts
@@ -130,7 +134,10 @@ const BlogDetail = () => {
             >
               <BlogPost post={post} />
               <div className="mt-8 bg-white rounded-lg shadow-soft p-6">
-                <SocialShare postTitle={post.fields?.title || ''} slug={post.fields?.slug || post.sys.id} />
+                <SocialShare 
+                  postTitle={post.fields?.title || ''} 
+                  slug={post.fields?.slug || post.sys.id} 
+                />
               </div>
             </div>
             

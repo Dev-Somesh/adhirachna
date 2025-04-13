@@ -33,20 +33,25 @@ const fetchBlogPosts = async (): Promise<BlogPostFromSupabase[]> => {
 
 // Function to convert Contentful posts to our internal format
 const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPostFromSupabase[] => {
-  return contentfulPosts.map(post => ({
-    id: post.fields?.slug || post.sys.id,
-    title: post.fields?.title || 'Untitled',
-    excerpt: post.fields?.excerpt || '',
-    content: '', // We don't store the full content in the list view
-    author: post.fields?.author || 'Unknown',
-    date: post.fields?.date || post.fields?.publishDate || post.sys.createdAt,
-    category: post.fields?.category || 'Uncategorized',
-    image: post.fields?.featuredImage?.fields?.file?.url 
-      ? `https:${post.fields.featuredImage.fields.file.url}`
-      : '/placeholder.svg',
-    tags: post.fields?.tags || [],
-    views: post.fields?.viewCount || 0
-  }));
+  return contentfulPosts.map(post => {
+    // Access fields safely
+    const fields = post.fields || {};
+    
+    return {
+      id: fields.slug || post.sys.id,
+      title: fields.title || 'Untitled',
+      excerpt: fields.excerpt || '',
+      content: '', // We don't store the full content in the list view
+      author: fields.author || 'Unknown',
+      date: fields.date || fields.publishDate || post.sys.createdAt,
+      category: fields.category || 'Uncategorized',
+      image: fields.featuredImage?.fields?.file?.url 
+        ? `https:${fields.featuredImage.fields.file.url}`
+        : '/placeholder.svg',
+      tags: fields.tags || [],
+      views: fields.viewCount || 0
+    };
+  });
 };
 
 const Blog = () => {
@@ -162,6 +167,7 @@ const Blog = () => {
     }
   };
   
+  // Return the component JSX
   return (
     <>
       <Navbar />

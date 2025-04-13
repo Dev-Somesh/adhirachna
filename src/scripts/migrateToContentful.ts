@@ -1,7 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createManagementClient } from 'contentful-management';
-import { BlogPostFields } from '../types/contentful';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -38,7 +37,6 @@ async function migrateBlogPosts() {
     // Migrate each blog post to Contentful
     for (const post of blogPosts) {
       // We'll create structured fields for Contentful
-      // Note: We're not creating an actual Asset object here, just the fields for the entry
       const entryFields = {
         title: { 'en-US': post.title },
         slug: { 'en-US': post.id }, // Using UUID as slug

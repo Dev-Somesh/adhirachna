@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    // We'll remove the lovable-tagger since it's causing issues
+    // We've removed the lovable-tagger plugin since it's not installed
   ],
   resolve: {
     alias: {

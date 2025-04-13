@@ -1,11 +1,11 @@
 
 import contentfulClient from '../lib/contentful';
-import { BlogPostFields, BlogPost, BlogPostSkeleton } from '../types/contentful';
+import { BlogPost } from '../types/contentful';
 
 export const getBlogPosts = async (): Promise<BlogPost[]> => {
   const response = await contentfulClient.getEntries<BlogPostFields>({
     content_type: 'blogPost',
-    order: '-sys.createdAt', // Use sys.createdAt for ordering
+    order: '-sys.createdAt',
   });
   return response.items as BlogPost[];
 };
@@ -13,7 +13,7 @@ export const getBlogPosts = async (): Promise<BlogPost[]> => {
 export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
   const response = await contentfulClient.getEntries<BlogPostFields>({
     content_type: 'blogPost',
-    'fields.slug': slug, // This matches the field name in Contentful
+    'fields.slug': slug,
     limit: 1,
   });
   
@@ -23,3 +23,6 @@ export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
   
   return response.items[0] as BlogPost;
 }; 
+
+// Add the missing import
+import { BlogPostFields } from '../types/contentful';

@@ -23,4 +23,5 @@ export interface BlogPostSkeleton extends EntrySkeletonType {
   fields: BlogPostFields;
 }
 
-export type BlogPost = Entry<BlogPostFields, 'blogPost'>;
+// This is the actual type we'll use
+export type BlogPost = Entry<BlogPostFields>;
