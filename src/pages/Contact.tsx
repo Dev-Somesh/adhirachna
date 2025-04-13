@@ -41,43 +41,14 @@ const Contact = () => {
 
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
-
-    try {
-      // Encode the form data
-      const formData = new URLSearchParams();
-      formData.append('form-name', 'contact');
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
-
-      // Send the form
-      const response = await fetch('/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      if (response.ok) {
-        toast({
-          title: "Message Sent",
-          description: "Thank you for your message. We will get back to you soon!",
-        });
-        form.reset();
-      } else {
-        throw new Error('Form submission failed');
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "There was a problem sending your message. Please try again later.",
-        variant: "destructive",
-      });
-      console.error('Form submission error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Let Netlify handle the form submission
+    // The form will submit to Netlify automatically
+    toast({
+      title: "Message Sent",
+      description: "Thank you for your message. We will get back to you soon!",
+    });
+    form.reset();
+    setIsSubmitting(false);
   };
 
   return (
@@ -86,6 +57,15 @@ const Contact = () => {
         <title>Contact Us | Adhirachna Engineering Solutions</title>
         <meta name="description" content="Get in touch with Adhirachna Engineering Solutions for inquiries, quotes, or to discuss your engineering project needs." />
       </Helmet>
+      
+      {/* Hidden form for Netlify */}
+      <form name="contact" data-netlify="true" hidden>
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="tel" name="phone" />
+        <input type="text" name="subject" />
+        <textarea name="message"></textarea>
+      </form>
       
       <div className="flex flex-col min-h-screen">
         <Navbar />
@@ -221,11 +201,12 @@ const Contact = () => {
                   
                   <Form {...form}>
                     <form 
-                      onSubmit={form.handleSubmit(onSubmit)} 
-                      className="space-y-6"
                       name="contact"
+                      method="POST"
                       data-netlify="true"
                       data-netlify-honeypot="bot-field"
+                      className="space-y-6"
+                      onSubmit={form.handleSubmit(onSubmit)}
                     >
                       {/* Hidden Netlify form fields */}
                       <input type="hidden" name="form-name" value="contact" />
@@ -243,7 +224,6 @@ const Contact = () => {
                                   placeholder="Your name" 
                                   className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
                                   {...field} 
-                                  name="name"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -263,7 +243,6 @@ const Contact = () => {
                                   placeholder="Your email" 
                                   className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
                                   {...field} 
-                                  name="email"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -285,7 +264,6 @@ const Contact = () => {
                                   placeholder="Your phone (optional)" 
                                   className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
                                   {...field} 
-                                  name="phone"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -303,7 +281,6 @@ const Contact = () => {
                                 <select
                                   className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
                                   {...field}
-                                  name="subject"
                                 >
                                   <option value="" disabled>Select a subject</option>
                                   <option value="General Inquiry">General Inquiry</option>
@@ -331,7 +308,6 @@ const Contact = () => {
                                 placeholder="Your message"
                                 className="w-full px-4 py-2 border border-adhirachna-lightgray rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
                                 {...field}
-                                name="message"
                               />
                             </FormControl>
                             <FormMessage />

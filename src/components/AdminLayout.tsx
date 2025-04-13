@@ -8,7 +8,9 @@ import {
   Globe, 
   LogOut,
   Menu,
-  X
+  X,
+  Bell,
+  Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -69,7 +71,7 @@ const AdminLayout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm p-4 flex justify-between items-center">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm p-4 flex justify-between items-center z-40">
         <Button
           variant="ghost"
           size="icon"
@@ -100,13 +102,10 @@ const AdminLayout = () => {
                 key={item.name}
                 to={item.href}
                 target={item.external ? "_blank" : undefined}
-                className="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
+                className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
               >
                 <item.icon className="h-5 w-5 mr-3" />
                 {item.name}
-                {item.external && (
-                  <span className="ml-2 text-xs text-gray-400">(External)</span>
-                )}
               </Link>
             ))}
           </nav>
@@ -114,7 +113,7 @@ const AdminLayout = () => {
           <div className="p-4 border-t">
             <Button
               variant="ghost"
-              className="w-full flex items-center justify-start"
+              className="w-full justify-start"
               onClick={handleSignOut}
             >
               <LogOut className="h-5 w-5 mr-3" />
@@ -126,9 +125,44 @@ const AdminLayout = () => {
 
       {/* Main content */}
       <div className="lg:pl-64">
-        <div className="p-6">
-          <Outlet />
-        </div>
+        {/* Header */}
+        <header className="bg-white shadow-sm">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex">
+                <div className="flex-shrink-0 flex items-center">
+                  <h1 className="text-xl font-bold">Dashboard</h1>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="search"
+                    placeholder="Search..."
+                    className="pl-10 w-64 h-10 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-adhirachna-green focus:border-transparent"
+                  />
+                </div>
+                <button className="relative p-2 text-gray-400 hover:text-gray-500">
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white" />
+                </button>
+                <div className="relative">
+                  <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                    {user?.email?.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
   );

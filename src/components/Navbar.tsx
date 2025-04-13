@@ -42,12 +42,12 @@ const Navbar = () => {
             <img 
               src="/lovable-uploads/AdhirachnaVector.png" 
               alt="Adhirachna Engineering Solutions" 
-              className="h-16 md:h-20" 
+              className="h-24 md:h-32" 
               onError={(e) => {
                 // Fallback to text if image fails to load
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
-                target.parentElement!.innerHTML = '<span class="text-2xl font-bold text-adhirachna-green">Adhirachna</span>';
+                target.parentElement!.innerHTML = '<span class="text-3xl font-bold text-adhirachna-green">Adhirachna</span>';
               }}
             />
           </Link>
@@ -58,13 +58,19 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`text-sm font-medium transition-colors hover:text-adhirachna-green ${
+                className={`text-base font-medium transition-colors hover:text-adhirachna-green ${
                   location.pathname === item.path ? 'text-adhirachna-green' : 'text-gray-700'
                 }`}
               >
                 {item.name}
               </Link>
             ))}
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white h-10 px-4 py-2"
+            >
+              Get in Touch
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -84,7 +90,7 @@ const Navbar = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`text-sm font-medium transition-colors hover:text-adhirachna-green ${
+                  className={`text-base font-medium transition-colors hover:text-adhirachna-green ${
                     location.pathname === item.path ? 'text-adhirachna-green' : 'text-gray-700'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
@@ -92,6 +98,13 @@ const Navbar = () => {
                   {item.name}
                 </Link>
               ))}
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white h-10 px-4 py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Get in Touch
+              </Link>
             </div>
           </div>
         )}
