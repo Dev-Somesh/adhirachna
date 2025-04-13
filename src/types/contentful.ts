@@ -1,6 +1,7 @@
 
-import { Entry, EntryFields, Asset } from 'contentful';
+import { Entry, Asset, EntryFields } from 'contentful';
 
+// Define the BlogPostFields interface that matches Contentful's structure
 export interface BlogPostFields {
   title: string;
   slug: string;
@@ -16,4 +17,5 @@ export interface BlogPostFields {
   viewCount?: number;
 }
 
+// Define the BlogPost type as a Contentful Entry with BlogPostFields
 export type BlogPost = Entry<BlogPostFields>;

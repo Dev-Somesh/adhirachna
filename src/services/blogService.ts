@@ -1,17 +1,16 @@
 
 import contentfulClient from '../lib/contentful';
-import { BlogPostFields } from '../types/contentful';
-import { Entry } from 'contentful';
+import { BlogPostFields, BlogPost } from '../types/contentful';
 
-export const getBlogPosts = async (): Promise<Entry<BlogPostFields>[]> => {
+export const getBlogPosts = async (): Promise<BlogPost[]> => {
   const response = await contentfulClient.getEntries<BlogPostFields>({
     content_type: 'blogPost',
-    order: ['-sys.createdAt'], // Changed from -fields.publishDate to -sys.createdAt
+    order: ['-sys.createdAt'], // Use sys.createdAt for ordering
   });
   return response.items;
 };
 
-export const getBlogPostBySlug = async (slug: string): Promise<Entry<BlogPostFields>> => {
+export const getBlogPostBySlug = async (slug: string): Promise<BlogPost> => {
   const response = await contentfulClient.getEntries<BlogPostFields>({
     content_type: 'blogPost',
     'fields.slug': slug, // This matches the field name in Contentful

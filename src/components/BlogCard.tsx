@@ -1,13 +1,11 @@
-
 import { Calendar, Eye, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
-import { Entry } from 'contentful';
-import { BlogPostFields } from '@/types/contentful';
+import { BlogPost } from '@/types/contentful';
 
 interface BlogCardProps {
-  post: Entry<BlogPostFields>;
+  post: BlogPost;
 }
 
 const placeholderImages = [
@@ -19,7 +17,7 @@ const placeholderImages = [
 
 const BlogCard = ({ post }: BlogCardProps) => {
   const { fields } = post;
-  const slug = fields.slug;
+  const slug = fields.slug || '';
   const title = fields.title || 'Untitled';
   const excerpt = fields.excerpt || '';
   const author = fields.author || 'Unknown';
