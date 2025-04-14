@@ -11,7 +11,7 @@ import type { ContactFormValues } from '@/types/contact';
 
 
 const Contact = () => {
-  const { ref, isInView } = useInView();
+  const { ref } = useInView();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize form
