@@ -6,18 +6,13 @@ import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { SiteProvider } from "./context/SiteContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, lazy } from "react";
 import React from 'react';
 
 // Component imports
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import { Spinner } from './components/ui/Spinner';
+import Layout from './components/Layout';
+import Loading from './components/Loading';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import AdminLayout from "./components/AdminLayout";
-import ProtectedRoute from './components/ProtectedRoute';
-
-// Page imports
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Dashboard from "./pages/admin/Dashboard";
@@ -26,6 +21,8 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminLayout from "./components/AdminLayout";
 
 // Validate environment variables
 const requiredEnvVars = [
@@ -63,29 +60,9 @@ const withPerformanceMonitoring = (
 };
 
 // Lazy load components
-const IndexPage = React.lazy(() => withPerformanceMonitoring(() => import('./pages/Index'), 'IndexPage'));
-const BlogDetailPage = React.lazy(() => withPerformanceMonitoring(() => import('./pages/BlogDetail'), 'BlogDetailPage'));
-const PolicyPagePage = React.lazy(() => withPerformanceMonitoring(() => import('./pages/PolicyPage'), 'PolicyPagePage'));
-
-// Add vendor error handling
-const handleVendorError = (error: Error) => {
-  console.error('Vendor error caught:', {
-    message: error.message,
-    stack: error.stack,
-    timestamp: new Date().toISOString()
-  });
-
-  // Store vendor error in session storage
-  try {
-    sessionStorage.setItem('vendorError', JSON.stringify({
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
-    }));
-  } catch (e) {
-    console.error('Failed to store vendor error:', e);
-  }
-};
+const IndexPage = lazy(() => withPerformanceMonitoring(() => import('./pages/Index'), 'IndexPage'));
+const BlogDetailPage = lazy(() => withPerformanceMonitoring(() => import('./pages/BlogDetail'), 'BlogDetailPage'));
+const PolicyPagePage = lazy(() => withPerformanceMonitoring(() => import('./pages/PolicyPage'), 'PolicyPagePage'));
 
 // Enhanced RouteValidator with better error handling and log cleanup
 const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -163,64 +140,10 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
-// Add Suspense boundaries with error handling
-const SuspenseBoundary: React.FC<{ children: React.ReactNode; name: string }> = ({ children, name }) => {
-  const startTime = React.useRef(performance.now());
-
-  React.useEffect(() => {
-    const loadTime = performance.now() - startTime.current;
-    console.log(`[Performance] ${name} rendered in ${loadTime}ms`);
-  }, [name]);
-
-  return (
-    <ErrorBoundary>
-      <Suspense fallback={<Spinner />}>
-        {children}
-      </Suspense>
-    </ErrorBoundary>
-  );
-};
-
-// Enhanced ErrorBoundary for vendor code
-const VendorErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <ErrorBoundary
-      onError={handleVendorError}
-      fallback={
-        <div className="flex flex-col items-center justify-center min-h-[50vh] p-4">
-          <div className="max-w-md p-6 rounded-lg shadow-lg bg-background">
-            <h2 className="mb-4 text-2xl font-bold text-red-500">Application Error</h2>
-            <p className="mb-4 text-muted-foreground">
-              We're experiencing technical difficulties. Please try refreshing the page.
-            </p>
-            <Button
-              variant="default"
-              onClick={() => window.location.reload()}
-            >
-              Refresh Page
-            </Button>
-          </div>
-        </div>
-      }
-    >
-      {children}
-    </ErrorBoundary>
-  );
-};
-
 function App() {
   // Add global error listener with vendor error handling
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent) => {
-      // Check if error is from vendor chunk
-      const isVendorError = event.filename?.includes('vendor-') || 
-                          event.error?.stack?.includes('vendor-');
-
-      if (isVendorError) {
-        handleVendorError(event.error);
-        return;
-      }
-
       console.log('Global error:', event.error || event.message);
       console.error('Global error caught:', {
         message: event.message,
@@ -272,153 +195,48 @@ function App() {
   }, []);
 
   return (
-    <VendorErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <SiteProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <ErrorBoundary>
-              <AuthProvider>
-                <RouteValidator>
-                  <div className="flex flex-col min-h-screen">
-                    <Navbar />
-                    <main className="flex-grow">
-                      <ErrorBoundary>
-                        <Routes>
-                          {/* Routes with error and suspense boundaries */}
-                          <Route 
-                            path="/" 
-                            element={
-                              <SuspenseBoundary name="IndexPage">
-                                <IndexPage />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          
-                          {/* Main navigation pages */}
-                          <Route 
-                            path="/about" 
-                            element={
-                              <SuspenseBoundary name="About">
-                                <About />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          <Route 
-                            path="/services" 
-                            element={
-                              <SuspenseBoundary name="Services">
-                                <Services />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          <Route 
-                            path="/projects" 
-                            element={
-                              <SuspenseBoundary name="Projects">
-                                <Projects />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          <Route 
-                            path="/contact" 
-                            element={
-                              <SuspenseBoundary name="Contact">
-                                <Contact />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          
-                          {/* Blog pages */}
-                          <Route 
-                            path="/blog" 
-                            element={
-                              <SuspenseBoundary name="Blog">
-                                <Blog />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          <Route 
-                            path="/blog/:id" 
-                            element={
-                              <SuspenseBoundary name="BlogDetail">
-                                <BlogDetailPage />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          
-                          {/* Policy pages */}
-                          <Route 
-                            path="/privacy-policy" 
-                            element={
-                              <SuspenseBoundary name="PrivacyPolicy">
-                                <PolicyPagePage type="privacy" />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          <Route 
-                            path="/terms-of-service" 
-                            element={
-                              <SuspenseBoundary name="TermsOfService">
-                                <PolicyPagePage type="terms" />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          <Route 
-                            path="/cookie-policy" 
-                            element={
-                              <SuspenseBoundary name="CookiePolicy">
-                                <PolicyPagePage type="cookie" />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          
-                          {/* Authentication */}
-                          <Route 
-                            path="/login" 
-                            element={
-                              <SuspenseBoundary name="Login">
-                                <Login />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                          
-                          {/* Protected Admin Routes */}
-                          <Route
-                            path="/admin"
-                            element={
-                              <SuspenseBoundary name="AdminDashboard">
-                                <ProtectedRoute>
-                                  <AdminLayout>
-                                    <Dashboard />
-                                  </AdminLayout>
-                                </ProtectedRoute>
-                              </SuspenseBoundary>
-                            }
-                          />
-                          
-                          {/* Catch-all route - Must be last */}
-                          <Route 
-                            path="*" 
-                            element={
-                              <SuspenseBoundary name="NotFound">
-                                <NotFound />
-                              </SuspenseBoundary>
-                            } 
-                          />
-                        </Routes>
-                      </ErrorBoundary>
-                    </main>
-                    <Footer />
-                  </div>
-                </RouteValidator>
-              </AuthProvider>
-            </ErrorBoundary>
-          </TooltipProvider>
-        </SiteProvider>
-      </QueryClientProvider>
-    </VendorErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <SiteProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <ErrorBoundary>
+            <AuthProvider>
+              <RouteValidator>
+                <Suspense fallback={<Loading />}>
+                  <Routes>
+                    <Route element={<Layout />}>
+                      <Route index element={<IndexPage />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/services" element={<Services />} />
+                      <Route path="/projects" element={<Projects />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/blog" element={<Blog />} />
+                      <Route path="/blog/:id" element={<BlogDetailPage />} />
+                      <Route path="/privacy-policy" element={<PolicyPagePage type="privacy" />} />
+                      <Route path="/terms-of-service" element={<PolicyPagePage type="terms" />} />
+                      <Route path="/cookie-policy" element={<PolicyPagePage type="cookie" />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route
+                        path="/admin"
+                        element={
+                          <ProtectedRoute>
+                            <AdminLayout>
+                              <Dashboard />
+                            </AdminLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route path="*" element={<NotFound />} />
+                    </Route>
+                  </Routes>
+                </Suspense>
+              </RouteValidator>
+            </AuthProvider>
+          </ErrorBoundary>
+        </TooltipProvider>
+      </SiteProvider>
+    </QueryClientProvider>
   );
 }
 
