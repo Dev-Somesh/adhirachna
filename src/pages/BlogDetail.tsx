@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useInView } from '@/components/ui/motion';
@@ -17,6 +17,15 @@ const BlogDetail = () => {
   const { ref, isInView } = useInView();
   const { id } = useParams<{ id: string }>();
   
+  // Validate route parameter
+  if (!id) {
+    console.error('Missing blog post ID in route parameters');
+    return <Navigate to="/blog" />;
+  }
+
+  // Log route information for debugging
+  console.log('BlogDetail - Route params:', { id });
+  
   // Fetch the blog post
   const { 
     data: post, 
@@ -24,7 +33,7 @@ const BlogDetail = () => {
     error: postError 
   } = useQuery({
     queryKey: ['blogPost', id],
-    queryFn: () => getBlogPostBySlug(id || ''),
+    queryFn: () => getBlogPostBySlug(id),
     enabled: !!id,
   });
   
