@@ -85,6 +85,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 }
 
+// Add default export
+export default ErrorBoundary;
+
 interface ErrorFallbackProps {
   error: Error;
   errorInfo: React.ErrorInfo;
