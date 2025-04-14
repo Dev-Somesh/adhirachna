@@ -221,6 +221,7 @@ function App() {
         return;
       }
 
+      console.log('Global error:', event.error || event.message);
       console.error('Global error caught:', {
         message: event.message,
         error: event.error,
@@ -244,6 +245,7 @@ function App() {
 
     // Handle unhandled promise rejections
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.log('Promise rejection:', event.reason);
       console.error('Unhandled promise rejection:', {
         reason: event.reason,
         timestamp: new Date().toISOString()
