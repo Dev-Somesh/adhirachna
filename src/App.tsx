@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { SiteProvider } from "./context/SiteContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Dashboard from "./pages/admin/Dashboard";
-import ContentManagement from "./pages/admin/ContentManagement";
-import TeamMembers from "./pages/admin/TeamMembers";
-import Settings from "./pages/admin/Settings";
-import BlogManagement from "./pages/admin/BlogManagement";
 import Blog from "./pages/Blog";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -54,11 +50,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Add type for PolicyPage props
-type PolicyPageProps = {
-  type: 'privacy' | 'terms' | 'cookie';
-};
 
 // Lazy load components with performance monitoring
 const withPerformanceMonitoring = (
@@ -171,41 +162,6 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   return <>{children}</>;
 };
-
-function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
-  const navigate = useNavigate();
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-      <div className="max-w-md p-6 rounded-lg shadow-lg bg-background">
-        <h2 className="mb-4 text-2xl font-bold text-red-500">Something went wrong</h2>
-        <pre className="p-4 mb-4 overflow-auto text-sm text-left rounded-md bg-muted">
-          {error.message}
-        </pre>
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            onClick={() => {
-              resetErrorBoundary();
-              navigate('/');
-            }}
-          >
-            Go Home
-          </Button>
-          <Button
-            variant="default"
-            onClick={() => {
-              resetErrorBoundary();
-              window.location.reload();
-            }}
-          >
-            Try Again
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Add Suspense boundaries with error handling
 const SuspenseBoundary: React.FC<{ children: React.ReactNode; name: string }> = ({ children, name }) => {
@@ -321,9 +277,9 @@ function App() {
             <Toaster />
             <Sonner />
             <Router basename="/">
-              <AuthProvider>
-                <RouteValidator>
-                  <ErrorBoundary>
+              <ErrorBoundary>
+                <AuthProvider>
+                  <RouteValidator>
                     <div className="flex flex-col min-h-screen">
                       <Navbar />
                       <main className="flex-grow">
@@ -455,9 +411,9 @@ function App() {
                       </main>
                       <Footer />
                     </div>
-                  </ErrorBoundary>
-                </RouteValidator>
-              </AuthProvider>
+                  </RouteValidator>
+                </AuthProvider>
+              </ErrorBoundary>
             </Router>
           </TooltipProvider>
         </SiteProvider>

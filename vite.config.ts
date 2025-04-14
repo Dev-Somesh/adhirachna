@@ -36,7 +36,7 @@ export default defineConfig({
   },
   build: {
     outDir: "dist",
-    sourcemap: false,
+    sourcemap: true,
     minify: "terser",
     terserOptions: {
       compress: {
@@ -62,6 +62,7 @@ export default defineConfig({
             '@radix-ui/react-toast',
             '@radix-ui/react-tooltip'
           ],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot'],
         },
       },
     },
