@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 import { contactFormSchema } from '@/lib/validations/contact';
 import type { ContactFormValues } from '@/types/contact';
 
+
 const Contact = () => {
   const { ref, isInView } = useInView();
   const [isSubmitting, setIsSubmitting] = useState(false);

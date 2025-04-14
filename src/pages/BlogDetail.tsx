@@ -11,27 +11,27 @@ import ErrorState from '@/components/blog/BlogDetail/ErrorState';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogPostBySlug, getBlogPosts } from '@/services/blogService';
 import type { Category } from '@/types/blog';
-import type { BlogPost as ContentfulBlogPost } from '@/types/contentful';
+import type { BlogPost as ContentfulBlogPost, BlogPostFields, BlogPostEntry } from '@/types/contentful';
+import { Entry } from 'contentful';
 
 const BlogDetail = () => {
   const { ref, isInView } = useInView();
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
   
-  // Validate route parameter
-  if (!id) {
-    console.error('Missing blog post ID in route parameters');
+  // Add validation and logging
+  console.log('BlogDetail params:', params);
+  if (!params?.id) {
+    console.error('Invalid blog post ID in route parameters');
     return <Navigate to="/blog" />;
   }
-
-  // Log route information for debugging
-  console.log('BlogDetail - Route params:', { id });
+  const { id } = params;
   
   // Fetch the blog post
   const { 
     data: post, 
     isLoading: postLoading, 
     error: postError 
-  } = useQuery({
+  } = useQuery<Entry<BlogPostFields>>({
     queryKey: ['blogPost', id],
     queryFn: () => getBlogPostBySlug(id),
     enabled: !!id,
@@ -41,7 +41,7 @@ const BlogDetail = () => {
   const { 
     data: allPosts = [], 
     isLoading: allPostsLoading 
-  } = useQuery({
+  } = useQuery<Entry<BlogPostFields>[]>({
     queryKey: ['contentfulBlogPosts'],
     queryFn: getBlogPosts
   });
@@ -49,8 +49,20 @@ const BlogDetail = () => {
   
   // Convert Contentful posts to our internal format for the sidebar
   const convertedPosts = useMemo(() => {
-    return allPosts.map(post => {
-      const fields = post?.fields || {};
+    return allPosts.map((post: Entry<BlogPostFields>) => {
+      // Validate post data
+      if (!post?.fields) {
+        console.error('Invalid post data in sidebar:', post);
+        return {
+          id: post.sys.id,
+          title: 'Invalid Post',
+          date: post.sys.createdAt,
+          image: '/placeholder.svg',
+          views: 0
+        };
+      }
+
+      const fields = post.fields;
       
       return {
         id: fields.slug || post.sys.id,
@@ -130,6 +142,12 @@ const BlogDetail = () => {
     );
   }
   
+  // Validate post data
+  if (!post.fields || !post.fields.title) {
+    console.error('Invalid post data:', post);
+    return <Navigate to="/blog" />;
+  }
+  
   return (
     <>
       <Navbar />
@@ -144,8 +162,8 @@ const BlogDetail = () => {
               <BlogPost post={post} />
               <div className="mt-8 bg-white rounded-lg shadow-soft p-6">
                 <SocialShare 
-                  postTitle={post?.fields?.title || ''} 
-                  slug={post?.fields?.slug || post.sys.id} 
+                  postTitle={post.fields.title} 
+                  slug={post.fields.slug} 
                 />
               </div>
             </div>
