@@ -1,8 +1,6 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import BlogCard from '@/components/BlogCard';
 import BlogSidebar from '@/components/BlogSidebar';
 import { Input } from '@/components/ui/input';
@@ -273,7 +271,6 @@ const Blog = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };
