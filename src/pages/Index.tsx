@@ -6,7 +6,6 @@ import { useSiteContent } from '@/context/SiteContext';
 import { useLocation, Link } from 'react-router-dom';
 import { useInView } from '@/components/ui/motion';
 import { ArrowRight, FileText, Building, Shield, Paintbrush } from 'lucide-react';
-import Footer from '@/components/Footer';
 import { Helmet } from 'react-helmet';
 
 const Index = () => {
@@ -275,8 +274,6 @@ const Index = () => {
             </div>
           </section>
         )}
-        
-        <Footer />
       </div>
     </>
   );

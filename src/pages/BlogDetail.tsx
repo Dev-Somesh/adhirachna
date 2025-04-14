@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { useInView } from '@/components/ui/motion';
 import BlogPost from '@/components/blog/BlogPost';
 import SocialShare from '@/components/blog/SocialShare';
@@ -123,7 +122,6 @@ const BlogDetail = () => {
             <LoadingState />
           </div>
         </div>
-        <Footer />
       </>
     );
   }
@@ -137,7 +135,6 @@ const BlogDetail = () => {
             <ErrorState error={postError} />
           </div>
         </div>
-        <Footer />
       </>
     );
   }
@@ -176,7 +173,6 @@ const BlogDetail = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

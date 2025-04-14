@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Link, useLocation } from "react-router-dom";
 
 type PolicyContent = {
@@ -160,8 +159,6 @@ const PolicyPage = ({ type }: PolicyPageProps) => {
           )}
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };
