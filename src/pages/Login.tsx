@@ -34,50 +34,63 @@ const Login = () => {
   });
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
+        if (!mounted) return;
+        
         if (error) {
           console.error("Session error:", error);
+          setIsAuthenticated(false);
           return;
         }
         
         if (session) {
           setIsAuthenticated(true);
-          navigate("/admin");
+          navigate("/admin", { replace: true });
+        } else {
+          setIsAuthenticated(false);
         }
       } catch (err) {
         console.error("Auth check error:", err);
+        if (mounted) {
+          setIsAuthenticated(false);
+        }
       }
     };
     
     checkAuth();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      
       console.log("Auth state changed:", event, session);
       
       if (session) {
         setIsAuthenticated(true);
-        navigate("/admin");
+        navigate("/admin", { replace: true });
       } else {
         setIsAuthenticated(false);
       }
     });
     
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
 
-  const onSubmit = async (data: LoginFormData) => {
+  const handleLogin = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password
+        email,
+        password
       });
       
       if (error) throw error;
@@ -88,7 +101,7 @@ const Login = () => {
         duration: 3000
       });
       
-      navigate("/admin");
+      navigate("/admin", { replace: true });
     } catch (err) {
       console.error("Login error:", err);
       setError(err instanceof Error ? err.message : "An error occurred during login");
@@ -103,44 +116,19 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: DEMO_CREDENTIALS.email,
-        password: DEMO_CREDENTIALS.password
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Demo login successful!",
-        duration: 3000
-      });
-      
-      navigate("/admin");
-    } catch (err) {
-      console.error("Demo login error:", err);
-      setError(err instanceof Error ? err.message : "An error occurred during demo login");
-      toast({
-        title: "Error",
-        description: "Demo login failed. Please try again.",
-        variant: "destructive",
-        duration: 3000
-      });
-    } finally {
-      setLoading(false);
-    }
+  const onSubmit = async (data: LoginFormData) => {
+    await handleLogin(data.email, data.password);
   };
 
-  if (isAuthenticated) {
+  const handleDemoLogin = async () => {
+    await handleLogin(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
+  };
+
+  if (isAuthenticated === null) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="mt-4">Redirecting to dashboard...</p>
+        <p className="mt-4">Checking authentication...</p>
       </div>
     );
   }
@@ -199,40 +187,40 @@ const Login = () => {
                 )}
               />
               
-              <button
-                type="submit"
-                className="btn-primary w-full"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </span>
-                ) : (
-                  "Sign in"
-                )}
-              </button>
+              <div className="flex flex-col space-y-4">
+                <button
+                  type="submit"
+                  className="w-full bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Logging in...
+                    </div>
+                  ) : (
+                    "Login"
+                  )}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={handleDemoLogin}
+                  className="w-full bg-adhirachna-blue hover:bg-adhirachna-darkblue text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Logging in...
+                    </div>
+                  ) : (
+                    "Login as Demo"
+                  )}
+                </button>
+              </div>
             </form>
           </Form>
-
-          <div className="mt-4 text-center">
-            <button 
-              onClick={handleDemoLogin} 
-              className="w-full text-center text-sm text-adhirachna-blue hover:text-adhirachna-darkblue mb-2"
-              disabled={loading}
-            >
-              Use Demo Account
-            </button>
-            <div className="text-xs text-gray-500">
-              Demo Credentials:
-              <div className="mt-1">
-                Email: {DEMO_CREDENTIALS.email}
-                <br />
-                Password: {DEMO_CREDENTIALS.password}
-              </div>
-            </div>
-          </div>
 
           <div className="mt-6 text-center">
             <Link to="/" className="text-adhirachna-blue hover:text-adhirachna-darkblue">
