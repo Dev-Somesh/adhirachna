@@ -121,9 +121,16 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
     // Validate admin route access
     if (location.pathname.startsWith('/admin')) {
       const isAuthenticated = sessionStorage.getItem('isAuthenticated');
-      if (!isAuthenticated) {
+      const userRole = sessionStorage.getItem('userRole');
+      
+      if (!isAuthenticated || userRole !== 'admin') {
         console.warn('Unauthorized admin access attempt');
-        navigate('/');
+        sessionStorage.setItem('routeError', JSON.stringify({
+          error: 'Unauthorized admin access',
+          path: location.pathname,
+          timestamp: new Date().toISOString()
+        }));
+        navigate('/login');
         return;
       }
     }
