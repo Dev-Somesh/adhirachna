@@ -1,11 +1,16 @@
 import { useInView } from './ui/motion';
 import { MapPin, Phone, Mail, Clock, X, Instagram, Linkedin, BookOpen, MessageSquare } from 'lucide-react';
-import ContactForm from './ContactForm';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
+import { contactFormSchema } from '@/lib/validations/contact';
+import type { ContactFormValues } from '@/types/contact';
 
 const Contact = () => {
   const { ref, isInView } = useInView();
-<<<<<<< HEAD
-=======
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize form
@@ -61,7 +66,6 @@ const Contact = () => {
       setIsSubmitting(false);
     }
   };
->>>>>>> 6621b914a439cfb9e4f044d8ce30b28c0598fd5b
 
   return (
     <section id="contact" className="py-16 px-4 md:px-6" ref={ref as React.RefObject<HTMLDivElement>}>
@@ -193,17 +197,11 @@ const Contact = () => {
             <h2 className="text-2xl font-semibold mb-6 text-adhirachna-darkblue">
               Send Us a Message
             </h2>
-<<<<<<< HEAD
-            <ContactForm />
-=======
 
             <Form {...form}>
               <form 
                 onSubmit={form.handleSubmit(onSubmit)} 
                 className="space-y-6"
-                name="contact"
-                method="POST"
-                netlify="true"
                 data-netlify="true"
                 data-netlify-honeypot="bot-field"
               >
@@ -252,7 +250,7 @@ const Contact = () => {
                     )}
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -263,7 +261,7 @@ const Contact = () => {
                         <FormControl>
                           <Input 
                             type="tel" 
-                            placeholder="Your phone (optional)" 
+                            placeholder="Your phone number" 
                             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
                             {...field} 
                             name="phone"
@@ -281,25 +279,19 @@ const Contact = () => {
                       <FormItem>
                         <FormLabel className="text-adhirachna-darkblue">Subject</FormLabel>
                         <FormControl>
-                          <select
-                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
-                            {...field}
+                          <Input 
+                            placeholder="Message subject" 
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue" 
+                            {...field} 
                             name="subject"
-                          >
-                            <option value="" disabled>Select a subject</option>
-                            <option value="General Inquiry">General Inquiry</option>
-                            <option value="Project Consultation">Project Consultation</option>
-                            <option value="Partnership">Partnership</option>
-                            <option value="Career">Career</option>
-                            <option value="Other">Other</option>
-                          </select>
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                
+
                 <FormField
                   control={form.control}
                   name="message"
@@ -307,11 +299,10 @@ const Contact = () => {
                     <FormItem>
                       <FormLabel className="text-adhirachna-darkblue">Message</FormLabel>
                       <FormControl>
-                        <Textarea
-                          rows={5}
-                          placeholder="Your message"
-                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue"
-                          {...field}
+                        <textarea 
+                          placeholder="Your message" 
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-adhirachna-blue min-h-[150px]" 
+                          {...field} 
                           name="message"
                         />
                       </FormControl>
@@ -319,19 +310,18 @@ const Contact = () => {
                     </FormItem>
                   )}
                 />
-                
-                <div>
-                  <button 
-                    type="submit" 
-                    className="w-full bg-adhirachna-blue hover:bg-adhirachna-blue/90 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-300" 
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Sending..." : "Send Message"}
-                  </button>
-                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full bg-adhirachna-blue text-white py-3 rounded-lg font-medium hover:bg-adhirachna-darkblue transition-colors duration-300 ${
+                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </button>
               </form>
             </Form>
->>>>>>> 6621b914a439cfb9e4f044d8ce30b28c0598fd5b
           </div>
         </div>
       </div>
