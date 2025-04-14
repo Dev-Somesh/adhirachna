@@ -19,6 +19,17 @@ async function generateImage(title, description, outputPath) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
+  // Load and draw logo
+  try {
+    const logo = await loadImage('https://raw.githubusercontent.com/Dev-Somesh/adhirachna/main/public/adhirachna-uploads/1bb22713-e329-4324-8be6-ed1a3a73cc9d.png');
+    const logoSize = 100;
+    const logoX = (WIDTH - logoSize) / 2;
+    const logoY = HEIGHT / 2 - 150;
+    ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+  } catch (error) {
+    console.error('Error loading logo:', error);
+  }
+
   // Add some decorative elements
   ctx.strokeStyle = '#ffffff20';
   ctx.lineWidth = 2;
