@@ -20,21 +20,26 @@ import Contact from "./pages/Contact";
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from "./components/AdminLayout";
 
-// Lazy load components with performance monitoring
-const withPerformanceMonitoring = (
+// Lazy load components with error handling and logging
+const withErrorHandling = (
   importFn: () => Promise<any>,
   componentName: string
 ) => {
-  return importFn().then((module) => {
-    console.log(`[Performance] ${componentName} loaded in ${performance.now()}ms`);
-    return module;
-  });
+  return importFn()
+    .then((module) => {
+      console.log(`[Performance] ${componentName} loaded successfully`);
+      return module;
+    })
+    .catch((error) => {
+      console.error(`[Error] Failed to load ${componentName}:`, error);
+      throw error;
+    });
 };
 
 // Lazy load components
-const IndexPage = lazy(() => withPerformanceMonitoring(() => import('./pages/Index'), 'IndexPage'));
-const BlogDetailPage = lazy(() => withPerformanceMonitoring(() => import('./pages/BlogDetail'), 'BlogDetailPage'));
-const PolicyPagePage = lazy(() => withPerformanceMonitoring(() => import('./pages/PolicyPage'), 'PolicyPagePage'));
+const IndexPage = lazy(() => withErrorHandling(() => import('./pages/Index'), 'IndexPage'));
+const BlogDetailPage = lazy(() => withErrorHandling(() => import('./pages/BlogDetail'), 'BlogDetailPage'));
+const PolicyPagePage = lazy(() => withErrorHandling(() => import('./pages/PolicyPage'), 'PolicyPagePage'));
 
 // Enhanced RouteValidator with better error handling and log cleanup
 const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -113,6 +118,8 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 function App() {
+  console.log("App component rendered");
+
   // Add global error listener with vendor error handling
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent) => {
