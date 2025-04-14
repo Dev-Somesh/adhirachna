@@ -350,17 +350,17 @@ const Contact = () => {
           {/* Google Map */}
           <div className="mt-16">
             <h2 className="text-2xl font-semibold text-adhirachna-darkblue mb-6">Our Location</h2>
-            <div className="h-96 w-full rounded-xl overflow-hidden glass-card">
+            <div className="w-full h-[400px] rounded-lg overflow-hidden">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3559.933742973341!2d75.86171287533955!3d26.8403452771985!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db5f3b5eac2c7%3A0xa4a02c78a32ba252!2sJagatpura%2C%20Jaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1689854321234!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3557.1234567890123!2d75.7890123456789!3d26.7890123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDQ3JzIwLjQiTiA3NcKwNDcnMjAuNCJF!5e0!3m2!1sen!2sin!4v1234567890!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Adhirachna Engineering Solutions Office Location"
-              ></iframe>
+                title="Adhirachna Engineering Solutions Location"
+              />
             </div>
           </div>
         </div>

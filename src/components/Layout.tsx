@@ -9,7 +9,7 @@ export default function Layout() {
       <main className="flex-grow">
         <Outlet />
       </main>
-      <Footer />
+      <Footer className="mt-auto" />
     </div>
   );
 } 

@@ -19,7 +19,26 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    storage: {
+      getItem: (key) => {
+        if (typeof window !== 'undefined') {
+          return localStorage.getItem(key);
+        }
+        return null;
+      },
+      setItem: (key, value) => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(key, value);
+        }
+      },
+      removeItem: (key) => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(key);
+        }
+      }
+    }
   },
   global: {
     headers: {
@@ -35,6 +54,13 @@ supabase.auth.onAuthStateChange((event, session) => {
     hasSession: !!session,
     timestamp: new Date().toISOString()
   });
+
+  // Store session in localStorage for persistence
+  if (session) {
+    localStorage.setItem('supabase.auth.token', JSON.stringify(session));
+  } else {
+    localStorage.removeItem('supabase.auth.token');
+  }
 });
 
 // Add global error handler
