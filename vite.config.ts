@@ -3,15 +3,13 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
+  plugins: [react()],
   server: {
+    port: 3000,
     host: true,
-    port: 5173,
-    cors: true,
+    strictPort: true,
   },
-  plugins: [
-    react(),
-  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -19,20 +17,24 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist",
-    assetsDir: "assets",
-    sourcemap: mode === "development",
-    minify: mode === "production" ? "terser" : false,
+    sourcemap: false,
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ["react", "react-dom", "react-router-dom"],
           ui: [
             "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-navigation-menu",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-toast",
-            "@radix-ui/react-tooltip"
+            "@radix-ui/react-slot",
+            "class-variance-authority",
+            "clsx",
+            "tailwind-merge"
           ],
           forms: [
             "@radix-ui/react-checkbox",
@@ -60,7 +62,7 @@ export default defineConfig(({ mode }) => ({
     },
     reportCompressedSize: true,
     cssCodeSplit: true,
-    cssMinify: mode === "production",
+    cssMinify: true,
     assetsInlineLimit: 4096,
   },
   optimizeDeps: {
@@ -77,7 +79,7 @@ export default defineConfig(({ mode }) => ({
     ],
     esbuildOptions: {
       target: "esnext",
-      minify: mode === "production",
+      minify: true,
     },
   },
-}));
+});
