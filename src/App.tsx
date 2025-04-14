@@ -2,32 +2,34 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { SiteProvider } from "./context/SiteContext";
-import Index from "./pages/Index";
+import { AuthProvider } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Suspense, useEffect } from "react";
+import React from 'react';
+
+// Component imports
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import { Loading } from './components/Loading';
+import ErrorBoundary from './components/ErrorBoundary';
+import AdminLayout from "./components/AdminLayout";
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Page imports
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
-import PolicyPage from "./pages/PolicyPage";
-import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import ContentManagement from "./pages/admin/ContentManagement";
 import TeamMembers from "./pages/admin/TeamMembers";
 import Settings from "./pages/admin/Settings";
 import BlogManagement from "./pages/admin/BlogManagement";
 import Blog from "./pages/Blog";
-import BlogDetail from "./pages/BlogDetail";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
-import { AuthProvider } from "@/context/AuthContext";
-import { ErrorBoundary } from "react-error-boundary";
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ProtectedRoute from './components/ProtectedRoute';
-import { Button } from "@/components/ui/button";
-import { Suspense, useEffect } from "react";
-import { Navigate } from "react-router-dom";
 
 // Validate environment variables
 const requiredEnvVars = [
@@ -58,12 +60,117 @@ type PolicyPageProps = {
   type: 'privacy' | 'terms' | 'cookie';
 };
 
-// Loading component for Suspense
-const Loading = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-adhirachna-darkblue"></div>
-  </div>
-);
+// Lazy load components with performance monitoring
+const withPerformanceMonitoring = (
+  importFn: () => Promise<any>,
+  componentName: string
+) => {
+  return importFn().then((module) => {
+    console.log(`[Performance] ${componentName} loaded in ${performance.now()}ms`);
+    return module;
+  });
+};
+
+// Lazy load components
+const IndexPage = React.lazy(() => withPerformanceMonitoring(() => import('./pages/Index'), 'IndexPage'));
+const BlogDetailPage = React.lazy(() => withPerformanceMonitoring(() => import('./pages/BlogDetail'), 'BlogDetailPage'));
+const PolicyPagePage = React.lazy(() => withPerformanceMonitoring(() => import('./pages/PolicyPage'), 'PolicyPagePage'));
+
+// Add vendor error handling
+const handleVendorError = (error: Error) => {
+  console.error('Vendor error caught:', {
+    message: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString()
+  });
+
+  // Store vendor error in session storage
+  try {
+    sessionStorage.setItem('vendorError', JSON.stringify({
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    }));
+  } catch (e) {
+    console.error('Failed to store vendor error:', e);
+  }
+};
+
+// Enhanced RouteValidator with better error handling and log cleanup
+const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Clear stale error logs on route change
+    const clearStaleErrorLogs = () => {
+      ['globalError', 'errorBoundaryError', 'routeError', 'vendorError'].forEach(key => {
+        const errorData = sessionStorage.getItem(key);
+        if (errorData) {
+          try {
+            const { timestamp } = JSON.parse(errorData);
+            const staleThreshold = 1000 * 60 * 30; // 30 minutes
+            const isStale = new Date().getTime() - new Date(timestamp).getTime() > staleThreshold;
+            if (isStale) {
+              sessionStorage.removeItem(key);
+            }
+          } catch (e) {
+            console.error(`Failed to parse ${key}:`, e);
+            sessionStorage.removeItem(key);
+          }
+        }
+      });
+    };
+
+    // Validate location object
+    if (!location || typeof location !== 'object') {
+      console.error('Invalid location object:', location);
+      sessionStorage.setItem('routeError', JSON.stringify({
+        error: 'Invalid location object',
+        location,
+        timestamp: new Date().toISOString()
+      }));
+      navigate('/');
+      return;
+    }
+
+    // Log route changes with validation
+    console.log('Route change:', {
+      pathname: location.pathname,
+      search: location.search,
+      hash: location.hash,
+      state: location.state,
+      timestamp: new Date().toISOString()
+    });
+
+    // Clear stale logs on route change
+    clearStaleErrorLogs();
+
+    // Validate admin route access
+    if (location.pathname.startsWith('/admin')) {
+      const isAuthenticated = sessionStorage.getItem('isAuthenticated');
+      if (!isAuthenticated) {
+        console.warn('Unauthorized admin access attempt');
+        navigate('/');
+        return;
+      }
+    }
+
+    // Handle hash navigation
+    if (location.hash) {
+      try {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } catch (error) {
+        console.error('Error handling hash navigation:', error);
+      }
+    }
+  }, [location, navigate]);
+
+  return <>{children}</>;
+};
 
 function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   const navigate = useNavigate();
@@ -100,193 +207,263 @@ function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetError
   );
 }
 
-// Route validation wrapper
-const RouteValidator = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
+// Add Suspense boundaries with error handling
+const SuspenseBoundary: React.FC<{ children: React.ReactNode; name: string }> = ({ children, name }) => {
+  const startTime = React.useRef(performance.now());
 
-  // Log route changes for debugging
-  useEffect(() => {
-    if (!location) {
-      console.error('Location object is undefined');
-      navigate('/');
-      return;
-    }
+  React.useEffect(() => {
+    const loadTime = performance.now() - startTime.current;
+    console.log(`[Performance] ${name} rendered in ${loadTime}ms`);
+  }, [name]);
 
-    console.log('Route changed:', {
-      pathname: location.pathname,
-      search: location.search,
-      hash: location.hash,
-      state: location.state
-    });
-
-    // Store current route in session storage for recovery
-    sessionStorage.setItem('lastRoute', JSON.stringify({
-      pathname: location.pathname,
-      search: location.search,
-      state: location.state
-    }));
-  }, [location, navigate]);
-
-  // Validate route state
-  if (!location) {
-    console.error('Location object is undefined');
-    return <Navigate to="/" />;
-  }
-
-  // Validate admin routes
-  if (location.pathname.startsWith('/admin')) {
-    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
-    if (!user) {
-      console.warn('Unauthorized access attempt to admin route:', location.pathname);
-      return <Navigate to="/login" state={{ from: location }} />;
-    }
-  }
-
-  // Handle hash navigation
-  useEffect(() => {
-    if (location?.hash) {
-      const element = document.querySelector(location.hash);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        console.warn(`Hash target ${location.hash} not found`);
-      }
-    }
-  }, [location?.hash]);
-
-  // Handle 404 for dynamic routes
-  const isDynamicRoute = location.pathname.includes('/:');
-  if (isDynamicRoute) {
-    const segments = location.pathname.split('/');
-    const hasEmptySegment = segments.some(segment => !segment && segment !== '');
-    if (hasEmptySegment) {
-      console.error('Invalid dynamic route segment:', location.pathname);
-      return <Navigate to="/404" />;
-    }
-  }
-
-  return <>{children}</>;
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<Loading />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>
+  );
 };
 
-const App = () => {
-  // Add global error listener
+// Enhanced ErrorBoundary for vendor code
+const VendorErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <ErrorBoundary
+      onError={handleVendorError}
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-[50vh] p-4">
+          <div className="max-w-md p-6 rounded-lg shadow-lg bg-background">
+            <h2 className="mb-4 text-2xl font-bold text-red-500">Application Error</h2>
+            <p className="mb-4 text-muted-foreground">
+              We're experiencing technical difficulties. Please try refreshing the page.
+            </p>
+            <Button
+              variant="default"
+              onClick={() => window.location.reload()}
+            >
+              Refresh Page
+            </Button>
+          </div>
+        </div>
+      }
+    >
+      {children}
+    </ErrorBoundary>
+  );
+};
+
+function App() {
+  // Add global error listener with vendor error handling
   useEffect(() => {
-    const handleError = (e: ErrorEvent) => {
-      console.error("Global runtime error:", e.error);
-      // Log additional context
-      console.error("Error stack:", e.error?.stack);
-      console.error("Error location:", window.location.href);
+    const handleGlobalError = (event: ErrorEvent) => {
+      // Check if error is from vendor chunk
+      const isVendorError = event.filename?.includes('vendor-') || 
+                          event.error?.stack?.includes('vendor-');
+
+      if (isVendorError) {
+        handleVendorError(event.error);
+        return;
+      }
+
+      console.error('Global error caught:', {
+        message: event.message,
+        error: event.error,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        timestamp: new Date().toISOString()
+      });
+
+      // Store error in session storage
+      try {
+        sessionStorage.setItem('globalError', JSON.stringify({
+          message: event.message,
+          stack: event.error?.stack,
+          timestamp: new Date().toISOString()
+        }));
+      } catch (e) {
+        console.error('Failed to store global error:', e);
+      }
     };
 
-    window.addEventListener("error", handleError);
+    // Handle unhandled promise rejections
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('Unhandled promise rejection:', {
+        reason: event.reason,
+        timestamp: new Date().toISOString()
+      });
+
+      try {
+        sessionStorage.setItem('promiseError', JSON.stringify({
+          reason: event.reason?.toString(),
+          stack: event.reason?.stack,
+          timestamp: new Date().toISOString()
+        }));
+      } catch (e) {
+        console.error('Failed to store promise error:', e);
+      }
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
     return () => {
-      window.removeEventListener("error", handleError);
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
+    <VendorErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <SiteProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <AuthProvider>
-              <Router basename="/">
+            <Router basename="/">
+              <AuthProvider>
                 <RouteValidator>
-                  <div className="flex flex-col min-h-screen">
-                    <Navbar />
-                    <main className="flex-grow">
-                      <Suspense fallback={<Loading />}>
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          
-                          {/* Main navigation pages */}
-                          <Route path="/about" element={<About />} />
-                          <Route path="/services" element={<Services />} />
-                          <Route path="/projects" element={<Projects />} />
-                          <Route path="/contact" element={<Contact />} />
-                          
-                          {/* Blog pages */}
-                          <Route path="/blog" element={<Blog />} />
-                          <Route path="/blog/:id" element={<BlogDetail />} />
-                          
-                          {/* Policy pages */}
-                          <Route path="/privacy-policy" element={<PolicyPage type="privacy" />} />
-                          <Route path="/terms-of-service" element={<PolicyPage type="terms" />} />
-                          <Route path="/cookie-policy" element={<PolicyPage type="cookie" />} />
-                          
-                          {/* Authentication */}
-                          <Route path="/login" element={<Login />} />
-                          
-                          {/* Protected Admin Routes */}
-                          <Route
-                            path="/admin"
-                            element={
-                              <ProtectedRoute>
-                                <AdminLayout>
-                                  <Dashboard />
-                                </AdminLayout>
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/admin/content"
-                            element={
-                              <ProtectedRoute>
-                                <AdminLayout>
-                                  <ContentManagement />
-                                </AdminLayout>
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/admin/blog"
-                            element={
-                              <ProtectedRoute>
-                                <AdminLayout>
-                                  <BlogManagement />
-                                </AdminLayout>
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/admin/team"
-                            element={
-                              <ProtectedRoute>
-                                <AdminLayout>
-                                  <TeamMembers />
-                                </AdminLayout>
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/admin/settings"
-                            element={
-                              <ProtectedRoute>
-                                <AdminLayout>
-                                  <Settings />
-                                </AdminLayout>
-                              </ProtectedRoute>
-                            }
-                          />
-                          
-                          {/* Catch-all route */}
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
+                  <ErrorBoundary>
+                    <div className="flex flex-col min-h-screen">
+                      <Navbar />
+                      <main className="flex-grow">
+                        <ErrorBoundary>
+                          <Routes>
+                            {/* Routes with error and suspense boundaries */}
+                            <Route 
+                              path="/" 
+                              element={
+                                <SuspenseBoundary name="IndexPage">
+                                  <IndexPage />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            
+                            {/* Main navigation pages */}
+                            <Route 
+                              path="/about" 
+                              element={
+                                <SuspenseBoundary name="About">
+                                  <About />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            <Route 
+                              path="/services" 
+                              element={
+                                <SuspenseBoundary name="Services">
+                                  <Services />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            <Route 
+                              path="/projects" 
+                              element={
+                                <SuspenseBoundary name="Projects">
+                                  <Projects />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            <Route 
+                              path="/contact" 
+                              element={
+                                <SuspenseBoundary name="Contact">
+                                  <Contact />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            
+                            {/* Blog pages */}
+                            <Route 
+                              path="/blog" 
+                              element={
+                                <SuspenseBoundary name="Blog">
+                                  <Blog />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            <Route 
+                              path="/blog/:id" 
+                              element={
+                                <SuspenseBoundary name="BlogDetail">
+                                  <BlogDetailPage />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            
+                            {/* Policy pages */}
+                            <Route 
+                              path="/privacy-policy" 
+                              element={
+                                <SuspenseBoundary name="PrivacyPolicy">
+                                  <PolicyPagePage type="privacy" />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            <Route 
+                              path="/terms-of-service" 
+                              element={
+                                <SuspenseBoundary name="TermsOfService">
+                                  <PolicyPagePage type="terms" />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            <Route 
+                              path="/cookie-policy" 
+                              element={
+                                <SuspenseBoundary name="CookiePolicy">
+                                  <PolicyPagePage type="cookie" />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            
+                            {/* Authentication */}
+                            <Route 
+                              path="/login" 
+                              element={
+                                <SuspenseBoundary name="Login">
+                                  <Login />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                            
+                            {/* Protected Admin Routes */}
+                            <Route
+                              path="/admin"
+                              element={
+                                <SuspenseBoundary name="AdminDashboard">
+                                  <ProtectedRoute>
+                                    <AdminLayout>
+                                      <Dashboard />
+                                    </AdminLayout>
+                                  </ProtectedRoute>
+                                </SuspenseBoundary>
+                              }
+                            />
+                            
+                            {/* Catch-all route - Must be last */}
+                            <Route 
+                              path="*" 
+                              element={
+                                <SuspenseBoundary name="NotFound">
+                                  <NotFound />
+                                </SuspenseBoundary>
+                              } 
+                            />
+                          </Routes>
+                        </ErrorBoundary>
+                      </main>
+                      <Footer />
+                    </div>
+                  </ErrorBoundary>
                 </RouteValidator>
-              </Router>
-            </AuthProvider>
+              </AuthProvider>
+            </Router>
           </TooltipProvider>
         </SiteProvider>
       </QueryClientProvider>
-    </ErrorBoundary>
+    </VendorErrorBoundary>
   );
-};
+}
 
 export default App;
