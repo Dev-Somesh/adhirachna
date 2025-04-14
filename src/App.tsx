@@ -51,6 +51,11 @@ const queryClient = new QueryClient({
   },
 });
 
+// Add type for PolicyPage props
+type PolicyPageProps = {
+  type: 'privacy' | 'terms' | 'cookie';
+};
+
 function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   const navigate = useNavigate();
 

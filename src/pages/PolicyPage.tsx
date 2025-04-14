@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link, useLocation } from "react-router-dom";
@@ -12,13 +11,13 @@ type PolicyContent = {
   }[]
 };
 
-const PolicyPage = () => {
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/');
-  const policyType = pathSegments[pathSegments.length - 1];
-  
+type PolicyPageProps = {
+  type: 'privacy' | 'terms' | 'cookie';
+};
+
+const PolicyPage = ({ type }: PolicyPageProps) => {
   const policies: Record<string, PolicyContent> = {
-    "privacy-policy": {
+    "privacy": {
       title: "Privacy Policy",
       lastUpdated: "November 1, 2023",
       sections: [
@@ -52,7 +51,7 @@ const PolicyPage = () => {
         }
       ]
     },
-    "terms-of-service": {
+    "terms": {
       title: "Terms of Service",
       lastUpdated: "November 1, 2023",
       sections: [
@@ -86,7 +85,7 @@ const PolicyPage = () => {
         }
       ]
     },
-    "cookie-policy": {
+    "cookie": {
       title: "Cookie Policy",
       lastUpdated: "November 1, 2023",
       sections: [
@@ -122,7 +121,7 @@ const PolicyPage = () => {
     }
   };
   
-  const policy = policyType ? policies[policyType] : null;
+  const policy = policies[type];
 
   return (
     <div className="min-h-screen flex flex-col">
