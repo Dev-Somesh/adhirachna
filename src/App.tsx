@@ -12,7 +12,7 @@ import React from 'react';
 // Component imports
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import { Loading } from '@/components/ui/Loading';
+import { Spinner } from './components/ui/Spinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import AdminLayout from "./components/AdminLayout";
 import ProtectedRoute from './components/ProtectedRoute';
@@ -218,7 +218,7 @@ const SuspenseBoundary: React.FC<{ children: React.ReactNode; name: string }> = 
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<Spinner />}>
         {children}
       </Suspense>
     </ErrorBoundary>
