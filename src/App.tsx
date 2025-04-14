@@ -7,7 +7,7 @@ import React from 'react';
 
 // Component imports
 import Layout from './components/Layout';
-import Loading from './components/Loading';
+import Loading from '@/components/Loading';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
