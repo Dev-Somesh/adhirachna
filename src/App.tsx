@@ -26,9 +26,8 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Button } from "@/components/ui/button";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { useEffect } from "react";
 
 // Validate environment variables
 const requiredEnvVars = [
@@ -170,10 +169,6 @@ const RouteValidator = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-interface AdminLayoutProps {
-  children: React.ReactNode;
-}
-
 const App = () => {
   // Add global error listener
   useEffect(() => {
@@ -185,8 +180,6 @@ const App = () => {
     };
 
     window.addEventListener("error", handleError);
-
-    // Cleanup
     return () => {
       window.removeEventListener("error", handleError);
     };
@@ -200,7 +193,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <AuthProvider>
-              <Router>
+              <Router basename="/">
                 <RouteValidator>
                   <div className="flex flex-col min-h-screen">
                     <Navbar />

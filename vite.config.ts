@@ -6,6 +6,9 @@ import path from "path";
 export default defineConfig({
   base: '/',
   plugins: [react()],
+  define: {
+    __DEV__: process.env.NODE_ENV !== 'production'
+  },
   server: {
     port: 3000,
     host: true,
