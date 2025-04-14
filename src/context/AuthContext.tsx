@@ -1,116 +1,186 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { Session, User } from "@supabase/supabase-js";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { Session, User as SupabaseUser, AuthChangeEvent } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 
+interface User extends SupabaseUser {
+  role?: string;
+}
+
 interface AuthContextType {
-  session: Session | null;
   user: User | null;
-  loading: boolean;
+  session: Session | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
   error: Error | null;
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const navigate = useNavigate();
 
-  const refreshSession = useCallback(async () => {
+  const refreshSession = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
       const { data: { session }, error } = await supabase.auth.getSession();
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
-      setSession(session);
-      setUser(session?.user ?? null);
+      if (session) {
+        setSession(session);
+        setUser(session.user);
+        setIsAuthenticated(true);
+      } else {
+        setSession(null);
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     } catch (error) {
       console.error('Error refreshing session:', error);
       setError(error as Error);
-      // Store error in session storage for debugging
       sessionStorage.setItem('authError', JSON.stringify({
         error: (error as Error).message,
         timestamp: new Date().toISOString()
       }));
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const handleAuthChange = async (event: AuthChangeEvent, session: Session | null) => {
+      if (!mounted) return;
+
+      console.log('Auth state changed:', event);
+      
+      try {
+        if (event === 'SIGNED_IN' && session) {
+          // Get user role from Supabase
+          const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .single();
+
+          if (roleError) {
+            console.error('Error fetching user role:', roleError);
+            return;
+          }
+
+          if (mounted) {
+            const userWithRole = {
+              ...session.user,
+              role: roleData?.role || 'viewer'
+            };
+            setUser(userWithRole);
+            setSession(session);
+            setIsAuthenticated(true);
+            sessionStorage.setItem('isAuthenticated', 'true');
+            sessionStorage.setItem('userRole', roleData?.role || 'viewer');
+          }
+        } else if (event === 'SIGNED_OUT') {
+          if (mounted) {
+            setUser(null);
+            setSession(null);
+            setIsAuthenticated(false);
+            sessionStorage.removeItem('isAuthenticated');
+            sessionStorage.removeItem('userRole');
+          }
+        }
+      } catch (error) {
+        console.error('Error handling auth change:', error);
+      }
+    };
+
+    // Initial session check
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (error) {
+          console.error('Session error:', error);
+          return;
+        }
+        
+        if (session) {
+          await handleAuthChange('SIGNED_IN', session);
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    // Set a timeout for the initial session check
+    timeoutId = setTimeout(checkSession, 1000);
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const signOut = useCallback(async () => {
+  const signIn = async (email: string, password: string) => {
     try {
-      setLoading(true);
+      setError(null);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error signing in:', error);
+      setError(error as Error);
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    try {
       setError(null);
       const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        throw error;
-      }
-      
+      if (error) throw error;
       navigate('/login');
     } catch (error) {
       console.error('Error signing out:', error);
       setError(error as Error);
-      // Store error in session storage for debugging
-      sessionStorage.setItem('authError', JSON.stringify({
-        error: (error as Error).message,
-        timestamp: new Date().toISOString()
-      }));
-    } finally {
-      setLoading(false);
+      throw error;
     }
-  }, [navigate]);
-
-  useEffect(() => {
-    refreshSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (event === 'SIGNED_OUT') {
-          // Clear any stored errors
-          sessionStorage.removeItem('authError');
-          navigate('/login');
-        } else if (event === 'SIGNED_IN') {
-          // Clear any stored errors
-          sessionStorage.removeItem('authError');
-          // Redirect to admin dashboard if on login page
-          if (window.location.pathname === '/login') {
-            navigate('/admin/dashboard');
-          }
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, refreshSession]);
-
-  const value = {
-    session,
-    user,
-    loading,
-    error,
-    signOut,
-    refreshSession,
   };
 
-  if (loading) {
+  const value = {
+    user,
+    session,
+    isAuthenticated,
+    isLoading,
+    error,
+    signIn,
+    signOut,
+    refreshSession
+  };
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -138,10 +208,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               Retry
             </Button>
             <Button
-              variant="default"
-              onClick={() => window.location.reload()}
+              variant="destructive"
+              onClick={() => {
+                setError(null);
+                navigate('/login');
+              }}
             >
-              Reload Page
+              Go to Login
             </Button>
           </div>
         </div>
@@ -149,11 +222,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
