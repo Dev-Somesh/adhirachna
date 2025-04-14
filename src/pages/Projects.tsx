@@ -1,7 +1,5 @@
-
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import { Helmet } from 'react-helmet';
 import { useInView, useLazyLoadImage } from '../components/ui/motion';
 import { ArrowRight } from 'lucide-react';
@@ -257,8 +255,6 @@ const Projects = () => {
             </div>
           </div>
         </main>
-        
-        <Footer />
       </div>
 
       {selectedProject && (

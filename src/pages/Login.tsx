@@ -9,7 +9,6 @@ import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 
 const loginSchema = z.object({
@@ -241,8 +240,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 };
