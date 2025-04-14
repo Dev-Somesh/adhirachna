@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { SiteProvider } from "./context/SiteContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -278,145 +278,143 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <Router basename="/">
-              <ErrorBoundary>
-                <AuthProvider>
-                  <RouteValidator>
-                    <div className="flex flex-col min-h-screen">
-                      <Navbar />
-                      <main className="flex-grow">
-                        <ErrorBoundary>
-                          <Routes>
-                            {/* Routes with error and suspense boundaries */}
-                            <Route 
-                              path="/" 
-                              element={
-                                <SuspenseBoundary name="IndexPage">
-                                  <IndexPage />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            
-                            {/* Main navigation pages */}
-                            <Route 
-                              path="/about" 
-                              element={
-                                <SuspenseBoundary name="About">
-                                  <About />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            <Route 
-                              path="/services" 
-                              element={
-                                <SuspenseBoundary name="Services">
-                                  <Services />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            <Route 
-                              path="/projects" 
-                              element={
-                                <SuspenseBoundary name="Projects">
-                                  <Projects />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            <Route 
-                              path="/contact" 
-                              element={
-                                <SuspenseBoundary name="Contact">
-                                  <Contact />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            
-                            {/* Blog pages */}
-                            <Route 
-                              path="/blog" 
-                              element={
-                                <SuspenseBoundary name="Blog">
-                                  <Blog />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            <Route 
-                              path="/blog/:id" 
-                              element={
-                                <SuspenseBoundary name="BlogDetail">
-                                  <BlogDetailPage />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            
-                            {/* Policy pages */}
-                            <Route 
-                              path="/privacy-policy" 
-                              element={
-                                <SuspenseBoundary name="PrivacyPolicy">
-                                  <PolicyPagePage type="privacy" />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            <Route 
-                              path="/terms-of-service" 
-                              element={
-                                <SuspenseBoundary name="TermsOfService">
-                                  <PolicyPagePage type="terms" />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            <Route 
-                              path="/cookie-policy" 
-                              element={
-                                <SuspenseBoundary name="CookiePolicy">
-                                  <PolicyPagePage type="cookie" />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            
-                            {/* Authentication */}
-                            <Route 
-                              path="/login" 
-                              element={
-                                <SuspenseBoundary name="Login">
-                                  <Login />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                            
-                            {/* Protected Admin Routes */}
-                            <Route
-                              path="/admin"
-                              element={
-                                <SuspenseBoundary name="AdminDashboard">
-                                  <ProtectedRoute>
-                                    <AdminLayout>
-                                      <Dashboard />
-                                    </AdminLayout>
-                                  </ProtectedRoute>
-                                </SuspenseBoundary>
-                              }
-                            />
-                            
-                            {/* Catch-all route - Must be last */}
-                            <Route 
-                              path="*" 
-                              element={
-                                <SuspenseBoundary name="NotFound">
-                                  <NotFound />
-                                </SuspenseBoundary>
-                              } 
-                            />
-                          </Routes>
-                        </ErrorBoundary>
-                      </main>
-                      <Footer />
-                    </div>
-                  </RouteValidator>
-                </AuthProvider>
-              </ErrorBoundary>
-            </Router>
+            <ErrorBoundary>
+              <AuthProvider>
+                <RouteValidator>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-grow">
+                      <ErrorBoundary>
+                        <Routes>
+                          {/* Routes with error and suspense boundaries */}
+                          <Route 
+                            path="/" 
+                            element={
+                              <SuspenseBoundary name="IndexPage">
+                                <IndexPage />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          
+                          {/* Main navigation pages */}
+                          <Route 
+                            path="/about" 
+                            element={
+                              <SuspenseBoundary name="About">
+                                <About />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          <Route 
+                            path="/services" 
+                            element={
+                              <SuspenseBoundary name="Services">
+                                <Services />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          <Route 
+                            path="/projects" 
+                            element={
+                              <SuspenseBoundary name="Projects">
+                                <Projects />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          <Route 
+                            path="/contact" 
+                            element={
+                              <SuspenseBoundary name="Contact">
+                                <Contact />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          
+                          {/* Blog pages */}
+                          <Route 
+                            path="/blog" 
+                            element={
+                              <SuspenseBoundary name="Blog">
+                                <Blog />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          <Route 
+                            path="/blog/:id" 
+                            element={
+                              <SuspenseBoundary name="BlogDetail">
+                                <BlogDetailPage />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          
+                          {/* Policy pages */}
+                          <Route 
+                            path="/privacy-policy" 
+                            element={
+                              <SuspenseBoundary name="PrivacyPolicy">
+                                <PolicyPagePage type="privacy" />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          <Route 
+                            path="/terms-of-service" 
+                            element={
+                              <SuspenseBoundary name="TermsOfService">
+                                <PolicyPagePage type="terms" />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          <Route 
+                            path="/cookie-policy" 
+                            element={
+                              <SuspenseBoundary name="CookiePolicy">
+                                <PolicyPagePage type="cookie" />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          
+                          {/* Authentication */}
+                          <Route 
+                            path="/login" 
+                            element={
+                              <SuspenseBoundary name="Login">
+                                <Login />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                          
+                          {/* Protected Admin Routes */}
+                          <Route
+                            path="/admin"
+                            element={
+                              <SuspenseBoundary name="AdminDashboard">
+                                <ProtectedRoute>
+                                  <AdminLayout>
+                                    <Dashboard />
+                                  </AdminLayout>
+                                </ProtectedRoute>
+                              </SuspenseBoundary>
+                            }
+                          />
+                          
+                          {/* Catch-all route - Must be last */}
+                          <Route 
+                            path="*" 
+                            element={
+                              <SuspenseBoundary name="NotFound">
+                                <NotFound />
+                              </SuspenseBoundary>
+                            } 
+                          />
+                        </Routes>
+                      </ErrorBoundary>
+                    </main>
+                    <Footer />
+                  </div>
+                </RouteValidator>
+              </AuthProvider>
+            </ErrorBoundary>
           </TooltipProvider>
         </SiteProvider>
       </QueryClientProvider>
