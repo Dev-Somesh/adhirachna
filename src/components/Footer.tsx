@@ -1,4 +1,3 @@
-
 import { X, Linkedin, Instagram, BookOpen, ChevronRight, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -11,9 +10,9 @@ const Footer = () => {
             <div className="mb-6">
               <Link to="/">
                 <img 
-                  src="/lovable-uploads/1bb22713-e329-4324-8be6-ed1a3a73cc9d.png" 
-                  alt="Adhirachna Engineering Solutions" 
-                  className="h-20 mb-4"
+                  src="/adhirachna-uploads/1bb22713-e329-4324-8be6-ed1a3a73cc9d.png" 
+                  alt="Adhirachna Logo" 
+                  className="h-12 mb-4"
                 />
               </Link>
             </div>

@@ -154,9 +154,9 @@ const Login = () => {
           <div className="flex justify-center mb-8">
             <Link to="/">
               <img 
-                src="/lovable-uploads/621de27a-0a5d-497f-91db-56b0a403ac42.png" 
-                alt="Adhirachna Engineering Solutions" 
-                className="h-16"
+                src="/adhirachna-uploads/621de27a-0a5d-497f-91db-56b0a403ac42.png" 
+                alt="Adhirachna Logo" 
+                className="w-32 h-32 mb-8"
               />
             </Link>
           </div>

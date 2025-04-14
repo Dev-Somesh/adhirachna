@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2, Tag, Upload } from "lucide-react";
@@ -153,7 +152,7 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
           category: formData.category,
           date,
           tags: formData.tags.split(",").map(tag => tag.trim()),
-          image: formData.image || "/lovable-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png",
+          image: formData.image || "/adhirachna-uploads/e5559050-11f2-4d4f-be39-8be20cf2dc48.png",
           views: 0,
           published: true
         };

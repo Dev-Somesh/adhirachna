@@ -40,9 +40,9 @@ const Navbar = () => {
         <nav className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/AdhirachnaVector.png" 
-              alt="Adhirachna Engineering Solutions" 
-              className="h-24 md:h-32" 
+              src="/adhirachna-uploads/AdhirachnaVector.png" 
+              alt="Adhirachna Logo" 
+              className="h-12" 
               onError={(e) => {
                 // Fallback to text if image fails to load
                 const target = e.target as HTMLImageElement;
