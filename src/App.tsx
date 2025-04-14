@@ -1,10 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { SiteProvider } from "./context/SiteContext";
-import { AuthProvider } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Suspense, useEffect, lazy } from "react";
 import React from 'react';
@@ -23,30 +19,6 @@ import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from "./components/AdminLayout";
-
-// Validate environment variables
-const requiredEnvVars = [
-  'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY',
-  'VITE_CONTENTFUL_SPACE_ID',
-  'VITE_CONTENTFUL_ACCESS_TOKEN'
-];
-
-const missingEnvVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
-if (missingEnvVars.length > 0) {
-  console.error('Missing required environment variables:', missingEnvVars);
-}
-
-// Create a React Query client with default options
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
 
 // Lazy load components with performance monitoring
 const withPerformanceMonitoring = (
@@ -195,48 +167,40 @@ function App() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <SiteProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <ErrorBoundary>
-            <AuthProvider>
-              <RouteValidator>
-                <Suspense fallback={<Loading />}>
-                  <Routes>
-                    <Route element={<Layout />}>
-                      <Route index element={<IndexPage />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/services" element={<Services />} />
-                      <Route path="/projects" element={<Projects />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/blog" element={<Blog />} />
-                      <Route path="/blog/:id" element={<BlogDetailPage />} />
-                      <Route path="/privacy-policy" element={<PolicyPagePage type="privacy" />} />
-                      <Route path="/terms-of-service" element={<PolicyPagePage type="terms" />} />
-                      <Route path="/cookie-policy" element={<PolicyPagePage type="cookie" />} />
-                      <Route path="/login" element={<Login />} />
-                      <Route
-                        path="/admin"
-                        element={
-                          <ProtectedRoute>
-                            <AdminLayout>
-                              <Dashboard />
-                            </AdminLayout>
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route path="*" element={<NotFound />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </RouteValidator>
-            </AuthProvider>
-          </ErrorBoundary>
-        </TooltipProvider>
-      </SiteProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <Toaster />
+      <Sonner />
+      <RouteValidator>
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route index element={<IndexPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogDetailPage />} />
+              <Route path="/privacy-policy" element={<PolicyPagePage type="privacy" />} />
+              <Route path="/terms-of-service" element={<PolicyPagePage type="terms" />} />
+              <Route path="/cookie-policy" element={<PolicyPagePage type="cookie" />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout>
+                      <Dashboard />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </RouteValidator>
+    </ErrorBoundary>
   );
 }
 
