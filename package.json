@@ -88,7 +88,7 @@
     "@types/node": "^22.14.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react-swc": "^3.8.1",
+    "@vitejs/plugin-react-swc": "3.8.1",
     "autoprefixer": "10.4.21",
     "caniuse-lite": "^1.0.30001713",
     "eslint": "^9.9.0",
