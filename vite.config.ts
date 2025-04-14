@@ -54,15 +54,17 @@ export default defineConfig({
             'react',
             'react-dom',
             'react-router-dom',
-            '@tanstack/react-query',
+            '@tanstack/react-query'
+          ],
+          ui: [
             '@radix-ui/react-dialog',
             '@radix-ui/react-dropdown-menu',
             '@radix-ui/react-navigation-menu',
             '@radix-ui/react-popover',
             '@radix-ui/react-toast',
-            '@radix-ui/react-tooltip'
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-slot'
           ],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot'],
         },
       },
     },
