@@ -25,21 +25,48 @@ const withErrorHandling = (
   importFn: () => Promise<any>,
   componentName: string
 ) => {
-  return importFn()
-    .then((module) => {
-      console.log(`[Performance] ${componentName} loaded successfully`);
-      return module;
-    })
-    .catch((error) => {
-      console.error(`[Error] Failed to load ${componentName}:`, error);
-      throw error;
-    });
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error(`Timeout loading ${componentName}`));
+    }, 10000); // 10 second timeout
+
+    importFn()
+      .then((module) => {
+        clearTimeout(timeout);
+        console.log(`[Performance] ${componentName} loaded successfully`);
+        resolve(module);
+      })
+      .catch((error) => {
+        clearTimeout(timeout);
+        console.error(`[Error] Failed to load ${componentName}:`, error);
+        reject(error);
+      });
+  });
+};
+
+// Lazy load components with retry logic
+const lazyWithRetry = (importFn: () => Promise<any>, componentName: string) => {
+  return lazy(() => {
+    const retry = async (attempts = 3): Promise<any> => {
+      try {
+        return await withErrorHandling(importFn, componentName);
+      } catch (error) {
+        if (attempts <= 1) {
+          throw error;
+        }
+        console.log(`Retrying load of ${componentName}, attempts left: ${attempts - 1}`);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        return retry(attempts - 1);
+      }
+    };
+    return retry();
+  });
 };
 
 // Lazy load components
-const IndexPage = lazy(() => withErrorHandling(() => import('./pages/Index'), 'IndexPage'));
-const BlogDetailPage = lazy(() => withErrorHandling(() => import('./pages/BlogDetail'), 'BlogDetailPage'));
-const PolicyPagePage = lazy(() => withErrorHandling(() => import('./pages/PolicyPage'), 'PolicyPagePage'));
+const IndexPage = lazyWithRetry(() => import('./pages/Index'), 'IndexPage');
+const BlogDetailPage = lazyWithRetry(() => import('./pages/BlogDetail'), 'BlogDetailPage');
+const PolicyPagePage = lazyWithRetry(() => import('./pages/PolicyPage'), 'PolicyPagePage');
 
 // Enhanced RouteValidator with better error handling and log cleanup
 const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -188,12 +215,10 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:id" element={<BlogDetailPage />} />
-              <Route path="/privacy-policy" element={<PolicyPagePage type="privacy" />} />
-              <Route path="/terms-of-service" element={<PolicyPagePage type="terms" />} />
-              <Route path="/cookie-policy" element={<PolicyPagePage type="cookie" />} />
+              <Route path="/policy/:type" element={<PolicyPagePage />} />
               <Route path="/login" element={<Login />} />
               <Route
-                path="/admin"
+                path="/admin/*"
                 element={
                   <ProtectedRoute>
                     <AdminLayout>
