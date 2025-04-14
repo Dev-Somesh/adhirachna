@@ -1,7 +1,7 @@
 # Adhirachna
 
 <div align="center">
-  <img src="https://via.placeholder.com/150" alt="Adhirachna Logo" width="150"/>
+  <img src="https://raw.githubusercontent.com/Dev-Somesh/adhirachna/main/public/logo.png" alt="Adhirachna Logo" width="150"/>
   
   [![Netlify Status](https://api.netlify.com/api/v1/badges/your-badge-id/deploy-status)](https://app.netlify.com/sites/your-site-name/deploys)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Dev-Somesh/adhirachna/blob/main/LICENSE)
@@ -16,14 +16,14 @@
     <tr>
       <td align="center">
         <a href="https://github.com/Dev-Somesh/adhirachna/blob/main/TECHNICAL_DOCUMENTATION.md">
-          <img src="https://via.placeholder.com/300x200?text=Technical+Documentation" alt="Technical Documentation" width="300"/>
+          <img src="https://raw.githubusercontent.com/Dev-Somesh/adhirachna/main/docs/technical-docs.png" alt="Technical Documentation" width="300"/>
           <br/>
           <strong>Technical Documentation</strong>
         </a>
       </td>
       <td align="center">
         <a href="https://github.com/Dev-Somesh/adhirachna/blob/main/PROJECT_OVERVIEW.md">
-          <img src="https://via.placeholder.com/300x200?text=Project+Overview" alt="Project Overview" width="300"/>
+          <img src="https://raw.githubusercontent.com/Dev-Somesh/adhirachna/main/docs/project-overview.png" alt="Project Overview" width="300"/>
           <br/>
           <strong>Project Overview</strong>
         </a>
@@ -78,22 +78,22 @@ graph TD
   <table>
     <tr>
       <td align="center">
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="40" height="40"/>
+        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" width="40" height="40"/>
         <br/>
         <strong>React</strong>
       </td>
       <td align="center">
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="40" height="40"/>
+        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="40" height="40"/>
         <br/>
         <strong>TypeScript</strong>
       </td>
       <td align="center">
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" width="40" height="40"/>
+        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-plain.svg" width="40" height="40"/>
         <br/>
         <strong>Tailwind</strong>
       </td>
       <td align="center">
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" width="40" height="40"/>
+        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/supabase/supabase-original.svg" width="40" height="40"/>
         <br/>
         <strong>Supabase</strong>
       </td>
