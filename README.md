@@ -1,7 +1,7 @@
 # Adhirachna
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Dev-Somesh/adhirachna/main/public/logo.png" alt="Adhirachna Logo" width="150"/>
+  <img src="https://raw.githubusercontent.com/Dev-Somesh/adhirachna/main/public/adhirachna-uploads/AdhirachnaVector.png" alt="Adhirachna Logo" width="200"/>
   
   [![Netlify Status](https://api.netlify.com/api/v1/badges/your-badge-id/deploy-status)](https://app.netlify.com/sites/your-site-name/deploys)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Dev-Somesh/adhirachna/blob/main/LICENSE)
