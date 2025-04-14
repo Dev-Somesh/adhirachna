@@ -1,9 +1,13 @@
 import { X, Linkedin, Instagram, BookOpen, ChevronRight, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+interface FooterProps {
+  className?: string;
+}
+
+const Footer = ({ className = '' }: FooterProps) => {
   return (
-    <footer className="bg-adhirachna-darkblue text-white">
+    <footer className={`bg-adhirachna-darkblue text-white ${className}`}>
       <div className="max-w-7xl mx-auto px-6 md:px-10 pt-20 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
           <div>
@@ -12,7 +16,11 @@ const Footer = () => {
                 <img 
                   src="/adhirachna-uploads/1bb22713-e329-4324-8be6-ed1a3a73cc9d.png" 
                   alt="Adhirachna Logo" 
-                  className="h-12 mb-4"
+                  className="h-20 w-auto"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    console.error('Failed to load logo image');
+                  }}
                 />
               </Link>
             </div>
