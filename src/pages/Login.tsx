@@ -26,7 +26,7 @@ const DEMO_CREDENTIALS = {
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const form = useForm<LoginFormData>({
@@ -34,13 +34,9 @@ const Login = () => {
   });
 
   useEffect(() => {
-    let mounted = true;
-
-    const checkAuth = async () => {
+    const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (!mounted) return;
         
         if (error) {
           console.error("Session error:", error);
@@ -50,35 +46,31 @@ const Login = () => {
         
         if (session) {
           setIsAuthenticated(true);
+          sessionStorage.setItem('isAuthenticated', 'true');
           navigate("/admin", { replace: true });
-        } else {
-          setIsAuthenticated(false);
         }
       } catch (err) {
         console.error("Auth check error:", err);
-        if (mounted) {
-          setIsAuthenticated(false);
-        }
+        setIsAuthenticated(false);
       }
     };
-    
-    checkAuth();
-    
+
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!mounted) return;
-      
       console.log("Auth state changed:", event, session);
       
       if (session) {
         setIsAuthenticated(true);
+        sessionStorage.setItem('isAuthenticated', 'true');
         navigate("/admin", { replace: true });
       } else {
         setIsAuthenticated(false);
+        sessionStorage.removeItem('isAuthenticated');
       }
     });
-    
+
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
@@ -88,20 +80,23 @@ const Login = () => {
     setError(null);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) throw error;
       
-      toast({
-        title: "Success",
-        description: "Login successful!",
-        duration: 3000
-      });
-      
-      navigate("/admin", { replace: true });
+      if (data.session) {
+        setIsAuthenticated(true);
+        sessionStorage.setItem('isAuthenticated', 'true');
+        toast({
+          title: "Success",
+          description: "Login successful!",
+          duration: 3000
+        });
+        navigate("/admin", { replace: true });
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError(err instanceof Error ? err.message : "An error occurred during login");
@@ -124,7 +119,7 @@ const Login = () => {
     await handleLogin(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
   };
 
-  if (isAuthenticated === null) {
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -142,9 +137,14 @@ const Login = () => {
           <div className="flex justify-center mb-8">
             <Link to="/">
               <img 
-                src="/adhirachna-uploads/621de27a-0a5d-497f-91db-56b0a403ac42.png" 
+                src="/logo.png" 
                 alt="Adhirachna Logo" 
                 className="w-32 h-32 mb-8"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = '/logo.png';
+                }}
               />
             </Link>
           </div>
