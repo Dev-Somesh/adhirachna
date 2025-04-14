@@ -13,7 +13,7 @@ import React from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { Spinner } from './components/ui/Spinner';
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import AdminLayout from "./components/AdminLayout";
 import ProtectedRoute from './components/ProtectedRoute';
 
