@@ -26,7 +26,6 @@ const DEMO_CREDENTIALS = {
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const form = useForm<LoginFormData>({
@@ -40,33 +39,22 @@ const Login = () => {
         
         if (error) {
           console.error("Session error:", error);
-          setIsAuthenticated(false);
           return;
         }
         
         if (session) {
-          setIsAuthenticated(true);
-          sessionStorage.setItem('isAuthenticated', 'true');
           navigate("/admin", { replace: true });
         }
       } catch (err) {
         console.error("Auth check error:", err);
-        setIsAuthenticated(false);
       }
     };
 
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session);
-      
       if (session) {
-        setIsAuthenticated(true);
-        sessionStorage.setItem('isAuthenticated', 'true');
         navigate("/admin", { replace: true });
-      } else {
-        setIsAuthenticated(false);
-        sessionStorage.removeItem('isAuthenticated');
       }
     });
 
@@ -88,8 +76,6 @@ const Login = () => {
       if (error) throw error;
       
       if (data.session) {
-        setIsAuthenticated(true);
-        sessionStorage.setItem('isAuthenticated', 'true');
         toast({
           title: "Success",
           description: "Login successful!",
@@ -119,15 +105,6 @@ const Login = () => {
     await handleLogin(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="mt-4">Checking authentication...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -137,13 +114,13 @@ const Login = () => {
           <div className="flex justify-center mb-8">
             <Link to="/">
               <img 
-                src="/logo.png" 
+                src="/adhirachna-uploads/AdhirachnaVector.png" 
                 alt="Adhirachna Logo" 
                 className="w-32 h-32 mb-8"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
-                  target.src = '/logo.png';
+                  target.src = '/adhirachna-uploads/4c3bdf49-51a1-4395-979c-df13ea291dc1.png';
                 }}
               />
             </Link>
