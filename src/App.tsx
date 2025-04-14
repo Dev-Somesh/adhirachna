@@ -27,6 +27,19 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Button } from "@/components/ui/button";
 
+// Validate environment variables
+const requiredEnvVars = [
+  'VITE_SUPABASE_URL',
+  'VITE_SUPABASE_ANON_KEY',
+  'VITE_CONTENTFUL_SPACE_ID',
+  'VITE_CONTENTFUL_ACCESS_TOKEN'
+];
+
+const missingEnvVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+}
+
 // Create a React Query client with default options
 const queryClient = new QueryClient({
   defaultOptions: {
