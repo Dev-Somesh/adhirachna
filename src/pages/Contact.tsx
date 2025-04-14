@@ -352,7 +352,7 @@ const Contact = () => {
             <h2 className="text-2xl font-semibold text-adhirachna-darkblue mb-6">Our Location</h2>
             <div className="w-full h-[400px] rounded-lg overflow-hidden">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3557.1234567890123!2d75.7890123456789!3d26.7890123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDQ3JzIwLjQiTiA3NcKwNDcnMjAuNCJF!5e0!3m2!1sen!2sin!4v1234567890!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.7158505746!2d77.2065!3d28.6139!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM2JzUwLjAiTiA3N8KwMTInMjMuNCJF!5e0!3m2!1sen!2sin!4v1647854000000!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -360,6 +360,11 @@ const Contact = () => {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 title="Adhirachna Engineering Solutions Location"
+                onError={(e) => {
+                  const target = e.target as HTMLIFrameElement;
+                  target.style.display = 'none';
+                  console.error('Failed to load Google Maps iframe');
+                }}
               />
             </div>
           </div>
