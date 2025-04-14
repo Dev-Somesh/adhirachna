@@ -174,107 +174,126 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-const App = () => (
-  <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
-    <QueryClientProvider client={queryClient}>
-      <SiteProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <AuthProvider>
-            <Router>
-              <RouteValidator>
-                <div className="flex flex-col min-h-screen">
-                  <Navbar />
-                  <main className="flex-grow">
-                    <Suspense fallback={<Loading />}>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        
-                        {/* Main navigation pages */}
-                        <Route path="/about" element={<About />} />
-                        <Route path="/services" element={<Services />} />
-                        <Route path="/projects" element={<Projects />} />
-                        <Route path="/contact" element={<Contact />} />
-                        
-                        {/* Blog pages */}
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/blog/:id" element={<BlogDetail />} />
-                        
-                        {/* Policy pages */}
-                        <Route path="/privacy-policy" element={<PolicyPage type="privacy" />} />
-                        <Route path="/terms-of-service" element={<PolicyPage type="terms" />} />
-                        <Route path="/cookie-policy" element={<PolicyPage type="cookie" />} />
-                        
-                        {/* Authentication */}
-                        <Route path="/login" element={<Login />} />
-                        
-                        {/* Protected Admin Routes */}
-                        <Route
-                          path="/admin"
-                          element={
-                            <ProtectedRoute>
-                              <AdminLayout>
-                                <Dashboard />
-                              </AdminLayout>
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/content"
-                          element={
-                            <ProtectedRoute>
-                              <AdminLayout>
-                                <ContentManagement />
-                              </AdminLayout>
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/blog"
-                          element={
-                            <ProtectedRoute>
-                              <AdminLayout>
-                                <BlogManagement />
-                              </AdminLayout>
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/team"
-                          element={
-                            <ProtectedRoute>
-                              <AdminLayout>
-                                <TeamMembers />
-                              </AdminLayout>
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/settings"
-                          element={
-                            <ProtectedRoute>
-                              <AdminLayout>
-                                <Settings />
-                              </AdminLayout>
-                            </ProtectedRoute>
-                          }
-                        />
-                        
-                        {/* Catch-all route */}
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Suspense>
-                  </main>
-                  <Footer />
-                </div>
-              </RouteValidator>
-            </Router>
-          </AuthProvider>
-        </TooltipProvider>
-      </SiteProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  // Add global error listener
+  useEffect(() => {
+    const handleError = (e: ErrorEvent) => {
+      console.error("Global runtime error:", e.error);
+      // Log additional context
+      console.error("Error stack:", e.error?.stack);
+      console.error("Error location:", window.location.href);
+    };
+
+    window.addEventListener("error", handleError);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("error", handleError);
+    };
+  }, []);
+
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
+      <QueryClientProvider client={queryClient}>
+        <SiteProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <AuthProvider>
+              <Router>
+                <RouteValidator>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-grow">
+                      <Suspense fallback={<Loading />}>
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          
+                          {/* Main navigation pages */}
+                          <Route path="/about" element={<About />} />
+                          <Route path="/services" element={<Services />} />
+                          <Route path="/projects" element={<Projects />} />
+                          <Route path="/contact" element={<Contact />} />
+                          
+                          {/* Blog pages */}
+                          <Route path="/blog" element={<Blog />} />
+                          <Route path="/blog/:id" element={<BlogDetail />} />
+                          
+                          {/* Policy pages */}
+                          <Route path="/privacy-policy" element={<PolicyPage type="privacy" />} />
+                          <Route path="/terms-of-service" element={<PolicyPage type="terms" />} />
+                          <Route path="/cookie-policy" element={<PolicyPage type="cookie" />} />
+                          
+                          {/* Authentication */}
+                          <Route path="/login" element={<Login />} />
+                          
+                          {/* Protected Admin Routes */}
+                          <Route
+                            path="/admin"
+                            element={
+                              <ProtectedRoute>
+                                <AdminLayout>
+                                  <Dashboard />
+                                </AdminLayout>
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/content"
+                            element={
+                              <ProtectedRoute>
+                                <AdminLayout>
+                                  <ContentManagement />
+                                </AdminLayout>
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/blog"
+                            element={
+                              <ProtectedRoute>
+                                <AdminLayout>
+                                  <BlogManagement />
+                                </AdminLayout>
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/team"
+                            element={
+                              <ProtectedRoute>
+                                <AdminLayout>
+                                  <TeamMembers />
+                                </AdminLayout>
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/settings"
+                            element={
+                              <ProtectedRoute>
+                                <AdminLayout>
+                                  <Settings />
+                                </AdminLayout>
+                              </ProtectedRoute>
+                            }
+                          />
+                          
+                          {/* Catch-all route */}
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Suspense>
+                    </main>
+                    <Footer />
+                  </div>
+                </RouteValidator>
+              </Router>
+            </AuthProvider>
+          </TooltipProvider>
+        </SiteProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;
