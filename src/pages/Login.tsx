@@ -43,9 +43,8 @@ const Login = () => {
           return;
         }
         
-        setIsAuthenticated(!!session);
-        
         if (session) {
+          setIsAuthenticated(true);
           navigate("/admin");
         }
       } catch (err) {
@@ -57,10 +56,12 @@ const Login = () => {
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
-      setIsAuthenticated(!!session);
       
       if (session) {
+        setIsAuthenticated(true);
         navigate("/admin");
+      } else {
+        setIsAuthenticated(false);
       }
     });
     
