@@ -28,6 +28,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
 
 // Validate environment variables
 const requiredEnvVars = [
@@ -103,16 +104,75 @@ function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetError
 // Route validation wrapper
 const RouteValidator = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  console.log('Current route:', location.pathname);
-  
-  // Add any route-specific validations here
+  const navigate = useNavigate();
+
+  // Log route changes for debugging
+  useEffect(() => {
+    if (!location) {
+      console.error('Location object is undefined');
+      navigate('/');
+      return;
+    }
+
+    console.log('Route changed:', {
+      pathname: location.pathname,
+      search: location.search,
+      hash: location.hash,
+      state: location.state
+    });
+
+    // Store current route in session storage for recovery
+    sessionStorage.setItem('lastRoute', JSON.stringify({
+      pathname: location.pathname,
+      search: location.search,
+      state: location.state
+    }));
+  }, [location, navigate]);
+
+  // Validate route state
   if (!location) {
     console.error('Location object is undefined');
     return <Navigate to="/" />;
   }
 
+  // Validate admin routes
+  if (location.pathname.startsWith('/admin')) {
+    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+    if (!user) {
+      console.warn('Unauthorized access attempt to admin route:', location.pathname);
+      return <Navigate to="/login" state={{ from: location }} />;
+    }
+  }
+
+  // Handle hash navigation
+  useEffect(() => {
+    if (location?.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        console.warn(`Hash target ${location.hash} not found`);
+      }
+    }
+  }, [location?.hash]);
+
+  // Handle 404 for dynamic routes
+  const isDynamicRoute = location.pathname.includes('/:');
+  if (isDynamicRoute) {
+    const segments = location.pathname.split('/');
+    const hasEmptySegment = segments.some(segment => !segment && segment !== '');
+    if (hasEmptySegment) {
+      console.error('Invalid dynamic route segment:', location.pathname);
+      return <Navigate to="/404" />;
+    }
+  }
+
   return <>{children}</>;
 };
+
+interface AdminLayoutProps {
+  children: React.ReactNode;
+}
 
 const App = () => (
   <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
