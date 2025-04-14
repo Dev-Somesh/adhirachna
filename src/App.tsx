@@ -12,7 +12,7 @@ import React from 'react';
 // Component imports
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import { Loading } from './components/Loading';
+import { Loading } from '@/components/Loading';
 import ErrorBoundary from './components/ErrorBoundary';
 import AdminLayout from "./components/AdminLayout";
 import ProtectedRoute from './components/ProtectedRoute';
