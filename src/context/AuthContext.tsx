@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
   const navigate = useNavigate();
 
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -46,7 +46,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      setError(error as Error);
+      // Store error in session storage for debugging
+      sessionStorage.setItem('authError', JSON.stringify({
+        error: (error as Error).message,
+        timestamp: new Date().toISOString()
+      }));
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     refreshSession();
@@ -75,31 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
-
-  const signOut = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        throw error;
-      }
-      
-      navigate('/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      setError(error as Error);
-      // Store error in session storage for debugging
-      sessionStorage.setItem('authError', JSON.stringify({
-        error: (error as Error).message,
-        timestamp: new Date().toISOString()
-      }));
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [navigate, refreshSession]);
 
   const value = {
     session,
