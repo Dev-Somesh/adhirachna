@@ -12,20 +12,43 @@ async function generateImage(title, description, outputPath) {
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
 
-  // Background
-  ctx.fillStyle = '#1a1a1a';
+  // Gradient background
+  const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+  gradient.addColorStop(0, '#1a1a1a');
+  gradient.addColorStop(1, '#2d2d2d');
+  ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  // Title
+  // Add some decorative elements
+  ctx.strokeStyle = '#ffffff20';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, HEIGHT / 2);
+  ctx.lineTo(WIDTH, HEIGHT / 2);
+  ctx.stroke();
+
+  // Title with shadow
+  ctx.shadowColor = '#000000';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
   ctx.font = 'bold 48px Arial';
   ctx.fillStyle = '#ffffff';
   ctx.textAlign = 'center';
   ctx.fillText(title, WIDTH / 2, HEIGHT / 2 - 50);
 
   // Description
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
   ctx.font = '24px Arial';
   ctx.fillStyle = '#cccccc';
   ctx.fillText(description, WIDTH / 2, HEIGHT / 2 + 50);
+
+  // Add border
+  ctx.strokeStyle = '#ffffff20';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, WIDTH, HEIGHT);
 
   // Save the image
   const buffer = canvas.toBuffer('image/png');

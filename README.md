@@ -3,8 +3,7 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/Dev-Somesh/adhirachna/main/public/adhirachna-uploads/AdhirachnaVector.png" alt="Adhirachna Logo" width="200"/>
   
-  [![Netlify Status](https://api.netlify.com/api/v1/badges/your-badge-id/deploy-status)](https://app.netlify.com/sites/your-site-name/deploys)
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Dev-Somesh/adhirachna/blob/main/LICENSE)
+  [![Netlify Status](https://api.netlify.com/api/v1/badges/ffae4aca-ada0-4b8d-b600-7833e23d7535/deploy-status)](https://app.netlify.com/sites/adhirachna/deploys)
   [![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue.svg)](https://www.typescriptlang.org/)
   [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
 </div>
@@ -88,7 +87,7 @@ graph TD
         <strong>TypeScript</strong>
       </td>
       <td align="center">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-plain.svg" width="40" height="40"/>
+        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-original.svg" width="40" height="40"/>
         <br/>
         <strong>Tailwind</strong>
       </td>
@@ -153,10 +152,6 @@ pie title Bundle Sizes
 - **Email**: itdeveloper06@gmail.com
 - **GitHub**: [Dev-Somesh](https://github.com/Dev-Somesh)
 - **Project Link**: [https://github.com/Dev-Somesh/adhirachna](https://github.com/Dev-Somesh/adhirachna)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
