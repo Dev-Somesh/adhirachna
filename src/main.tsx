@@ -1,3 +1,4 @@
+import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
@@ -30,15 +31,17 @@ if (!rootElement) {
 // Create root and render app with proper provider nesting
 const root = createRoot(rootElement)
 root.render(
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
-      <SiteProvider>
-        <TooltipProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </TooltipProvider>
-      </SiteProvider>
-    </QueryClientProvider>
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <SiteProvider>
+          <TooltipProvider>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </TooltipProvider>
+        </SiteProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 )
