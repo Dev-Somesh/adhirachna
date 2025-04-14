@@ -1,167 +1,167 @@
-# Adhirachna Engineering Solutions
+# Adhirachna
 
-A modern web application for Adhirachna Engineering Solutions, built with React, TypeScript, and Vite.
+<div align="center">
+  <img src="https://via.placeholder.com/150" alt="Adhirachna Logo" width="150"/>
+  
+  [![Netlify Status](https://api.netlify.com/api/v1/badges/your-badge-id/deploy-status)](https://app.netlify.com/sites/your-site-name/deploys)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Dev-Somesh/adhirachna/blob/main/LICENSE)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue.svg)](https://www.typescriptlang.org/)
+  [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
+</div>
 
-## Features
+## 📚 Documentation
 
-- Modern React with TypeScript
-- Responsive design with Tailwind CSS
-- Authentication with Supabase
-- Content management with Contentful
-- SEO optimized
-- Performance optimized
-- Security best practices implemented
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/Dev-Somesh/adhirachna/blob/main/TECHNICAL_DOCUMENTATION.md">
+          <img src="https://via.placeholder.com/300x200?text=Technical+Documentation" alt="Technical Documentation" width="300"/>
+          <br/>
+          <strong>Technical Documentation</strong>
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://github.com/Dev-Somesh/adhirachna/blob/main/PROJECT_OVERVIEW.md">
+          <img src="https://via.placeholder.com/300x200?text=Project+Overview" alt="Project Overview" width="300"/>
+          <br/>
+          <strong>Project Overview</strong>
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
 
-## Prerequisites
+## 🚀 Quick Start
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Supabase account
-- Contentful account
+```bash
+# Clone the repository
+git clone https://github.com/Dev-Somesh/adhirachna.git
 
-## Getting Started
+# Navigate to the project directory
+cd adhirachna
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Dev-Somesh/adhirachna.git
-   cd adhirachna
-   ```
+# Install dependencies
+npm install
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+# Start the development server
+npm run dev
+```
 
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-   Update the `.env` file with your actual credentials.
+## 📋 Documentation Overview
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### Technical Documentation
+```mermaid
+graph TD
+    A[Technical Documentation] --> B[Authentication System]
+    A --> C[Routing and Navigation]
+    A --> D[Error Handling]
+    A --> E[Deployment Configuration]
+    A --> F[Performance Optimizations]
+    A --> G[Environment Variables]
+```
 
-## Available Scripts
+### Project Overview
+```mermaid
+graph TD
+    A[Project Overview] --> B[Project Architecture]
+    A --> C[Component Structure]
+    A --> D[Feature Documentation]
+    A --> E[Data Flow]
+    A --> F[API Integration]
+    A --> G[Visual Documentation]
+```
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run build:prod` - Build for production with optimizations
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-- `npm run typecheck` - Run TypeScript type checking
-- `npm run test` - Run tests
-- `npm run format` - Format code with Prettier
-- `npm run analyze` - Analyze bundle size
+## 🛠️ Technology Stack
 
-## Deployment
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="40" height="40"/>
+        <br/>
+        <strong>React</strong>
+      </td>
+      <td align="center">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="40" height="40"/>
+        <br/>
+        <strong>TypeScript</strong>
+      </td>
+      <td align="center">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" width="40" height="40"/>
+        <br/>
+        <strong>Tailwind</strong>
+      </td>
+      <td align="center">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" width="40" height="40"/>
+        <br/>
+        <strong>Supabase</strong>
+      </td>
+    </tr>
+  </table>
+</div>
 
-### Production Build
+## 📊 Project Structure
 
-1. Create a production build:
-   ```bash
-   npm run build:prod
-   ```
+```mermaid
+graph TD
+    A[Adhirachna] --> B[Frontend]
+    A --> C[Backend Services]
+    B --> D[Components]
+    B --> E[Pages]
+    B --> F[Context]
+    C --> G[Supabase]
+    C --> H[Contentful]
+```
 
-2. The built files will be in the `dist` directory.
+## 🔍 Key Features
 
-### Environment Variables
+<div align="center">
+  <table>
+    <tr>
+      <td>🔐 Authentication</td>
+      <td>📝 Blog System</td>
+      <td>👥 User Management</td>
+    </tr>
+    <tr>
+      <td>📊 Analytics</td>
+      <td>🎨 Customizable UI</td>
+      <td>⚡ Performance</td>
+    </tr>
+  </table>
+</div>
 
-Make sure to set the following environment variables in your production environment:
+## 📈 Performance Metrics
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `VITE_CONTENTFUL_SPACE_ID`
-- `VITE_CONTENTFUL_ACCESS_TOKEN`
-- `VITE_RECAPTCHA_SITE_KEY`
+```mermaid
+pie title Bundle Sizes
+    "Main Bundle" : 518.13
+    "Vendor Bundle" : 161.15
+    "CSS Bundle" : 82.05
+```
 
-## Security
-
-This application implements several security measures:
-
-- Content Security Policy (CSP)
-- XSS Protection
-- Frame Protection
-- Secure Referrer Policy
-- CORS Configuration
-
-## Performance
-
-The application is optimized for performance with:
-
-- Code splitting
-- Lazy loading
-- Asset optimization
-- Caching headers
-- Bundle size optimization
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+## 📫 Contact
+
+- **Email**: itdeveloper06@gmail.com
+- **GitHub**: [Dev-Somesh](https://github.com/Dev-Somesh)
+- **Project Link**: [https://github.com/Dev-Somesh/adhirachna](https://github.com/Dev-Somesh/adhirachna)
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🚀 Features
-
-- Modern, responsive design with Tailwind CSS
-- Contentful CMS integration for content management
-- Blog system with rich text support
-- SEO optimized with React Helmet
-- Deployed on Netlify
-
-## 🛠️ Tech Stack
-
-- **Frontend Framework**: React 18
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS with Shadcn UI components
-- **CMS**: Contentful
-- **Deployment**: Netlify
-- **Routing**: React Router
-- **State Management**: React Query
-- **Form Handling**: React Hook Form with Zod validation
-
-## 🏗️ Project Structure
-
-```
-src/
-├── components/     # React components
-├── lib/           # Utility functions and configurations
-├── services/      # API services and data fetching
-├── types/         # TypeScript type definitions
-└── scripts/       # Migration and setup scripts
-```
-
-## 📝 Content Management
-
-The project uses Contentful CMS for content management. The content model includes:
-
-- **Blog Post**: Title, slug, content, excerpt, author, featured image, publish date, category, tags, and view count
-- **Author**: Name and bio
-
-## 🚀 Deployment
-
-The application is deployed on Netlify. The deployment process is automated through GitHub integration.
-
-### Netlify Configuration
-
-The project includes a `netlify.toml` configuration file with the following settings:
-
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Node.js version: 18
-- SPA redirects for client-side routing
-
 ## 🙏 Acknowledgments
 
-- [Contentful](https://www.contentful.com/) for the CMS
-- [Netlify](https://www.netlify.com/) for hosting
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-- [Shadcn UI](https://ui.shadcn.com/) for components
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Supabase](https://supabase.io/)
+- [Contentful](https://www.contentful.com/)
+- [Netlify](https://www.netlify.com/)
