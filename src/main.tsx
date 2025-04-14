@@ -22,6 +22,39 @@ const queryClient = new QueryClient({
 // Log environment variables for debugging
 console.log('Environment Variables:', import.meta.env)
 
+// Register service worker with proper error handling
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        
+        // Handle updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New content is available, show update prompt
+                console.log('New content is available; please refresh.');
+              }
+            });
+          }
+        });
+      })
+      .catch(error => {
+        console.error('ServiceWorker registration failed: ', error);
+      });
+
+    // Handle message channel cleanup
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data && event.data.type === 'SKIP_WAITING') {
+        navigator.serviceWorker.controller?.postMessage({ type: 'SKIP_WAITING' });
+      }
+    });
+  });
+}
+
 // Ensure the root element exists
 const rootElement = document.getElementById('root')
 if (!rootElement) {
