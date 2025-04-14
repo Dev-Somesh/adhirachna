@@ -40,16 +40,14 @@ const Navbar = () => {
         <nav className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <img 
-              src="/adhirachna-uploads/AdhirachnaVector.png" 
-              alt="Adhirachna Logo" 
-              className="h-12" 
+              src="/logo.svg" 
+              alt="Adhirachna Engineering Solutions" 
+              className="h-8 w-auto max-w-[20px]"
               onError={(e) => {
-                // Fallback to text if image fails to load
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement!.innerHTML = '<span class="text-3xl font-bold text-adhirachna-green">Adhirachna</span>';
+                (e.target as HTMLImageElement).src = '/placeholder.svg';
               }}
             />
+            <span className="ml-2 text-xl font-bold text-adhirachna-darkblue">Adhirachna</span>
           </Link>
 
           {/* Desktop Navigation */}
