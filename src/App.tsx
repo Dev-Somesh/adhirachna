@@ -1,9 +1,9 @@
+import { Routes, Route, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Suspense, useEffect, lazy } from "react";
 import React from 'react';
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Component imports
 import Layout from './components/Layout';
@@ -20,93 +20,26 @@ import Contact from "./pages/Contact";
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from "./components/AdminLayout";
 
-// Lazy load components with error handling and logging
-const withErrorHandling = (
-  importFn: () => Promise<any>,
-  componentName: string
-) => {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      reject(new Error(`Timeout loading ${componentName}`));
-    }, 10000); // 10 second timeout
-
-    importFn()
-      .then((module) => {
-        clearTimeout(timeout);
-        console.log(`[Performance] ${componentName} loaded successfully`);
-        resolve(module);
-      })
-      .catch((error) => {
-        clearTimeout(timeout);
-        console.error(`[Error] Failed to load ${componentName}:`, error);
-        reject(error);
-      });
-  });
-};
-
-// Lazy load components with retry logic
-const lazyWithRetry = (importFn: () => Promise<any>, componentName: string) => {
-  return lazy(() => {
-    const retry = async (attempts = 3): Promise<any> => {
-      try {
-        return await withErrorHandling(importFn, componentName);
-      } catch (error) {
-        if (attempts <= 1) {
-          throw error;
-        }
-        console.log(`Retrying load of ${componentName}, attempts left: ${attempts - 1}`);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
-        return retry(attempts - 1);
-      }
-    };
-    return retry();
-  });
-};
-
 // Lazy load components
-const IndexPage = lazyWithRetry(() => import('./pages/Index'), 'IndexPage');
-const BlogDetailPage = lazyWithRetry(() => import('./pages/BlogDetail'), 'BlogDetailPage');
-const PolicyPagePage = lazyWithRetry(() => import('./pages/PolicyPage'), 'PolicyPagePage');
+const IndexPage = lazy(() => import('./pages/Index'));
+const BlogDetailPage = lazy(() => import('./pages/BlogDetail'));
+const PolicyPagePage = lazy(() => import('./pages/PolicyPage'));
 
-// Enhanced RouteValidator with better error handling and log cleanup
+// Enhanced RouteValidator with better error handling
 const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    // Clear stale error logs on route change
-    const clearStaleErrorLogs = () => {
-      ['globalError', 'errorBoundaryError', 'routeError', 'vendorError'].forEach(key => {
-        const errorData = sessionStorage.getItem(key);
-        if (errorData) {
-          try {
-            const { timestamp } = JSON.parse(errorData);
-            const staleThreshold = 1000 * 60 * 30; // 30 minutes
-            const isStale = new Date().getTime() - new Date(timestamp).getTime() > staleThreshold;
-            if (isStale) {
-              sessionStorage.removeItem(key);
-            }
-          } catch (e) {
-            console.error(`Failed to parse ${key}:`, e);
-            sessionStorage.removeItem(key);
-          }
-        }
-      });
-    };
-
     // Validate location object
     if (!location || typeof location !== 'object') {
       console.error('Invalid location object:', location);
-      sessionStorage.setItem('routeError', JSON.stringify({
-        error: 'Invalid location object',
-        location,
-        timestamp: new Date().toISOString()
-      }));
       navigate('/');
       return;
     }
 
-    // Log route changes with validation
+    // Log route changes
     console.log('Route change:', {
       pathname: location.pathname,
       search: location.search,
@@ -115,21 +48,10 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
       timestamp: new Date().toISOString()
     });
 
-    // Clear stale logs on route change
-    clearStaleErrorLogs();
-
-    // Validate admin route access
+    // Only validate admin route access if trying to access admin routes
     if (location.pathname.startsWith('/admin')) {
-      const isAuthenticated = sessionStorage.getItem('isAuthenticated');
-      const userRole = sessionStorage.getItem('userRole');
-      
-      if (!isAuthenticated || userRole !== 'admin') {
+      if (!isAuthenticated) {
         console.warn('Unauthorized admin access attempt');
-        sessionStorage.setItem('routeError', JSON.stringify({
-          error: 'Unauthorized admin access',
-          path: location.pathname,
-          timestamp: new Date().toISOString()
-        }));
         navigate('/login');
         return;
       }
@@ -146,7 +68,7 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
         console.error('Error handling hash navigation:', error);
       }
     }
-  }, [location, navigate]);
+  }, [location, navigate, isAuthenticated]);
 
   return <>{children}</>;
 };
@@ -154,10 +76,9 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
 function App() {
   console.log("App component rendered");
 
-  // Add global error listener with vendor error handling
+  // Add global error listener
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent) => {
-      console.log('Global error:', event.error || event.message);
       console.error('Global error caught:', {
         message: event.message,
         error: event.error,
@@ -166,36 +87,14 @@ function App() {
         colno: event.colno,
         timestamp: new Date().toISOString()
       });
-
-      // Store error in session storage
-      try {
-        sessionStorage.setItem('globalError', JSON.stringify({
-          message: event.message,
-          stack: event.error?.stack,
-          timestamp: new Date().toISOString()
-        }));
-      } catch (e) {
-        console.error('Failed to store global error:', e);
-      }
     };
 
     // Handle unhandled promise rejections
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.log('Promise rejection:', event.reason);
       console.error('Unhandled promise rejection:', {
         reason: event.reason,
         timestamp: new Date().toISOString()
       });
-
-      try {
-        sessionStorage.setItem('promiseError', JSON.stringify({
-          reason: event.reason?.toString(),
-          stack: event.reason?.stack,
-          timestamp: new Date().toISOString()
-        }));
-      } catch (e) {
-        console.error('Failed to store promise error:', e);
-      }
     };
 
     window.addEventListener('error', handleGlobalError);
@@ -208,38 +107,43 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <Toaster />
-      <Sonner />
-      <RouteValidator>
-        <Suspense fallback={<Loading />}>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route index element={<IndexPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<BlogDetailPage />} />
-              <Route path="/policy/:type" element={<PolicyPagePage />} />
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout>
-                      <Dashboard />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </RouteValidator>
-    </ErrorBoundary>
+    <AuthProvider>
+      <ErrorBoundary>
+        <Toaster />
+        <Sonner />
+        <RouteValidator>
+          <Suspense fallback={<Loading />}>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route index element={<IndexPage />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:id" element={<BlogDetailPage />} />
+                <Route 
+                  path="/policy/:type" 
+                  element={<PolicyPagePage type={useParams().type as 'privacy' | 'terms' | 'cookie'} />} 
+                />
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute>
+                      <AdminLayout>
+                        <Dashboard />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </RouteValidator>
+      </ErrorBoundary>
+    </AuthProvider>
   );
 }
 

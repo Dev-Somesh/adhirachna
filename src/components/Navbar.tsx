@@ -40,13 +40,13 @@ const Navbar = () => {
         <nav className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <img 
-              src="/logo.png"
+              src="/adhirachna-uploads/AdhirachnaVector.png"
               alt="Adhirachna Engineering Solutions"
               className="h-28 w-auto"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null;
-                target.src = '/logo.png';
+                target.src = '/adhirachna-uploads/4c3bdf49-51a1-4395-979c-df13ea291dc1.png';
               }}
             />
           </Link>

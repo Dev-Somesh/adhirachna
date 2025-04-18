@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 import { Session, User as SupabaseUser, AuthChangeEvent } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 
 interface User extends SupabaseUser {
@@ -17,7 +16,6 @@ interface AuthContextType {
   error: Error | null;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,48 +24,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const navigate = useNavigate();
 
-  const refreshSession = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) throw error;
-      
-      if (session) {
-        setSession(session);
-        setUser(session.user);
-        setIsAuthenticated(true);
-      } else {
-        setSession(null);
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.error('Error refreshing session:', error);
-      setError(error as Error);
-      sessionStorage.setItem('authError', JSON.stringify({
-        error: (error as Error).message,
-        timestamp: new Date().toISOString()
-      }));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
 
     const handleAuthChange = async (event: AuthChangeEvent, session: Session | null) => {
       if (!mounted) return;
 
-      console.log('Auth state changed:', event);
-      
       try {
         if (event === 'SIGNED_IN' && session) {
           // Get user role from Supabase
@@ -90,16 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(userWithRole);
             setSession(session);
             setIsAuthenticated(true);
-            sessionStorage.setItem('isAuthenticated', 'true');
-            sessionStorage.setItem('userRole', roleData?.role || 'viewer');
           }
         } else if (event === 'SIGNED_OUT') {
           if (mounted) {
             setUser(null);
             setSession(null);
             setIsAuthenticated(false);
-            sessionStorage.removeItem('isAuthenticated');
-            sessionStorage.removeItem('userRole');
           }
         }
       } catch (error) {
@@ -107,39 +69,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Initial session check
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (!mounted) return;
-        
-        if (error) {
-          console.error('Session error:', error);
-          return;
-        }
-        
-        if (session) {
-          await handleAuthChange('SIGNED_IN', session);
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    // Set a timeout for the initial session check
-    timeoutId = setTimeout(checkSession, 1000);
-
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
 
     return () => {
       mounted = false;
-      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
@@ -147,18 +81,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setError(null);
+      setIsLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      navigate('/admin');
     } catch (error) {
       console.error('Error signing in:', error);
       setError(error as Error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
       setError(null);
+      setIsLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate('/login');
@@ -166,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Error signing out:', error);
       setError(error as Error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -176,20 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     error,
     signIn,
-    signOut,
-    refreshSession
+    signOut
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Spinner className="w-12 h-12 mb-4" />
-          <p className="text-muted-foreground">Loading authentication...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -200,15 +129,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           <div className="flex gap-4 justify-center">
             <Button
               variant="outline"
-              onClick={() => {
-                setError(null);
-                refreshSession();
-              }}
-            >
-              Retry
-            </Button>
-            <Button
-              variant="destructive"
               onClick={() => {
                 setError(null);
                 navigate('/login');
