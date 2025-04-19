@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { Session, User as SupabaseUser, AuthChangeEvent } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
@@ -24,56 +24,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const navigate = useNavigate();
 
+  // Initialize auth state
   useEffect(() => {
-    let mounted = true;
-
-    const handleAuthChange = async (event: AuthChangeEvent, session: Session | null) => {
-      if (!mounted) return;
-
+    const initializeAuth = async () => {
       try {
-        if (event === 'SIGNED_IN' && session) {
-          // Get user role from Supabase
-          const { data: roleData, error: roleError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .single();
+        // Get initial session
+        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
 
-          if (roleError) {
-            console.error('Error fetching user role:', roleError);
-            return;
-          }
-
-          if (mounted) {
-            const userWithRole = {
-              ...session.user,
-              role: roleData?.role || 'viewer'
-            };
-            setUser(userWithRole);
-            setSession(session);
-            setIsAuthenticated(true);
-          }
-        } else if (event === 'SIGNED_OUT') {
-          if (mounted) {
-            setUser(null);
-            setSession(null);
-            setIsAuthenticated(false);
-          }
+        if (initialSession) {
+          setSession(initialSession);
+          setUser(initialSession.user);
+          setIsAuthenticated(true);
         }
-      } catch (error) {
-        console.error('Error handling auth change:', error);
+      } catch (err) {
+        console.error('Error initializing auth:', err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
+    initializeAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      console.log('Auth state change:', event, !!currentSession);
+      
+      if (currentSession) {
+        setSession(currentSession);
+        setUser(currentSession.user);
+        setIsAuthenticated(true);
+        
+        if (event === 'SIGNED_IN') {
+          // Get user role after sign in
+          try {
+            const { data: roleData, error: roleError } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', currentSession.user.id)
+              .single();
+
+            if (!roleError && roleData) {
+              setUser({ ...currentSession.user, role: roleData.role });
+            }
+          } catch (err) {
+            console.error('Error fetching user role:', err);
+          }
+        }
+      } else {
+        setSession(null);
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -82,13 +91,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
       if (error) throw error;
-      navigate('/admin');
-    } catch (error) {
-      console.error('Error signing in:', error);
-      setError(error as Error);
-      throw error;
+      
+      if (data.session) {
+        setSession(data.session);
+        setUser(data.session.user);
+        setIsAuthenticated(true);
+        navigate('/admin');
+      }
+    } catch (err) {
+      console.error('Error signing in:', err);
+      setError(err as Error);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -100,11 +120,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      setSession(null);
+      setUser(null);
+      setIsAuthenticated(false);
       navigate('/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      setError(error as Error);
-      throw error;
+    } catch (err) {
+      console.error('Error signing out:', err);
+      setError(err as Error);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -120,23 +144,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-6 max-w-md">
           <h2 className="text-2xl font-bold text-red-500 mb-4">Authentication Error</h2>
           <p className="text-muted-foreground mb-4">{error.message}</p>
-          <div className="flex gap-4 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setError(null);
-                navigate('/login');
-              }}
-            >
-              Go to Login
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setError(null);
+              navigate('/login');
+            }}
+          >
+            Go to Login
+          </Button>
         </div>
       </div>
     );

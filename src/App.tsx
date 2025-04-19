@@ -51,9 +51,12 @@ const PolicyPagePage = lazy(() => retryLoadComponent(() => import('./pages/Polic
 const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    // Skip validation while loading
+    if (isLoading) return;
+
     // Validate location object
     if (!location || typeof location !== 'object') {
       console.error('Invalid location object:', location);
@@ -87,7 +90,16 @@ const RouteValidator: React.FC<{ children: React.ReactNode }> = ({ children }) =
         console.error('Error handling hash navigation:', error);
       }
     }
-  }, [location, navigate, isAuthenticated]);
+  }, [location, navigate, isAuthenticated, isLoading]);
+
+  // Show loading state while auth is initializing
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 };
