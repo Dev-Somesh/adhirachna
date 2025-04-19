@@ -50,13 +50,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          ui: [
-            "@radix-ui/react-slot",
-            "class-variance-authority",
-            "clsx",
-            "tailwind-merge"
-          ],
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui': ['@/components/ui'],
           forms: [
             "@radix-ui/react-checkbox",
             "@radix-ui/react-label",
@@ -73,6 +68,9 @@ export default defineConfig({
             "@radix-ui/react-tabs"
           ]
         },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       },
     },
     chunkSizeWarningLimit: 1000,
@@ -81,6 +79,7 @@ export default defineConfig({
     reportCompressedSize: true,
     cssCodeSplit: true,
     cssMinify: true,
+    assetsInlineLimit: 4096,
   },
   optimizeDeps: {
     include: [
