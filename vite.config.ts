@@ -51,21 +51,28 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui': ['@/components/ui'],
-          forms: [
-            "@radix-ui/react-checkbox",
-            "@radix-ui/react-label",
-            "@radix-ui/react-radio-group",
-            "@radix-ui/react-select",
-            "@radix-ui/react-slider",
-            "@radix-ui/react-switch"
+          'ui-core': [
+            '@/components/ui/button',
+            '@/components/ui/input',
+            '@/components/ui/form',
+            '@/components/ui/label'
           ],
-          layout: [
-            "@radix-ui/react-accordion",
-            "@radix-ui/react-aspect-ratio",
-            "@radix-ui/react-avatar",
-            "@radix-ui/react-scroll-area",
-            "@radix-ui/react-tabs"
+          'ui-feedback': [
+            '@/components/ui/alert',
+            '@/components/ui/toast',
+            '@/components/ui/toaster',
+            '@/components/ui/progress'
+          ],
+          'ui-overlay': [
+            '@/components/ui/dialog',
+            '@/components/ui/dropdown-menu',
+            '@/components/ui/popover',
+            '@/components/ui/tooltip'
+          ],
+          'ui-layout': [
+            '@/components/ui/card',
+            '@/components/ui/tabs',
+            '@/components/ui/scroll-area'
           ]
         },
         chunkFileNames: 'assets/[name]-[hash].js',
