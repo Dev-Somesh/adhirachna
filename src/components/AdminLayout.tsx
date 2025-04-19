@@ -75,7 +75,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm p-4 flex justify-between items-center z-40">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm p-4 flex justify-between items-center z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -93,14 +93,25 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         } lg:translate-x-0 transition-transform duration-200 ease-in-out`}
       >
         <div className="h-full flex flex-col">
-          <div className="p-6">
-            <h1 className="text-2xl font-bold">Admin Panel</h1>
-            <p className="text-sm text-gray-500 mt-1">
+          <div className="p-4">
+            <Link to="/" className="flex items-center mb-4">
+              <img 
+                src="/adhirachna-uploads/AdhirachnaVector.png"
+                alt="Adhirachna Engineering Solutions"
+                className="h-12 w-auto"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = '/adhirachna-uploads/4c3bdf49-51a1-4395-979c-df13ea291dc1.png';
+                }}
+              />
+            </Link>
+            <p className="text-sm text-gray-500">
               {user?.email}
             </p>
           </div>
 
-          <nav className="flex-1 px-3 py-4 space-y-1">
+          <nav className="flex-1 px-3 py-2 space-y-1">
             {navigationItems.map((item) => (
               <Link
                 key={item.name}
@@ -130,9 +141,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Header */}
-        <header className="bg-white shadow-sm">
+        <header className="bg-white shadow-sm sticky top-0 z-40">
           <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
+            <div className="flex justify-between h-14">
               <div className="flex">
                 <div className="flex-shrink-0 flex items-center">
                   <h1 className="text-xl font-bold">Dashboard</h1>
@@ -144,7 +155,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   <input
                     type="search"
                     placeholder="Search..."
-                    className="pl-10 w-64 h-10 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-adhirachna-green focus:border-transparent"
+                    className="pl-10 w-64 h-9 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-adhirachna-green focus:border-transparent"
                   />
                 </div>
                 <button className="relative p-2 text-gray-400 hover:text-gray-500">
@@ -152,7 +163,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white" />
                 </button>
                 <div className="relative">
-                  <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                  <div className="h-9 w-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
                     {user?.email?.charAt(0).toUpperCase()}
                   </div>
                 </div>

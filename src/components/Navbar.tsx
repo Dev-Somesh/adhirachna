@@ -7,6 +7,11 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
+  // Hide navbar on admin routes
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -32,8 +37,8 @@ const Navbar = () => {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white bg-opacity-90 backdrop-blur-lg shadow-soft py-3' : 'bg-transparent py-5'
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        isScrolled ? 'bg-white bg-opacity-90 backdrop-blur-lg shadow-soft py-2' : 'bg-transparent py-3'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-10">
@@ -42,7 +47,7 @@ const Navbar = () => {
             <img 
               src="/adhirachna-uploads/AdhirachnaVector.png"
               alt="Adhirachna Engineering Solutions"
-              className="h-28 w-auto"
+              className="h-20 w-auto"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null;
