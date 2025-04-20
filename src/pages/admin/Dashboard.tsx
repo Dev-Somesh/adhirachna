@@ -2,23 +2,27 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  LayoutDashboard, 
   FileText, 
-  Users, 
-  Settings, 
-  Globe, 
-  BarChart3,
+  Users,
+  MessageSquare,
+  Briefcase,
+  BarChart2,
   ExternalLink,
-  Loader2
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { supabase } from '@/lib/supabase';
+import contentfulClient from '@/lib/contentful';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface DashboardStats {
-  totalVisitors: number;
+  publishedBlogs: number;
+  totalMessages: number;
   activeTeamMembers: number;
-  publishedContent: number;
+  completedProjects: number;
+  websiteTraffic: number;
   recentActivity: Array<{
     id: string;
     type: string;
@@ -30,37 +34,93 @@ interface DashboardStats {
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        // Fetch all stats in parallel
-        const [
-          { count: visitorsCount },
-          { count: teamCount },
-          { count: contentCount },
-          { data: activityData }
-        ] = await Promise.all([
-          supabase.from('visitors').select('*', { count: 'exact' }),
-          supabase.from('team_members').select('*', { count: 'exact' }),
-          supabase.from('content').select('*', { count: 'exact' }),
-          supabase.from('activity_log')
+        // Verify session first
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!session) {
+          navigate('/login');
+          return;
+        }
+
+        // Initialize default stats
+        const defaultStats: DashboardStats = {
+          publishedBlogs: 0,
+          totalMessages: 0,
+          activeTeamMembers: 0,
+          completedProjects: 0,
+          websiteTraffic: 0,
+          recentActivity: []
+        };
+
+        try {
+          // Fetch blog posts from Contentful
+          const blogResponse = await contentfulClient.getEntries({
+            content_type: 'blogPost',
+            limit: 1000,
+            select: ['sys.id', 'sys.updatedAt'] as const
+          });
+          defaultStats.publishedBlogs = blogResponse.total;
+
+          // Fetch projects from Contentful
+          const projectsResponse = await contentfulClient.getEntries({
+            content_type: 'project',
+            limit: 1000,
+            select: ['sys.id', 'sys.updatedAt'] as const
+          });
+          defaultStats.completedProjects = projectsResponse.total;
+
+          // Fetch team members from Supabase
+          const { count: teamCount, error: teamError } = await supabase
+            .from('team_members')
+            .select('*', { count: 'exact' });
+          if (!teamError && teamCount !== null) {
+            defaultStats.activeTeamMembers = teamCount;
+          }
+
+          // Fetch messages from Supabase
+          const { count: messagesCount, error: messagesError } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact' });
+          if (!messagesError && messagesCount !== null) {
+            defaultStats.totalMessages = messagesCount;
+          }
+
+          // Fetch website traffic from Supabase
+          const { count: trafficCount, error: trafficError } = await supabase
+            .from('website_traffic')
+            .select('*', { count: 'exact' });
+          if (!trafficError && trafficCount !== null) {
+            defaultStats.websiteTraffic = trafficCount;
+          }
+
+          // Fetch recent activity from Supabase
+          const { data: activityData, error: activityError } = await supabase
+            .from('activity_log')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(5)
-        ]);
+            .limit(5);
 
-        setStats({
-          totalVisitors: visitorsCount || 0,
-          activeTeamMembers: teamCount || 0,
-          publishedContent: contentCount || 0,
-          recentActivity: activityData || []
-        });
+          if (!activityError && activityData) {
+            defaultStats.recentActivity = activityData;
+          }
+
+          setStats(defaultStats);
+        } catch (dbError) {
+          console.warn('Error fetching data:', dbError);
+          setStats(defaultStats);
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        setError(error instanceof Error ? error.message : 'An unexpected error occurred');
         toast({
           title: "Error",
           description: "Failed to load dashboard data",
@@ -84,12 +144,34 @@ const Dashboard = () => {
     return () => {
       activitySubscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <Loader2 className="h-8 w-8 animate-spin text-adhirachna-blue" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-adhirachna-blue mx-auto mb-4" />
+          <p className="text-adhirachna-gray">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="max-w-md w-full p-6">
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button 
+            onClick={() => window.location.reload()}
+            className="w-full"
+          >
+            Retry Loading
+          </Button>
+        </div>
       </div>
     );
   }
@@ -104,54 +186,69 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Quick Stats */}
+        {/* Blog Stats */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
-            <BarChart3 className="h-4 w-4 text-adhirachna-blue" />
+            <CardTitle className="text-sm font-medium">Published Blog Posts</CardTitle>
+            <FileText className="h-4 w-4 text-adhirachna-blue" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalVisitors.toLocaleString()}</div>
-            <p className="text-xs text-adhirachna-gray">Real-time tracking</p>
+            <div className="text-2xl font-bold">{stats?.publishedBlogs}</div>
+            <p className="text-xs text-adhirachna-gray">Total blog posts</p>
           </CardContent>
         </Card>
 
+        {/* Messages Stats */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Team Members</CardTitle>
+            <CardTitle className="text-sm font-medium">Messages Received</CardTitle>
+            <MessageSquare className="h-4 w-4 text-adhirachna-blue" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalMessages}</div>
+            <p className="text-xs text-adhirachna-gray">Total messages</p>
+          </CardContent>
+        </Card>
+
+        {/* Team Stats */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Team Members</CardTitle>
             <Users className="h-4 w-4 text-adhirachna-blue" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.activeTeamMembers}</div>
-            <p className="text-xs text-adhirachna-gray">All departments</p>
+            <p className="text-xs text-adhirachna-gray">Active members</p>
           </CardContent>
         </Card>
 
+        {/* Projects Stats */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published Content</CardTitle>
-            <FileText className="h-4 w-4 text-adhirachna-blue" />
+            <CardTitle className="text-sm font-medium">Completed Projects</CardTitle>
+            <Briefcase className="h-4 w-4 text-adhirachna-blue" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.publishedContent}</div>
-            <p className="text-xs text-adhirachna-gray">Pages & Blog Posts</p>
+            <div className="text-2xl font-bold">{stats?.completedProjects}</div>
+            <p className="text-xs text-adhirachna-gray">Total projects</p>
+          </CardContent>
+        </Card>
+
+        {/* Traffic Stats */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Website Traffic</CardTitle>
+            <BarChart2 className="h-4 w-4 text-adhirachna-blue" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.websiteTraffic}</div>
+            <p className="text-xs text-adhirachna-gray">Total visitors</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Button 
-          variant="outline" 
-          className="h-auto p-4 hover:bg-adhirachna-blue/10 transition-colors"
-          onClick={() => navigate('/admin/content')}
-        >
-          <div className="flex flex-col items-center space-y-2">
-            <Globe className="h-6 w-6" />
-            <span>Manage Website Content</span>
-          </div>
-        </Button>
-
         <Button 
           variant="outline" 
           className="h-auto p-4 hover:bg-adhirachna-blue/10 transition-colors"
@@ -178,11 +275,22 @@ const Dashboard = () => {
         <Button 
           variant="outline" 
           className="h-auto p-4 hover:bg-adhirachna-blue/10 transition-colors"
-          onClick={() => navigate('/admin/settings')}
+          onClick={() => navigate('/admin/services')}
         >
           <div className="flex flex-col items-center space-y-2">
-            <Settings className="h-6 w-6" />
-            <span>System Settings</span>
+            <Briefcase className="h-6 w-6" />
+            <span>Services Management</span>
+          </div>
+        </Button>
+
+        <Button 
+          variant="outline" 
+          className="h-auto p-4 hover:bg-adhirachna-blue/10 transition-colors"
+          onClick={() => navigate('/admin/messages')}
+        >
+          <div className="flex flex-col items-center space-y-2">
+            <MessageSquare className="h-6 w-6" />
+            <span>Messages</span>
           </div>
         </Button>
       </div>

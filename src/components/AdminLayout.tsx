@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -10,11 +10,13 @@ import {
   Menu,
   X,
   Bell,
-  Search
+  Search,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -23,6 +25,7 @@ interface AdminLayoutProps {
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -56,9 +59,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     },
     {
       name: "Blog Management",
-      href: "https://app.contentful.com",
+      href: "/admin/blog",
       icon: FileText,
-      external: true,
     },
     {
       name: "Team Management",
@@ -66,7 +68,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       icon: Users,
     },
     {
-      name: "System Settings",
+      name: "Messages",
+      href: "/admin/messages",
+      icon: MessageSquare,
+    },
+    {
+      name: "Settings",
       href: "/admin/settings",
       icon: Settings,
     },
@@ -116,10 +123,14 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               <Link
                 key={item.name}
                 to={item.href}
-                target={item.external ? "_blank" : undefined}
-                className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent",
+                  pathname === item.href
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground"
+                )}
               >
-                <item.icon className="h-5 w-5 mr-3" />
+                <item.icon className="h-4 w-4" />
                 {item.name}
               </Link>
             ))}

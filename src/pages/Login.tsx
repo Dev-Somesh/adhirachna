@@ -35,6 +35,7 @@ const Login = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
+        console.log('Checking existing session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -43,7 +44,10 @@ const Login = () => {
         }
         
         if (session) {
+          console.log('Session found, redirecting to admin...');
           navigate("/admin", { replace: true });
+        } else {
+          console.log('No active session found');
         }
       } catch (err) {
         console.error("Auth check error:", err);
@@ -53,7 +57,9 @@ const Login = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', { event, hasSession: !!session });
       if (session) {
+        console.log('Session detected, redirecting to admin...');
         navigate("/admin", { replace: true });
       }
     });
@@ -68,20 +74,38 @@ const Login = () => {
     setError(null);
     
     try {
+      console.log('Attempting login...');
+      
+      // Add a small delay to ensure state updates
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
       
       if (data.session) {
+        console.log('Login successful, session:', data.session);
+        
+        // Add a small delay before navigation
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         toast({
           title: "Success",
           description: "Login successful!",
           duration: 3000
         });
-        navigate("/admin", { replace: true });
+        
+        // Use window.location instead of navigate for more reliable redirect
+        window.location.href = '/admin';
+      } else {
+        console.error('No session returned after login');
+        throw new Error('No session returned after login');
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -98,10 +122,12 @@ const Login = () => {
   };
 
   const onSubmit = async (data: LoginFormData) => {
+    console.log('Form submitted with data:', { email: data.email });
     await handleLogin(data.email, data.password);
   };
 
   const handleDemoLogin = async () => {
+    console.log('Attempting demo login...');
     await handleLogin(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
   };
 

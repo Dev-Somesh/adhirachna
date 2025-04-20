@@ -19,6 +19,11 @@ import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from "./components/AdminLayout";
+import ContentManagement from "./pages/admin/ContentManagement";
+import BlogManagement from "./pages/admin/BlogManagement";
+import TeamManagement from "./pages/admin/TeamManagement";
+import Messages from "./pages/admin/Messages";
+import SystemSettings from "./pages/admin/SystemSettings";
 
 // Lazy load components with retry logic
 const retryLoadComponent = (
@@ -192,7 +197,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <AdminLayout>
-                          <Dashboard />
+                          <Routes>
+                            <Route index element={<Dashboard />} />
+                            <Route path="content" element={<ContentManagement />} />
+                            <Route path="blog" element={<BlogManagement />} />
+                            <Route path="team" element={<TeamManagement />} />
+                            <Route path="messages" element={<Messages />} />
+                            <Route path="settings" element={<SystemSettings />} />
+                          </Routes>
                         </AdminLayout>
                       </ProtectedRoute>
                     }
