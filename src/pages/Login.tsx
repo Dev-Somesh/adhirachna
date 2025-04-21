@@ -9,7 +9,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -27,47 +27,17 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { isAuthenticated, signIn } = useAuth();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema)
   });
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        console.log('Checking existing session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Session error:", error);
-          return;
-        }
-        
-        if (session) {
-          console.log('Session found, redirecting to admin...');
-          navigate("/admin", { replace: true });
-        } else {
-          console.log('No active session found');
-        }
-      } catch (err) {
-        console.error("Auth check error:", err);
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state change:', { event, hasSession: !!session });
-      if (session) {
-        console.log('Session detected, redirecting to admin...');
-        navigate("/admin", { replace: true });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    if (isAuthenticated) {
+      navigate("/admin", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (email: string, password: string) => {
     setLoading(true);
@@ -75,38 +45,12 @@ const Login = () => {
     
     try {
       console.log('Attempting login...');
-      
-      // Add a small delay to ensure state updates
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+      await signIn(email, password);
+      toast({
+        title: "Success",
+        description: "Login successful!",
+        duration: 3000
       });
-      
-      if (error) {
-        console.error('Login error:', error);
-        throw error;
-      }
-      
-      if (data.session) {
-        console.log('Login successful, session:', data.session);
-        
-        // Add a small delay before navigation
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        toast({
-          title: "Success",
-          description: "Login successful!",
-          duration: 3000
-        });
-        
-        // Use window.location instead of navigate for more reliable redirect
-        window.location.href = '/admin';
-      } else {
-        console.error('No session returned after login');
-        throw new Error('No session returned after login');
-      }
     } catch (err) {
       console.error("Login error:", err);
       setError(err instanceof Error ? err.message : "An error occurred during login");
@@ -209,7 +153,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={handleDemoLogin}
-                  className="w-full bg-adhirachna-blue hover:bg-adhirachna-darkblue text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
                   disabled={loading}
                 >
                   {loading ? (
@@ -218,18 +162,12 @@ const Login = () => {
                       Logging in...
                     </div>
                   ) : (
-                    "Login as Demo"
+                    "Try Demo Account"
                   )}
                 </button>
               </div>
             </form>
           </Form>
-
-          <div className="mt-6 text-center">
-            <Link to="/" className="text-adhirachna-blue hover:text-adhirachna-darkblue">
-              Return to Website
-            </Link>
-          </div>
         </div>
       </div>
     </div>

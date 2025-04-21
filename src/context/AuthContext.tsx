@@ -59,10 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (!roleError && roleData) {
               setUser({ ...initialSession.user, role: roleData.role });
+            } else {
+              // If no role found, set a default role
+              setUser({ ...initialSession.user, role: 'user' });
             }
           } catch (err) {
             console.error('Error fetching user role:', err);
-            // Don't throw here, as the user is still authenticated
+            // Set default role if table doesn't exist or other error
+            setUser({ ...initialSession.user, role: 'user' });
           }
         }
       } catch (err) {
@@ -101,10 +105,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
               if (!roleError && roleData) {
                 setUser({ ...currentSession.user, role: roleData.role });
+              } else {
+                // If no role found, set a default role
+                setUser({ ...currentSession.user, role: 'user' });
               }
             } catch (err) {
               console.error('Error fetching user role:', err);
-              // Don't throw here, as the user is still authenticated
+              // Set default role if table doesn't exist or other error
+              setUser({ ...currentSession.user, role: 'user' });
             }
           }
         } else {
@@ -155,10 +163,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (!roleError && roleData) {
             setUser({ ...data.session.user, role: roleData.role });
+          } else {
+            // If no role found, set a default role
+            setUser({ ...data.session.user, role: 'user' });
           }
         } catch (err) {
           console.error('Error fetching user role:', err);
-          // Don't throw here, as the user is still authenticated
+          // Set default role if table doesn't exist or other error
+          setUser({ ...data.session.user, role: 'user' });
         }
         
         navigate('/admin');
