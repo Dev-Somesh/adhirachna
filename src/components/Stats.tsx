@@ -1,40 +1,32 @@
 
-import { useInView } from './ui/motion';
 import { useSiteContent } from '@/context/SiteContext';
 
-const Stats = () => {
-  const { ref, isInView } = useInView();
+export default function Stats() {
   const { siteContent } = useSiteContent();
   
-  // Define stats data
   const stats = [
-    { value: '100+', label: 'Projects Completed' },
-    { value: '15+', label: 'Years Experience' },
-    { value: '50+', label: 'Expert Engineers' },
-    { value: '25+', label: 'Industry Awards' },
+    { number: "100+", label: "Projects Completed" },
+    { number: "50+", label: "Happy Clients" },
+    { number: "5+", label: "Years Experience" },
+    { number: "24/7", label: "Support Available" }
   ];
 
   return (
-    <section className="bg-adhirachna-light py-16" ref={ref as React.RefObject<HTMLDivElement>}>
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
+    <section className="bg-adhirachna-light py-16">
+      <div className="container mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
-            <div
-              key={index}
-              className={`text-center transition-all duration-700 delay-${index * 100} ${
-                isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
-              <div className="text-4xl md:text-5xl font-bold text-adhirachna-green mb-2">
-                {stat.value}
+            <div key={index} className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-adhirachna-blue mb-2">
+                {stat.number}
               </div>
-              <div className="text-adhirachna-gray">{stat.label}</div>
+              <div className="text-adhirachna-gray font-medium">
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
       </div>
     </section>
   );
-};
-
-export default Stats;
+}

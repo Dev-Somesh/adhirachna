@@ -5,14 +5,12 @@ export interface BlogPost {
   excerpt: string;
   content: string;
   author: string;
-  date: string;
+  date: string | null;
   category: string;
-  image: string;
-  tags: string[];
-  views: number;
-}
-
-export interface Category {
-  name: string;
-  count: number;
+  image: string | null;
+  tags: string[] | null;
+  views: number | null;
+  published: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }

@@ -14,12 +14,12 @@ interface BlogPost {
   excerpt: string;
   content: string;
   author: string;
-  date: string;
+  date: string | null;
   category: string;
-  image: string;
-  tags: string[];
-  views: number;
-  published: boolean;
+  image: string | null;
+  tags: string[] | null;
+  views: number | null;
+  published: boolean | null;
 }
 
 interface BlogPostFormProps {
@@ -45,6 +45,7 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Check authentication status when component mounts
+  
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
@@ -62,7 +63,6 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
     
     checkAuth();
     
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed in BlogPostForm:", event, !!session);
@@ -90,7 +90,6 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
       return;
     }
 
-    // Validate form data before saving
     if (!formData.title || !formData.excerpt || !formData.content || !formData.author || !formData.category) {
       toast({
         title: "Missing Required Fields",
@@ -104,7 +103,6 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
     const date = new Date().toISOString();
     
     try {
-      // Force refresh auth session before saving
       await supabase.auth.refreshSession();
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -115,7 +113,6 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
       console.log("Current auth session before save:", !!session);
       
       if (isEditing && currentPost) {
-        // Update existing post
         const updatedPost = {
           title: formData.title,
           excerpt: formData.excerpt,
@@ -129,7 +126,7 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
         
         console.log("Updating blog post:", currentPost.id, updatedPost);
         
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('blog_posts')
           .update(updatedPost)
           .eq('id', currentPost.id)
@@ -143,7 +140,6 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
           description: `"${formData.title}" has been updated successfully.`
         });
       } else {
-        // Create new post
         const newPost = {
           title: formData.title,
           excerpt: formData.excerpt,
@@ -159,7 +155,7 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
         
         console.log("Creating new blog post:", newPost);
         
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('blog_posts')
           .insert([newPost])
           .select()
@@ -169,8 +165,6 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
           console.error("Error creating post:", error);
           throw error;
         }
-        
-        console.log("Blog post created successfully:", data);
         
         toast({
           title: "Post Created",
