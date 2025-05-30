@@ -1,10 +1,9 @@
-import { useState } from 'react';
+
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Mail, Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useQuery } from '@tanstack/react-query';
 
 interface TeamMember {
   id: string;
@@ -16,7 +15,7 @@ interface TeamMember {
 }
 
 const TeamManagement = () => {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
+  const [teamMembers, setTeamMembers] = React.useState<TeamMember[]>([
     {
       id: '1',
       name: 'John Doe',
@@ -34,11 +33,6 @@ const TeamManagement = () => {
       avatarUrl: 'https://avatars.dicebear.com/api/female/jane.svg',
     },
   ]);
-  
-  const { isLoading, error } = useQuery({
-    queryKey: ['teamMembers'],
-    queryFn: () => Promise.resolve([]),
-  });
 
   const handleEdit = (id: string) => {
     alert(`Edit team member with id ${id}`);

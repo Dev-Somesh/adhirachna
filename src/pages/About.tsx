@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useInView } from '../components/ui/motion';
 import { CheckCircle } from 'lucide-react';
-import { useSiteContent } from '@/context/SiteContext';
+import { useSiteContent, TeamMember } from '@/context/SiteContext';
 
 const About = () => {
   const { ref, isInView } = useInView();
@@ -10,8 +11,8 @@ const About = () => {
   const { siteContent } = useSiteContent();
 
   // Filter team members that should show on the website
-  const visibleTeamMembers = siteContent.teamMembers.filter(member => 
-    (member as any).showOnWebsite !== false
+  const visibleTeamMembers = siteContent.teamMembers.filter((member: TeamMember) => 
+    member.showOnWebsite !== false
   );
 
   return (
@@ -132,7 +133,7 @@ const About = () => {
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {visibleTeamMembers.map((member) => (
+                {visibleTeamMembers.map((member: TeamMember) => (
                   <div key={member.id} className="glass-card p-6 text-center">
                     <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
                       <img 

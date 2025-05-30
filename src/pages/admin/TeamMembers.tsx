@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { PlusCircle, Pencil, Trash, Eye } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
@@ -223,7 +224,7 @@ const TeamMembers = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {siteContent.teamMembers.map(member => (
+          {siteContent.teamMembers.map((member: TeamMember) => (
             <div key={member.id} className="glass-card p-6">
               <div className="flex items-center mb-4">
                 <img 

@@ -1,4 +1,7 @@
+
 import React, { createContext, useContext, useState } from 'react';
+
+export type MemberRole = 'master_admin' | 'admin' | 'manager' | 'team_member';
 
 interface SiteContent {
   hero: HeroContent;
@@ -7,7 +10,7 @@ interface SiteContent {
   projects: Project[];
   stats: Stat[];
   contact: ContactContent;
-  team: TeamMember[];
+  teamMembers: TeamMember[];
   testimonials: Testimonial[];
   clients: Client[];
   settings: Settings;
@@ -60,13 +63,14 @@ interface SocialLink {
   icon: string;
 }
 
-interface TeamMember {
+export interface TeamMember {
   id: string;
   name: string;
-  title: string;
+  position: string;
   image: string;
   bio: string;
-  socialLinks: SocialLink[];
+  role?: MemberRole;
+  showOnWebsite?: boolean;
 }
 
 interface Testimonial {
@@ -93,15 +97,15 @@ interface Settings {
 interface SiteContextType {
   siteContent: SiteContent;
   updateSiteContent: (content: Partial<SiteContent>) => void;
-  addService: (service: Service) => void;
+  addService: (service: Omit<Service, 'id'>) => void;
   updateService: (id: string, updates: Partial<Service>) => void;
   deleteService: (id: string) => void;
-  addProject: (project: Project) => void;
+  addProject: (project: Omit<Project, 'id'>) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
-    addTeamMember: (member: TeamMember) => void;
-  updateTeamMember: (id: string, updates: Partial<TeamMember>) => void;
-  deleteTeamMember: (id: string) => void;
+  addTeamMember: (member: Omit<TeamMember, 'id'>) => void;
+  updateTeamMember: (member: TeamMember) => void;
+  removeTeamMember: (id: string) => void;
 }
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
@@ -126,7 +130,7 @@ const defaultSiteContent: SiteContent = {
     phone: '555-1234',
     socialLinks: [],
   },
-  team: [],
+  teamMembers: [],
   testimonials: [],
   clients: [],
   settings: {
@@ -144,10 +148,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSiteContent(prev => ({ ...prev, ...content }));
   };
 
-  const addService = (service: Service) => {
+  const addService = (service: Omit<Service, 'id'>) => {
+    const newService = { ...service, id: Date.now().toString() };
     setSiteContent(prev => ({
       ...prev,
-      services: [...prev.services, service]
+      services: [...prev.services, newService]
     }));
   };
 
@@ -167,10 +172,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
-  const addProject = (project: Project) => {
+  const addProject = (project: Omit<Project, 'id'>) => {
+    const newProject = { ...project, id: Date.now().toString() };
     setSiteContent(prev => ({
       ...prev,
-      projects: [...prev.projects, project]
+      projects: [...prev.projects, newProject]
     }));
   };
 
@@ -190,30 +196,30 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
-    const addTeamMember = (member: TeamMember) => {
+  const addTeamMember = (member: Omit<TeamMember, 'id'>) => {
     const newMember = {
       ...member,
       id: Date.now().toString(),
     };
     setSiteContent(prev => ({
       ...prev,
-      team: [...prev.team, newMember]
+      teamMembers: [...prev.teamMembers, newMember]
     }));
   };
 
-  const updateTeamMember = (id: string, updates: Partial<TeamMember>) => {
+  const updateTeamMember = (member: TeamMember) => {
     setSiteContent(prev => ({
       ...prev,
-      team: prev.team.map(member =>
-        member.id === id ? { ...member, ...updates } : member
+      teamMembers: prev.teamMembers.map(m =>
+        m.id === member.id ? member : m
       )
     }));
   };
 
-  const deleteTeamMember = (id: string) => {
+  const removeTeamMember = (id: string) => {
     setSiteContent(prev => ({
       ...prev,
-      team: prev.team.filter(member => member.id !== id)
+      teamMembers: prev.teamMembers.filter(member => member.id !== id)
     }));
   };
 
@@ -226,9 +232,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addProject,
     updateProject,
     deleteProject,
-        addTeamMember,
+    addTeamMember,
     updateTeamMember,
-    deleteTeamMember,
+    removeTeamMember,
   };
 
   return (
@@ -236,6 +242,14 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </SiteContext.Provider>
   );
+};
+
+export const useSiteContent = () => {
+  const context = useContext(SiteContext);
+  if (!context) {
+    throw new Error('useSiteContent must be used within a SiteProvider');
+  }
+  return context;
 };
 
 export const useSite = () => {
