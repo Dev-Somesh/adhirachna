@@ -29,5 +29,16 @@ export type ContentfulBlogPost = BlogPostEntry;
 
 // Helper function to safely access fields
 export const getFields = (entry: BlogPostEntry): BlogPostFields => {
-  return entry?.fields || {} as BlogPostFields;
+  return entry?.fields || {
+    slug: '',
+    title: '',
+    excerpt: '',
+    author: '',
+    date: '',
+    publishDate: '',
+    category: '',
+    tags: [],
+    viewCount: 0,
+    published: false
+  } as BlogPostFields;
 };

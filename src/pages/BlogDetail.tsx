@@ -11,7 +11,8 @@ import ErrorState from '@/components/blog/BlogDetail/ErrorState';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogPostBySlug, getBlogPosts } from '@/services/blogService';
 import type { Category } from '@/types/blog';
-import type { BlogPostEntry, getFields } from '@/types/contentful';
+import type { BlogPostEntry } from '@/types/contentful';
+import { getFields } from '@/types/contentful';
 
 const BlogDetail = () => {
   const { ref, isInView } = useInView();

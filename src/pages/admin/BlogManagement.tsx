@@ -1,12 +1,5 @@
 import { useState } from "react";
-import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle
-} from "@/components/ui/dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BlogPostList } from "@/components/blog";
 import contentfulClient from "@/lib/contentful";
@@ -79,13 +72,6 @@ const BlogManagement = () => {
     queryFn: fetchBlogPosts,
     retry: 1
   });
-  
-  const [dialogOpen, setDialogOpen] = useState(false);
-  
-  const handleFormSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
-    setDialogOpen(false);
-  };
 
   const mapToDisplayPost = (post: ContentfulBlogPost): DisplayBlogPost => ({
     id: post.sys.id,

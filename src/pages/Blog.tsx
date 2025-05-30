@@ -11,7 +11,8 @@ import { Search, Loader2, X } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
 import { useQuery } from '@tanstack/react-query';
 import type { Category } from '@/types/blog';
-import type { BlogPostEntry, getFields } from '@/types/contentful';
+import type { BlogPostEntry } from '@/types/contentful';
+import { getFields } from '@/types/contentful';
 import { getBlogPosts } from '@/services/blogService';
 
 // Function to convert Contentful posts to our internal format for filtering
