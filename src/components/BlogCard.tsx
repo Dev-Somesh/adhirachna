@@ -3,7 +3,7 @@ import { Calendar, Eye, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
-import { BlogPostEntry } from '@/types/contentful';
+import { BlogPostEntry, getFields } from '@/types/contentful';
 
 interface BlogCardProps {
   post: BlogPostEntry;
@@ -17,14 +17,10 @@ const placeholderImages = [
 ];
 
 const BlogCard = ({ post }: BlogCardProps) => {
-  // Safely access fields with proper type checking
-  const fields = post?.fields;
+  // Safely access fields using the helper function
+  const fields = getFields(post);
   
-  if (!fields) {
-    return null; // Don't render if no fields
-  }
-  
-  // Extract fields safely with explicit properties and defaults
+  // Extract fields safely with defaults
   const slug = fields.slug || post.sys.id;
   const title = fields.title || 'Untitled';
   const excerpt = fields.excerpt || '';

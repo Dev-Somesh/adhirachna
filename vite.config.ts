@@ -1,18 +1,21 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: '/',
-  plugins: [react()],
+  plugins: [
+    react(),
+    mode === 'development' && componentTagger(),
+  ].filter(Boolean),
   define: {
     __DEV__: process.env.NODE_ENV !== 'production'
   },
   server: {
+    host: "::",
     port: 8080,
-    host: true,
     strictPort: true,
     headers: {
       'X-Frame-Options': 'DENY',
@@ -102,4 +105,4 @@ export default defineConfig({
       "@radix-ui/react-tooltip"
     ],
   },
-});
+}));

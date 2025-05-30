@@ -10,31 +10,14 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Loader2, X } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
 import { useQuery } from '@tanstack/react-query';
-import type { BlogPost as BlogPostFromSupabase, Category } from '@/types/blog';
-import type { BlogPost as ContentfulBlogPost } from '@/types/contentful';
+import type { Category } from '@/types/blog';
+import type { BlogPostEntry, getFields } from '@/types/contentful';
 import { getBlogPosts } from '@/services/blogService';
 
-// Function to convert Contentful posts to our internal format
-const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPostFromSupabase[] => {
+// Function to convert Contentful posts to our internal format for filtering
+const convertContentfulPosts = (contentfulPosts: BlogPostEntry[]) => {
   return contentfulPosts.map(post => {
-    // Access fields safely with optional chaining
-    const fields = post?.fields;
-    
-    if (!fields) {
-      return {
-        id: post.sys.id,
-        title: 'Untitled',
-        excerpt: '',
-        content: '',
-        author: 'Unknown',
-        date: post.sys.createdAt,
-        category: 'Uncategorized',
-        image: '/placeholder.svg',
-        tags: [],
-        views: 0,
-        published: true
-      };
-    }
+    const fields = getFields(post);
     
     return {
       id: fields.slug || post.sys.id,
@@ -61,7 +44,7 @@ const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
   const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'recent');
-  const [filteredPosts, setFilteredPosts] = useState<BlogPostFromSupabase[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<BlogPostEntry[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
   
   // Fetch blog posts from Contentful
@@ -70,7 +53,7 @@ const Blog = () => {
     queryFn: getBlogPosts
   });
   
-  // Convert Contentful posts to our internal format
+  // Convert Contentful posts to our internal format for processing
   const posts = useMemo(() => {
     return convertContentfulPosts(contentfulPosts || []);
   }, [contentfulPosts]);
@@ -92,46 +75,58 @@ const Blog = () => {
   
   // Update filtered posts when data changes
   useEffect(() => {
-    if (!posts) return;
+    if (!contentfulPosts || contentfulPosts.length === 0) return;
     
     // Filter by search term, category, and tag
-    let results = [...posts];
+    let results = [...contentfulPosts];
     
     if (searchTerm) {
-      results = results.filter(post => 
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (post.tags && Array.isArray(post.tags) && post.tags.some(tag => 
-          tag.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
-      );
+      results = results.filter(post => {
+        const fields = getFields(post);
+        const title = fields.title || '';
+        const excerpt = fields.excerpt || '';
+        const tags = fields.tags || [];
+        
+        return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      });
     }
     
     if (selectedCategory !== 'All') {
-      results = results.filter(post => post.category === selectedCategory);
+      results = results.filter(post => {
+        const fields = getFields(post);
+        return (fields.category || 'Uncategorized') === selectedCategory;
+      });
     }
     
     if (selectedTag) {
-      results = results.filter(post => 
-        post.tags && 
-        Array.isArray(post.tags) && 
-        post.tags.includes(selectedTag)
-      );
+      results = results.filter(post => {
+        const fields = getFields(post);
+        const tags = fields.tags || [];
+        return tags.includes(selectedTag);
+      });
     }
     
     // Sort posts with null safety
     if (sortBy === 'recent') {
       results = [...results].sort((a, b) => {
-        const dateA = a.date ? new Date(a.date).getTime() : 0;
-        const dateB = b.date ? new Date(b.date).getTime() : 0;
-        return dateB - dateA;
+        const fieldsA = getFields(a);
+        const fieldsB = getFields(b);
+        const dateA = fieldsA.date || fieldsA.publishDate || a.sys.createdAt;
+        const dateB = fieldsB.date || fieldsB.publishDate || b.sys.createdAt;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
       });
     } else if (sortBy === 'popular') {
-      results = [...results].sort((a, b) => (b.views || 0) - (a.views || 0));
+      results = [...results].sort((a, b) => {
+        const fieldsA = getFields(a);
+        const fieldsB = getFields(b);
+        return (fieldsB.viewCount || 0) - (fieldsA.viewCount || 0);
+      });
     }
     
     setFilteredPosts(results);
-  }, [posts, searchTerm, selectedCategory, selectedTag, sortBy]);
+  }, [contentfulPosts, searchTerm, selectedCategory, selectedTag, sortBy]);
   
   // Update URL params when filters change
   useEffect(() => {
@@ -262,7 +257,7 @@ const Blog = () => {
                     isInView ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
-                  {contentfulPosts.map((post) => (
+                  {filteredPosts.map((post) => (
                     <BlogCard key={post.sys.id} post={post} />
                   ))}
                 </div>

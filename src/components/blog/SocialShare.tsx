@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button';
 interface SocialShareProps {
   title?: string;
   postTitle?: string;
-  slug?: string;
   url?: string;
 }
 
-export const SocialShare = ({ title, postTitle, slug, url = window.location.href }: SocialShareProps) => {
+export const SocialShare = ({ title, postTitle, url = window.location.href }: SocialShareProps) => {
   const shareTitle = title || postTitle || 'Check out this post';
   const encodedTitle = encodeURIComponent(shareTitle);
   const encodedUrl = encodeURIComponent(url);
