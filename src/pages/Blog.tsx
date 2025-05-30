@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import BlogCard from '@/components/BlogCard';
 import BlogSidebar from '@/components/BlogSidebar';
@@ -8,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Loader2, X } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
-import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import type { BlogPost as BlogPostFromSupabase, Category } from '@/types/blog';
 import type { BlogPost as ContentfulBlogPost } from '@/types/contentful';
@@ -18,7 +18,23 @@ import { getBlogPosts } from '@/services/blogService';
 const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPostFromSupabase[] => {
   return contentfulPosts.map(post => {
     // Access fields safely with optional chaining
-    const fields = post?.fields || {};
+    const fields = post?.fields;
+    
+    if (!fields) {
+      return {
+        id: post.sys.id,
+        title: 'Untitled',
+        excerpt: '',
+        content: '',
+        author: 'Unknown',
+        date: post.sys.createdAt,
+        category: 'Uncategorized',
+        image: '/placeholder.svg',
+        tags: [],
+        views: 0,
+        published: true
+      };
+    }
     
     return {
       id: fields.slug || post.sys.id,
@@ -40,7 +56,6 @@ const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPost
 
 const Blog = () => {
   const { ref, isInView } = useInView();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
@@ -104,11 +119,15 @@ const Blog = () => {
       );
     }
     
-    // Sort posts
+    // Sort posts with null safety
     if (sortBy === 'recent') {
-      results = [...results].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      results = [...results].sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+      });
     } else if (sortBy === 'popular') {
-      results = [...results].sort((a, b) => b.views - a.views);
+      results = [...results].sort((a, b) => (b.views || 0) - (a.views || 0));
     }
     
     setFilteredPosts(results);
@@ -243,7 +262,7 @@ const Blog = () => {
                     isInView ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
-                  {contentfulPosts.map((post, index) => (
+                  {contentfulPosts.map((post) => (
                     <BlogCard key={post.sys.id} post={post} />
                   ))}
                 </div>

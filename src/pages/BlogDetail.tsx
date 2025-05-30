@@ -1,9 +1,10 @@
+
 import { useEffect, useMemo } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { useInView } from '@/components/ui/motion';
 import BlogPost from '@/components/blog/BlogPost';
-import SocialShare from '@/components/blog/SocialShare';
+import { SocialShare } from '@/components/blog/SocialShare';
 import BlogSidebarWrapper from '@/components/blog/BlogSidebarWrapper';
 import LoadingState from '@/components/blog/BlogDetail/LoadingState';
 import ErrorState from '@/components/blog/BlogDetail/ErrorState';

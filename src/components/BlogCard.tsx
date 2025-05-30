@@ -17,14 +17,17 @@ const placeholderImages = [
 ];
 
 const BlogCard = ({ post }: BlogCardProps) => {
-  // Safely access fields with more explicit type checking
-  const fields = post?.fields || {};
+  // Safely access fields with proper type checking
+  const fields = post?.fields;
   
-  // Add explicit null/undefined checking with default values
-  const slug = fields.slug || '';
+  if (!fields) {
+    return null; // Don't render if no fields
+  }
+  
+  // Extract fields safely with explicit properties and defaults
+  const slug = fields.slug || post.sys.id;
   const title = fields.title || 'Untitled';
   const excerpt = fields.excerpt || '';
-  const author = fields.author || 'Unknown';
   const date = fields.date || fields.publishDate || post.sys.createdAt;
   const category = fields.category || 'Uncategorized';
   const tags = fields.tags || [];
@@ -81,7 +84,7 @@ const BlogCard = ({ post }: BlogCardProps) => {
 
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
-            {tags.slice(0, 3).map((tag, index) => (
+            {tags.slice(0, 3).map((tag: string, index: number) => (
               <Link 
                 key={index} 
                 to={`/blog?tag=${encodeURIComponent(tag)}`}

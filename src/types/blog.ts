@@ -14,3 +14,8 @@ export interface BlogPost {
   created_at?: string | null;
   updated_at?: string | null;
 }
+
+export interface Category {
+  name: string;
+  count: number;
+}

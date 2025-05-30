@@ -1,9 +1,5 @@
 
-import { useSiteContent } from '@/context/SiteContext';
-
 export default function Stats() {
-  const { siteContent } = useSiteContent();
-  
   const stats = [
     { number: "100+", label: "Projects Completed" },
     { number: "50+", label: "Happy Clients" },

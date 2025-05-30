@@ -3,12 +3,15 @@ import { Share2, Twitter, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SocialShareProps {
-  title: string;
+  title?: string;
+  postTitle?: string;
+  slug?: string;
   url?: string;
 }
 
-export const SocialShare = ({ title, url = window.location.href }: SocialShareProps) => {
-  const encodedTitle = encodeURIComponent(title);
+export const SocialShare = ({ title, postTitle, slug, url = window.location.href }: SocialShareProps) => {
+  const shareTitle = title || postTitle || 'Check out this post';
+  const encodedTitle = encodeURIComponent(shareTitle);
   const encodedUrl = encodeURIComponent(url);
 
   const shareOnTwitter = () => {
@@ -49,3 +52,5 @@ export const SocialShare = ({ title, url = window.location.href }: SocialSharePr
     </div>
   );
 };
+
+export default SocialShare;
