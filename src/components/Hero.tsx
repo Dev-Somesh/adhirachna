@@ -1,42 +1,57 @@
-import { ArrowRight } from 'lucide-react';
 
-export default function Hero() {
+import { ArrowDown } from 'lucide-react';
+import { useInView } from './ui/motion';
+import { Link } from 'react-router-dom';
+import { Button } from './ui/button';
+
+const Hero = () => {
+  const { ref, isInView } = useInView();
+
   return (
-    <section className="relative bg-gradient-to-br from-adhirachna-blue to-adhirachna-darkblue text-white py-20">
-      <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Building Digital Excellence
-            </h1>
-            <p className="text-xl mb-8 text-white/90">
-              We create innovative web solutions that drive your business forward with cutting-edge technology and exceptional design.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <a 
-                href="/contact" 
-                className="inline-flex items-center px-8 py-3 bg-adhirachna-green text-white rounded-lg font-semibold hover:bg-adhirachna-green/90 transition-colors"
-              >
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
-              <a 
-                href="/projects" 
-                className="inline-flex items-center px-8 py-3 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-adhirachna-blue transition-colors"
-              >
-                View Our Work
-              </a>
-            </div>
-          </div>
-          <div className="relative">
-            <img
-              src="/adhirachna-uploads/AdhirachnaVector.png"
-              alt="Adhirachna Digital Solutions"
-              className="w-full h-auto"
-            />
+    <section 
+      id="home" 
+      className="relative min-h-screen flex items-center justify-center bg-blue-100 overflow-hidden"
+      ref={ref as React.RefObject<HTMLDivElement>}
+    >
+      {/* Light blue background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-100 to-blue-200">
+        <div className="absolute inset-0 bg-white/30"></div>
+      </div>
+
+      {/* Abstract shapes */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-adhirachna-green rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-slow-spin"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-adhirachna-green rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-slow-spin animation-delay-2000"></div>
+
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 text-center">
+        <div 
+          className={`transition-all duration-1000 ${
+            isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-adhirachna-darkblue mb-6">
+            Building the <span className="text-adhirachna-green">Future</span> Together
+          </h1>
+          <p className="text-xl md:text-2xl text-adhirachna-darkblue/80 max-w-3xl mx-auto mb-12">
+            Specialized in Architectural Engineering, Management Consulting, and Technical Services since 2023.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link to="/services" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-adhirachna-green hover:bg-adhirachna-darkgreen text-white h-10 px-4 py-2">
+              Our Services
+            </Link>
+            <Link to="/projects" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white/50 text-adhirachna-darkblue border border-adhirachna-darkblue hover:bg-white/70 h-10 px-4 py-2">
+              View Projects
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-adhirachna-darkblue animate-bounce">
+        <ArrowDown className="h-6 w-6" />
+      </div>
     </section>
   );
-}
+};
+
+export default Hero;

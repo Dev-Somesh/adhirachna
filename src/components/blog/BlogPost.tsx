@@ -2,18 +2,19 @@
 import { Link } from 'react-router-dom';
 import { Calendar, User, Eye, Tag, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
-import { BlogPostEntry, getFields } from '@/types/contentful';
+import { BlogPostEntry } from '@/types/contentful';
 
 interface BlogPostProps {
   post: BlogPostEntry;
 }
 
 const BlogPost = ({ post }: BlogPostProps) => {
-  // Get fields with proper type safety using helper
-  const fields = getFields(post);
+  // Get fields with proper type safety
+  const fields = post?.fields || {};
   
-  // Extract fields safely with defaults
+  // Extract fields safely with explicit properties
   const title = fields.title || 'Untitled';
   const author = fields.author || 'Unknown';
   const date = fields.date || fields.publishDate || post.sys.createdAt;

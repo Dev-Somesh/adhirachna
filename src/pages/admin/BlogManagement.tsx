@@ -1,94 +1,143 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle
+} from "@/components/ui/dialog";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { BlogPostList } from "@/components/blog";
+import contentfulClient from "@/lib/contentful";
+
+interface ContentfulBlogPost {
+  sys: {
+    id: string;
+    updatedAt: string;
+  };
+  fields: {
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    author: string;
+    date: string;
+    category: string;
+    image: {
+      fields: {
+        file: {
+          url: string;
+        };
+      };
+    };
+    tags: string[];
+    published: boolean;
+  };
+}
+
+interface DisplayBlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  category: string;
+  image: string;
+  tags: string[];
+  published: boolean;
+  views: number;
+}
+
+// Function to fetch blog posts from Contentful
+const fetchBlogPosts = async (): Promise<ContentfulBlogPost[]> => {
+  try {
+    const response = await contentfulClient.getEntries({
+      content_type: 'blogPost',
+      order: ['-fields.date'],
+      limit: 1000
+    });
+    
+    return response.items as unknown as ContentfulBlogPost[];
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
+    throw new Error("Failed to fetch blog posts");
+  }
+};
 
 const BlogManagement = () => {
-  const posts = [
-    {
-      id: '1',
-      title: 'Getting Started with Engineering',
-      excerpt: 'A comprehensive guide to modern engineering practices...',
-      status: 'published',
-      author: 'John Doe',
-      date: '2024-01-15',
-      views: 125
-    },
-    {
-      id: '2',
-      title: 'Infrastructure Development Best Practices',
-      excerpt: 'Learn about the latest trends in infrastructure development...',
-      status: 'draft',
-      author: 'Jane Smith', 
-      date: '2024-01-10',
-      views: 89
-    }
-  ];
-
-  const handleEdit = (id: string) => {
-    console.log('Edit post:', id);
+  const queryClient = useQueryClient();
+  
+  // Query to fetch blog posts
+  const { 
+    data: posts = [], 
+    isLoading, 
+    error
+  } = useQuery({
+    queryKey: ['blogPosts'],
+    queryFn: fetchBlogPosts,
+    retry: 1
+  });
+  
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
+  const handleFormSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+    setDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this post?')) {
-      console.log('Delete post:', id);
-    }
+  const mapToDisplayPost = (post: ContentfulBlogPost): DisplayBlogPost => ({
+    id: post.sys.id,
+    title: post.fields.title,
+    excerpt: post.fields.excerpt,
+    content: post.fields.content,
+    author: post.fields.author,
+    date: post.fields.date,
+    category: post.fields.category,
+    image: post.fields.image?.fields?.file?.url || '',
+    tags: post.fields.tags,
+    published: post.fields.published,
+    views: 0 // Contentful doesn't track views, so we default to 0
+  });
+
+  const handleNewPost = () => {
+    window.open('https://app.contentful.com/spaces/YOUR_SPACE_ID/entries', '_blank');
   };
 
-  const handleView = (id: string) => {
-    console.log('View post:', id);
+  const handleEditPost = (post: DisplayBlogPost) => {
+    window.open(`https://app.contentful.com/spaces/YOUR_SPACE_ID/entries/${post.id}`, '_blank');
   };
 
+  const handleDeletePost = (id: string) => {
+    window.open(`https://app.contentful.com/spaces/YOUR_SPACE_ID/entries/${id}`, '_blank');
+  };
+  
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Blog Management</h1>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          New Post
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Blog Management</h1>
+        <Button
+          variant="outline"
+          onClick={handleNewPost}
+        >
+          Create New Post in Contentful
         </Button>
       </div>
-
-      <div className="grid gap-6">
-        {posts.map((post) => (
-          <Card key={post.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl">{post.title}</CardTitle>
-                  <p className="text-gray-600 mt-2">{post.excerpt}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 rounded text-sm ${
-                    post.status === 'published' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {post.status}
-                  </span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-500">
-                  By {post.author} • {post.date} • {post.views} views
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleView(post.id)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(post.id)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(post.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          Error loading blog posts: {error.message}
+        </div>
+      )}
+      
+      <BlogPostList 
+        posts={posts.map(mapToDisplayPost)}
+        isLoading={isLoading}
+        onNewPost={handleNewPost}
+        onEditPost={handleEditPost}
+        onDeletePost={handleDeletePost}
+      />
     </div>
   );
 };

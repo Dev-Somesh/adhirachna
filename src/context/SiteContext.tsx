@@ -1,69 +1,40 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type MemberRole = 'master_admin' | 'admin' | 'manager' | 'team_member';
-
-interface SiteContent {
-  hero: HeroContent;
-  about: AboutContent;
-  services: Service[];
-  projects: Project[];
-  stats: Stat[];
-  contact: ContactContent;
-  teamMembers: TeamMember[];
-  testimonials: Testimonial[];
-  clients: Client[];
-  settings: Settings;
-}
-
-interface HeroContent {
+// Define types for our site content
+export type HeroSection = {
   title: string;
   subtitle: string;
-  image: string;
-}
+  enabled: boolean;
+};
 
-interface AboutContent {
+export type AboutSection = {
   title: string;
   content: string;
-  image: string;
-}
+  enabled: boolean;
+};
 
-interface Service {
-  id: string;
+export type ServicesSection = {
   title: string;
-  description: string;
-  image: string;
-}
+  subtitle: string;
+  enabled: boolean;
+  services?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+  }>;
+};
 
-interface Project {
-  id: string;
+export type ContactSection = {
   title: string;
-  description: string;
-  image: string;
-  category: string;
-}
+  subtitle: string;
+  enabled: boolean;
+};
 
-interface Stat {
-  id: string;
-  value: number;
-  label: string;
-}
+export type MemberRole = "master_admin" | "admin" | "manager" | "team_member";
 
-interface ContactContent {
-  address: string;
-  email: string;
-  phone: string;
-  socialLinks: SocialLink[];
-}
-
-interface SocialLink {
-  id: string;
-  name: string;
-  url: string;
-  icon: string;
-}
-
-export interface TeamMember {
+export type TeamMember = {
   id: string;
   name: string;
   position: string;
@@ -71,174 +42,237 @@ export interface TeamMember {
   bio: string;
   role?: MemberRole;
   showOnWebsite?: boolean;
-}
+};
 
-interface Testimonial {
-  id: string;
-  author: string;
-  content: string;
-  image: string;
-}
+export type StatsData = {
+  totalVisits: number;
+  totalMessages: number;
+  newMessages: number;
+  recentActivities: Array<{
+    id: string;
+    action: string;
+    description: string;
+    timestamp: string;
+  }>;
+};
 
-interface Client {
-  id: string;
-  name: string;
-  logo: string;
-  website: string;
-}
+export type SiteContent = {
+  hero: HeroSection;
+  about: AboutSection;
+  services: ServicesSection;
+  contact: ContactSection;
+  teamMembers: TeamMember[];
+  stats: StatsData;
+};
 
-interface Settings {
-  primaryColor: string;
-  secondaryColor: string;
-  logo: string;
-  favicon: string;
-}
-
-interface SiteContextType {
+type SiteContextType = {
   siteContent: SiteContent;
-  updateSiteContent: (content: Partial<SiteContent>) => void;
-  addService: (service: Omit<Service, 'id'>) => void;
-  updateService: (id: string, updates: Partial<Service>) => void;
-  deleteService: (id: string) => void;
-  addProject: (project: Omit<Project, 'id'>) => void;
-  updateProject: (id: string, updates: Partial<Project>) => void;
-  deleteProject: (id: string) => void;
-  addTeamMember: (member: Omit<TeamMember, 'id'>) => void;
+  updateSection: (sectionName: keyof SiteContent, newData: any) => void;
   updateTeamMember: (member: TeamMember) => void;
+  addTeamMember: (member: Omit<TeamMember, "id">) => void;
   removeTeamMember: (id: string) => void;
-}
+  addActivity: (action: string, description: string) => void;
+};
+
+// Default site content
+const defaultSiteContent: SiteContent = {
+  hero: {
+    title: "Building the Future Together",
+    subtitle: "Specialized in Architectural Engineering, Management Consulting, and Technical Services since 2023.",
+    enabled: true
+  },
+  about: {
+    title: "About Adhirachna Engineering Solutions",
+    content: "Leading infrastructure development and engineering consultancy committed to delivering exceptional quality and innovative solutions.",
+    enabled: true
+  },
+  services: {
+    title: "Our Services",
+    subtitle: "We provide a wide range of engineering and consulting services to meet your needs.",
+    enabled: true,
+    services: [
+      {
+        id: "1",
+        title: "Architectural Design",
+        description: "Expert architectural design services for residential and commercial buildings.",
+        icon: "penTool"
+      },
+      {
+        id: "2",
+        title: "Structural Engineering",
+        description: "Comprehensive structural analysis and design for buildings and infrastructure.",
+        icon: "layoutGrid"
+      },
+      {
+        id: "3",
+        title: "Project Management",
+        description: "End-to-end project management services to ensure timely completion.",
+        icon: "clipboardList"
+      },
+      {
+        id: "4",
+        title: "Sustainability Consulting",
+        description: "Green building and sustainability solutions for modern construction.",
+        icon: "leaf"
+      }
+    ]
+  },
+  contact: {
+    title: "Contact Us",
+    subtitle: "Have a project in mind or need expert engineering consultation? Get in touch with our team.",
+    enabled: true
+  },
+  teamMembers: [
+    {
+      id: "1",
+      name: "Anurag Pareek",
+      position: "Co-founder & CEO",
+      image: "https://randomuser.me/api/portraits/men/1.jpg",
+      bio: "Co-founder of Adhirachna Engineering Solutions with extensive experience in architectural engineering.",
+      role: "master_admin",
+      showOnWebsite: true
+    },
+    {
+      id: "2",
+      name: "Priya Sharma",
+      position: "Chief Operating Officer",
+      image: "https://randomuser.me/api/portraits/women/2.jpg",
+      bio: "Experienced operations leader with a background in infrastructure project management.",
+      role: "admin",
+      showOnWebsite: true
+    },
+    {
+      id: "3",
+      name: "Rajesh Kumar",
+      position: "Lead Engineer",
+      image: "https://randomuser.me/api/portraits/men/3.jpg",
+      bio: "Structural engineering expert with over 10 years of experience in the field.",
+      role: "team_member",
+      showOnWebsite: true
+    }
+  ],
+  stats: {
+    totalVisits: 12849,
+    totalMessages: 87,
+    newMessages: 14,
+    recentActivities: [
+      {
+        id: "1",
+        action: "Website content",
+        description: "was updated",
+        timestamp: "2 days ago"
+      },
+      {
+        id: "2",
+        action: "New project",
+        description: "was added to the portfolio",
+        timestamp: "5 days ago"
+      },
+      {
+        id: "3",
+        action: "Team member",
+        description: "profile was updated",
+        timestamp: "1 week ago"
+      }
+    ]
+  }
+};
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-const defaultSiteContent: SiteContent = {
-  hero: {
-    title: 'Your Engineering Solutions',
-    subtitle: 'We provide top-notch engineering services.',
-    image: '/placeholder.jpg',
-  },
-  about: {
-    title: 'About Us',
-    content: 'We are a team of dedicated engineers...',
-    image: '/placeholder.jpg',
-  },
-  services: [],
-  projects: [],
-  stats: [],
-  contact: {
-    address: '123 Main St, Anytown',
-    email: 'info@example.com',
-    phone: '555-1234',
-    socialLinks: [],
-  },
-  teamMembers: [],
-  testimonials: [],
-  clients: [],
-  settings: {
-    primaryColor: '#007BFF',
-    secondaryColor: '#28A745',
-    logo: '/logo.png',
-    favicon: '/favicon.ico',
-  },
-};
-
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [siteContent, setSiteContent] = useState<SiteContent>(defaultSiteContent);
+  // Try to load from localStorage or use default
+  const [siteContent, setSiteContent] = useState<SiteContent>(() => {
+    const savedContent = localStorage.getItem('adhirachna_site_content');
+    return savedContent ? JSON.parse(savedContent) : defaultSiteContent;
+  });
 
-  const updateSiteContent = (content: Partial<SiteContent>) => {
-    setSiteContent(prev => ({ ...prev, ...content }));
-  };
+  // Save to localStorage whenever content changes
+  useEffect(() => {
+    localStorage.setItem('adhirachna_site_content', JSON.stringify(siteContent));
+  }, [siteContent]);
 
-  const addService = (service: Omit<Service, 'id'>) => {
-    const newService = { ...service, id: Date.now().toString() };
-    setSiteContent(prev => ({
-      ...prev,
-      services: [...prev.services, newService]
-    }));
-  };
-
-  const updateService = (id: string, updates: Partial<Service>) => {
-    setSiteContent(prev => ({
-      ...prev,
-      services: prev.services.map(service =>
-        service.id === id ? { ...service, ...updates } : service
-      )
-    }));
-  };
-
-  const deleteService = (id: string) => {
-    setSiteContent(prev => ({
-      ...prev,
-      services: prev.services.filter(service => service.id !== id)
-    }));
-  };
-
-  const addProject = (project: Omit<Project, 'id'>) => {
-    const newProject = { ...project, id: Date.now().toString() };
-    setSiteContent(prev => ({
-      ...prev,
-      projects: [...prev.projects, newProject]
-    }));
-  };
-
-  const updateProject = (id: string, updates: Partial<Project>) => {
-    setSiteContent(prev => ({
-      ...prev,
-      projects: prev.projects.map(project =>
-        project.id === id ? { ...project, ...updates } : project
-      )
-    }));
-  };
-
-  const deleteProject = (id: string) => {
-    setSiteContent(prev => ({
-      ...prev,
-      projects: prev.projects.filter(project => project.id !== id)
-    }));
-  };
-
-  const addTeamMember = (member: Omit<TeamMember, 'id'>) => {
-    const newMember = {
-      ...member,
-      id: Date.now().toString(),
-    };
-    setSiteContent(prev => ({
-      ...prev,
-      teamMembers: [...prev.teamMembers, newMember]
-    }));
+  const updateSection = (sectionName: keyof SiteContent, newData: any) => {
+    setSiteContent(prev => {
+      const updated = {
+        ...prev,
+        [sectionName]: {
+          ...prev[sectionName],
+          ...newData
+        }
+      };
+      return updated;
+    });
+    
+    // Add activity record
+    addActivity(`${sectionName} section`, "was updated");
   };
 
   const updateTeamMember = (member: TeamMember) => {
     setSiteContent(prev => ({
       ...prev,
-      teamMembers: prev.teamMembers.map(m =>
+      teamMembers: prev.teamMembers.map(m => 
         m.id === member.id ? member : m
       )
     }));
+    
+    addActivity("Team member", `${member.name} profile was updated`);
+  };
+
+  const addTeamMember = (member: Omit<TeamMember, "id">) => {
+    const newMember = {
+      ...member,
+      id: Date.now().toString()
+    };
+    
+    setSiteContent(prev => ({
+      ...prev,
+      teamMembers: [...prev.teamMembers, newMember]
+    }));
+    
+    addActivity("Team member", `${member.name} was added to the team`);
   };
 
   const removeTeamMember = (id: string) => {
+    setSiteContent(prev => {
+      const memberName = prev.teamMembers.find(m => m.id === id)?.name || "Unknown";
+      
+      return {
+        ...prev,
+        teamMembers: prev.teamMembers.filter(m => m.id !== id)
+      };
+    });
+    
+    addActivity("Team member", "was removed from the team");
+  };
+
+  const addActivity = (action: string, description: string) => {
     setSiteContent(prev => ({
       ...prev,
-      teamMembers: prev.teamMembers.filter(member => member.id !== id)
+      stats: {
+        ...prev.stats,
+        recentActivities: [
+          {
+            id: Date.now().toString(),
+            action,
+            description,
+            timestamp: "just now"
+          },
+          ...prev.stats.recentActivities.slice(0, 4) // Keep the most recent 5
+        ]
+      }
     }));
   };
 
-  const value: SiteContextType = {
-    siteContent,
-    updateSiteContent,
-    addService,
-    updateService,
-    deleteService,
-    addProject,
-    updateProject,
-    deleteProject,
-    addTeamMember,
-    updateTeamMember,
-    removeTeamMember,
-  };
-
   return (
-    <SiteContext.Provider value={value}>
+    <SiteContext.Provider value={{ 
+      siteContent, 
+      updateSection, 
+      updateTeamMember, 
+      addTeamMember, 
+      removeTeamMember,
+      addActivity
+    }}>
       {children}
     </SiteContext.Provider>
   );
@@ -246,16 +280,8 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useSiteContent = () => {
   const context = useContext(SiteContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useSiteContent must be used within a SiteProvider');
-  }
-  return context;
-};
-
-export const useSite = () => {
-  const context = useContext(SiteContext);
-  if (!context) {
-    throw new Error('useSite must be used within a SiteProvider');
   }
   return context;
 };

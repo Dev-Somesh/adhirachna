@@ -3,7 +3,7 @@ import { Calendar, Eye, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
-import { BlogPostEntry, getFields } from '@/types/contentful';
+import { BlogPostEntry } from '@/types/contentful';
 
 interface BlogCardProps {
   post: BlogPostEntry;
@@ -17,13 +17,14 @@ const placeholderImages = [
 ];
 
 const BlogCard = ({ post }: BlogCardProps) => {
-  // Safely access fields using the helper function
-  const fields = getFields(post);
+  // Safely access fields with more explicit type checking
+  const fields = post?.fields || {};
   
-  // Extract fields safely with defaults
-  const slug = fields.slug || post.sys.id;
+  // Add explicit null/undefined checking with default values
+  const slug = fields.slug || '';
   const title = fields.title || 'Untitled';
   const excerpt = fields.excerpt || '';
+  const author = fields.author || 'Unknown';
   const date = fields.date || fields.publishDate || post.sys.createdAt;
   const category = fields.category || 'Uncategorized';
   const tags = fields.tags || [];
@@ -80,7 +81,7 @@ const BlogCard = ({ post }: BlogCardProps) => {
 
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
-            {tags.slice(0, 3).map((tag: string, index: number) => (
+            {tags.slice(0, 3).map((tag, index) => (
               <Link 
                 key={index} 
                 to={`/blog?tag=${encodeURIComponent(tag)}`}

@@ -1,53 +1,87 @@
 
-import { Share2, Twitter, Linkedin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Facebook, X, Linkedin, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
 
 interface SocialShareProps {
-  title?: string;
-  postTitle?: string;
-  url?: string;
+  postTitle: string;
+  slug?: string;
 }
 
-export const SocialShare = ({ title, postTitle, url = window.location.href }: SocialShareProps) => {
-  const shareTitle = title || postTitle || 'Check out this post';
-  const encodedTitle = encodeURIComponent(shareTitle);
-  const encodedUrl = encodeURIComponent(url);
+const SocialShare = ({ postTitle, slug }: SocialShareProps) => {
+  const [pageUrl, setPageUrl] = useState('');
+  const [shortUrl, setShortUrl] = useState('');
+  
+  // Get current URL for sharing
+  useEffect(() => {
+    const url = window.location.href;
+    setPageUrl(url);
+    
+    // Create a cleaner short URL for sharing
+    const baseUrl = window.location.origin;
+    const cleanSlug = slug || url.split('/').pop() || '';
+    setShortUrl(`${baseUrl}/blog/${cleanSlug}`);
+  }, [slug]);
 
-  const shareOnTwitter = () => {
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
-      '_blank'
-    );
+  const handleShareLink = () => {
+    navigator.clipboard.writeText(shortUrl);
+    toast({
+      title: "Link Copied",
+      description: "The article URL has been copied to your clipboard",
+    });
   };
-
-  const shareOnLinkedIn = () => {
-    window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-      '_blank'
-    );
+  
+  const shareToLinkedIn = () => {
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shortUrl)}&title=${encodeURIComponent(postTitle)}`;
+    window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
   };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      // You could add a toast notification here
-    } catch (err) {
-      console.error('Failed to copy URL to clipboard', err);
-    }
+  
+  const shareToTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shortUrl)}&text=${encodeURIComponent(postTitle)}`;
+    window.open(twitterUrl, '_blank', 'noopener,noreferrer');
   };
-
+  
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-adhirachna-gray">Share:</span>
-      <Button variant="outline" size="sm" onClick={shareOnTwitter}>
-        <Twitter className="h-4 w-4" />
-      </Button>
-      <Button variant="outline" size="sm" onClick={shareOnLinkedIn}>
-        <Linkedin className="h-4 w-4" />
-      </Button>
-      <Button variant="outline" size="sm" onClick={copyToClipboard}>
-        <Share2 className="h-4 w-4" />
-      </Button>
+    <div>
+      <h3 className="text-lg font-semibold text-adhirachna-darkblue mb-4">Share this article</h3>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button 
+          onClick={shareToLinkedIn} 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-2 bg-white hover:bg-[#0077b5] hover:text-white"
+        >
+          <Linkedin className="h-4 w-4" />
+          <span>LinkedIn</span>
+        </Button>
+        <Button 
+          onClick={shareToTwitter} 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-2 bg-white hover:bg-black hover:text-white"
+        >
+          <X className="h-4 w-4" />
+          <span>X (Twitter)</span>
+        </Button>
+        <Button 
+          onClick={handleShareLink} 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-2 bg-white hover:bg-adhirachna-green hover:text-white"
+        >
+          <Share2 className="h-4 w-4" />
+          <span>Copy Link</span>
+        </Button>
+      </div>
+      <div className="mt-4 flex items-center gap-2 text-sm text-adhirachna-gray">
+        <input 
+          type="text" 
+          value={shortUrl} 
+          readOnly 
+          className="flex-grow bg-white p-2 rounded border text-sm text-adhirachna-darkblue" 
+        />
+      </div>
     </div>
   );
 };
