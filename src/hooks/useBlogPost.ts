@@ -27,11 +27,12 @@ const fetchBlogPost = async (id: string): Promise<BlogPost> => {
   if (!data) {
     throw new Error('Post not found');
   }
-  
-  // Ensure date is always a string
+
+  // Ensure date is always a string and image can be null
   return {
     ...data,
-    date: data.date || data.created_at || new Date().toISOString()
+    date: data.date || data.created_at || new Date().toISOString(),
+    image: data.image || null
   };
 };
 
@@ -47,10 +48,11 @@ export const fetchAllPosts = async (): Promise<BlogPost[]> => {
     throw new Error(error.message);
   }
   
-  // Ensure all posts have valid dates
+  // Ensure all posts have valid dates and handle nullable images
   return (data || []).map(post => ({
     ...post,
-    date: post.date || post.created_at || new Date().toISOString()
+    date: post.date || post.created_at || new Date().toISOString(),
+    image: post.image || null
   }));
 };
 

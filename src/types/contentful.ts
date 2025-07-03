@@ -23,14 +23,14 @@ export interface BlogPostSkeleton extends EntrySkeletonType {
   fields: BlogPostFields;
 }
 
-// BlogPost type is an Entry with BlogPostFields
-export type BlogPost = Entry<BlogPostFields>;
+// BlogPost type is an Entry with BlogPostSkeleton
+export type BlogPost = Entry<BlogPostSkeleton>;
 
-// Helper type to ensure proper typing of fields
-export type BlogPostEntry = Entry<BlogPostFields>;
+// BlogPostEntry type for consistency
+export type BlogPostEntry = Entry<BlogPostSkeleton>;
 
 // Helper function to safely extract field values from Contentful entries
-export const getFields = (entry: Entry<any>): BlogPostFields => {
+export const getFields = (entry: Entry<BlogPostSkeleton>): BlogPostFields => {
   if (!entry || !entry.fields) {
     return {
       title: '',

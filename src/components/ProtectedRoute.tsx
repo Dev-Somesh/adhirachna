@@ -1,3 +1,4 @@
+
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -29,21 +30,12 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 function ProtectedRouteContent({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
 
   // Store the attempted route in sessionStorage
-  if (!user && !loading) {
+  if (!user) {
     sessionStorage.setItem('returnTo', location.pathname + location.search);
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <Loader2 className="h-12 w-12 animate-spin text-adhirachna-darkblue mb-4" />
-        <p className="text-gray-600">Verifying authentication...</p>
-      </div>
-    );
   }
 
   if (!user) {
@@ -68,4 +60,4 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       <ProtectedRouteContent children={children} />
     </ErrorBoundary>
   );
-} 
+}

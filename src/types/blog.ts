@@ -7,7 +7,7 @@ export interface BlogPost {
   author: string;
   date: string;
   category: string;
-  image: string;
+  image: string | null;
   tags: string[];
   views: number;
   published?: boolean;

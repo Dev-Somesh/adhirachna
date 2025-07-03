@@ -1,10 +1,8 @@
 
 import { useInView } from './ui/motion';
-import { useSiteContent } from '@/context/SiteContext';
 
 const Stats = () => {
   const { ref, isInView } = useInView();
-  const { siteContent } = useSiteContent();
   
   // Define stats data
   const stats = [
