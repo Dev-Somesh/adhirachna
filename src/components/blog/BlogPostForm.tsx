@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2, Tag, Upload } from "lucide-react";
@@ -129,7 +130,7 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
         
         console.log("Updating blog post:", currentPost.id, updatedPost);
         
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('blog_posts')
           .update(updatedPost)
           .eq('id', currentPost.id)
@@ -159,7 +160,7 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
         
         console.log("Creating new blog post:", newPost);
         
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('blog_posts')
           .insert([newPost])
           .select()
@@ -170,7 +171,7 @@ const BlogPostForm = ({ currentPost, isEditing, onClose, onSuccess }: BlogPostFo
           throw error;
         }
         
-        console.log("Blog post created successfully:", data);
+        console.log("Blog post created successfully");
         
         toast({
           title: "Post Created",

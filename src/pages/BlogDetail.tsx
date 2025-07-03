@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -10,8 +11,8 @@ import ErrorState from '@/components/blog/BlogDetail/ErrorState';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogPostBySlug, getBlogPosts } from '@/services/blogService';
 import type { Category } from '@/types/blog';
-import type { BlogPost as ContentfulBlogPost, BlogPostFields, BlogPostEntry } from '@/types/contentful';
-import { Entry } from 'contentful';
+import type { BlogPostEntry } from '@/types/contentful';
+import { getFields } from '@/types/contentful';
 
 const BlogDetail = () => {
   const { ref, isInView } = useInView();
@@ -30,7 +31,7 @@ const BlogDetail = () => {
     data: post, 
     isLoading: postLoading, 
     error: postError 
-  } = useQuery<Entry<BlogPostFields>>({
+  } = useQuery<BlogPostEntry>({
     queryKey: ['blogPost', id],
     queryFn: () => getBlogPostBySlug(id),
     enabled: !!id,
@@ -40,7 +41,7 @@ const BlogDetail = () => {
   const { 
     data: allPosts = [], 
     isLoading: allPostsLoading 
-  } = useQuery<Entry<BlogPostFields>[]>({
+  } = useQuery<BlogPostEntry[]>({
     queryKey: ['contentfulBlogPosts'],
     queryFn: getBlogPosts
   });
@@ -48,7 +49,7 @@ const BlogDetail = () => {
   
   // Convert Contentful posts to our internal format for the sidebar
   const convertedPosts = useMemo(() => {
-    return allPosts.map((post: Entry<BlogPostFields>) => {
+    return allPosts.map((post: BlogPostEntry) => {
       // Validate post data
       if (!post?.fields) {
         console.error('Invalid post data in sidebar:', post);
@@ -61,7 +62,7 @@ const BlogDetail = () => {
         };
       }
 
-      const fields = post.fields;
+      const fields = getFields(post);
       
       return {
         id: fields.slug || post.sys.id,
@@ -80,7 +81,8 @@ const BlogDetail = () => {
     if (allPostsLoading || !allPosts) return [{ name: 'All', count: 0 }];
     
     const categoryCounts = allPosts.reduce((acc, post) => {
-      const category = post?.fields?.category || 'Uncategorized';
+      const fields = getFields(post);
+      const category = fields.category || 'Uncategorized';
       acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -99,7 +101,8 @@ const BlogDetail = () => {
     
     const tagsSet = new Set<string>();
     allPosts.forEach(post => {
-      const tags = post?.fields?.tags;
+      const fields = getFields(post);
+      const tags = fields.tags;
       if (tags && Array.isArray(tags)) {
         tags.forEach(tag => tagsSet.add(tag));
       }
@@ -140,7 +143,8 @@ const BlogDetail = () => {
   }
   
   // Validate post data
-  if (!post.fields || !post.fields.title) {
+  const fields = getFields(post);
+  if (!fields.title) {
     console.error('Invalid post data:', post);
     return <Navigate to="/blog" />;
   }
@@ -159,8 +163,8 @@ const BlogDetail = () => {
               <BlogPost post={post} />
               <div className="mt-8 bg-white rounded-lg shadow-soft p-6">
                 <SocialShare 
-                  postTitle={post.fields.title} 
-                  slug={post.fields.slug} 
+                  postTitle={fields.title} 
+                  slug={fields.slug} 
                 />
               </div>
             </div>

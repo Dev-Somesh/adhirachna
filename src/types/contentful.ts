@@ -18,7 +18,7 @@ export interface BlogPostFields {
 }
 
 // Define proper content type for BlogPostSkeleton
-export interface BlogPostSkeleton {
+export interface BlogPostSkeleton extends EntrySkeletonType {
   contentTypeId: 'blogPost';
   fields: BlogPostFields;
 }
@@ -28,3 +28,20 @@ export type BlogPost = Entry<BlogPostFields>;
 
 // Helper type to ensure proper typing of fields
 export type BlogPostEntry = Entry<BlogPostFields>;
+
+// Helper function to safely extract field values from Contentful entries
+export const getFields = (entry: Entry<any>): BlogPostFields => {
+  if (!entry || !entry.fields) {
+    return {
+      title: '',
+      slug: '',
+      excerpt: '',
+      author: '',
+      category: '',
+      tags: [],
+      viewCount: 0
+    } as BlogPostFields;
+  }
+  
+  return entry.fields;
+};

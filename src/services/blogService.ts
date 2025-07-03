@@ -1,6 +1,6 @@
 
 import contentfulClient from '../lib/contentful';
-import { BlogPost, BlogPostSkeleton, BlogPostEntry } from '../types/contentful';
+import { BlogPostFields, BlogPostEntry } from '../types/contentful';
 
 export const getBlogPosts = async (): Promise<BlogPostEntry[]> => {
   const response = await contentfulClient.getEntries<BlogPostFields>({
@@ -23,6 +23,3 @@ export const getBlogPostBySlug = async (slug: string): Promise<BlogPostEntry> =>
   
   return response.items[0] as BlogPostEntry;
 };
-
-// Add missing import
-import { BlogPostFields } from '../types/contentful';

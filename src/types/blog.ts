@@ -10,6 +10,7 @@ export interface BlogPost {
   image: string;
   tags: string[];
   views: number;
+  published?: boolean;
 }
 
 export interface Category {

@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import BlogCard from '@/components/BlogCard';
 import BlogSidebar from '@/components/BlogSidebar';
@@ -8,17 +9,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Loader2, X } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
-import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import type { BlogPost as BlogPostFromSupabase, Category } from '@/types/blog';
 import type { BlogPost as ContentfulBlogPost } from '@/types/contentful';
 import { getBlogPosts } from '@/services/blogService';
+import { getFields } from '@/types/contentful';
 
 // Function to convert Contentful posts to our internal format
 const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPostFromSupabase[] => {
   return contentfulPosts.map(post => {
-    // Access fields safely with optional chaining
-    const fields = post?.fields || {};
+    // Access fields safely with getFields helper
+    const fields = getFields(post);
     
     return {
       id: fields.slug || post.sys.id,
@@ -40,7 +41,6 @@ const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPost
 
 const Blog = () => {
   const { ref, isInView } = useInView();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
@@ -243,7 +243,7 @@ const Blog = () => {
                     isInView ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
-                  {contentfulPosts.map((post, index) => (
+                  {contentfulPosts.map((post) => (
                     <BlogCard key={post.sys.id} post={post} />
                   ))}
                 </div>

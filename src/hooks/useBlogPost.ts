@@ -28,7 +28,11 @@ const fetchBlogPost = async (id: string): Promise<BlogPost> => {
     throw new Error('Post not found');
   }
   
-  return data;
+  // Ensure date is always a string
+  return {
+    ...data,
+    date: data.date || data.created_at || new Date().toISOString()
+  };
 };
 
 // Function to fetch all blog posts (for sidebar)
@@ -43,7 +47,11 @@ export const fetchAllPosts = async (): Promise<BlogPost[]> => {
     throw new Error(error.message);
   }
   
-  return data || [];
+  // Ensure all posts have valid dates
+  return (data || []).map(post => ({
+    ...post,
+    date: post.date || post.created_at || new Date().toISOString()
+  }));
 };
 
 export const useBlogPost = (id: string | undefined) => {
