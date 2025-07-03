@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -10,7 +11,7 @@ export default defineConfig({
     __DEV__: process.env.NODE_ENV !== 'production'
   },
   server: {
-    port: 5173,
+    port: 8080,
     host: true,
     strictPort: true,
     headers: {
@@ -20,7 +21,7 @@ export default defineConfig({
     },
   },
   preview: {
-    port: 5173,
+    port: 8080,
     host: true,
     strictPort: true,
     headers: {
