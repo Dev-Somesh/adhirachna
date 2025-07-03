@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Facebook, X, Linkedin, Share2 } from 'lucide-react';
+import { X, Linkedin, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
@@ -10,13 +10,11 @@ interface SocialShareProps {
 }
 
 const SocialShare = ({ postTitle, slug }: SocialShareProps) => {
-  const [pageUrl, setPageUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
   
   // Get current URL for sharing
   useEffect(() => {
     const url = window.location.href;
-    setPageUrl(url);
     
     // Create a cleaner short URL for sharing
     const baseUrl = window.location.origin;

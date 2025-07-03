@@ -33,7 +33,8 @@ const fetchBlogPost = async (id: string): Promise<BlogPost> => {
     ...data,
     date: data.date || data.created_at || new Date().toISOString(),
     image: data.image || null,
-    tags: data.tags || []
+    tags: data.tags || [],
+    views: data.views || 0
   };
 };
 
@@ -54,7 +55,8 @@ export const fetchAllPosts = async (): Promise<BlogPost[]> => {
     ...post,
     date: post.date || post.created_at || new Date().toISOString(),
     image: post.image || null,
-    tags: post.tags || []
+    tags: post.tags || [],
+    views: post.views || 0
   }));
 };
 
