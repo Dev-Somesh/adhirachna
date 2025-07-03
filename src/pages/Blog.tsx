@@ -10,13 +10,28 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Loader2, X } from 'lucide-react';
 import { useInView } from '@/components/ui/motion';
 import { useQuery } from '@tanstack/react-query';
-import type { BlogPost as BlogPostFromSupabase, Category } from '@/types/blog';
+import type { Category } from '@/types/blog';
 import type { BlogPost as ContentfulBlogPost } from '@/types/contentful';
 import { getBlogPosts } from '@/services/blogService';
 import { getFields } from '@/types/contentful';
 
+// Define internal BlogPost type for converted posts
+interface InternalBlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  category: string;
+  image: string | null;
+  tags: string[] | null;
+  views: number;
+  published: boolean;
+}
+
 // Function to convert Contentful posts to our internal format
-const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPostFromSupabase[] => {
+const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): InternalBlogPost[] => {
   return contentfulPosts.map(post => {
     // Access fields safely with getFields helper
     const fields = getFields(post);
@@ -31,7 +46,7 @@ const convertContentfulPosts = (contentfulPosts: ContentfulBlogPost[]): BlogPost
       category: fields.category || 'Uncategorized',
       image: fields.featuredImage?.fields?.file?.url 
         ? `https:${fields.featuredImage.fields.file.url}`
-        : '/placeholder.svg',
+        : null,
       tags: fields.tags || [],
       views: fields.viewCount || 0,
       published: true
@@ -46,7 +61,7 @@ const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
   const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'recent');
-  const [filteredPosts, setFilteredPosts] = useState<BlogPostFromSupabase[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<InternalBlogPost[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
   
   // Fetch blog posts from Contentful
@@ -150,6 +165,15 @@ const Blog = () => {
       setSelectedTag(tag);
     }
   };
+
+  // Convert posts for sidebar
+  const sidebarPosts = posts.slice(0, 3).map(post => ({
+    id: post.id,
+    title: post.title,
+    date: post.date,
+    image: post.image || '/placeholder.svg',
+    views: post.views
+  }));
   
   // Return the component JSX
   return (
@@ -262,7 +286,7 @@ const Blog = () => {
                 categories={categories} 
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
-                recentPosts={posts.slice(0, 3)}
+                recentPosts={sidebarPosts}
                 allTags={allTags}
                 selectedTag={selectedTag}
                 onTagClick={handleTagClick}

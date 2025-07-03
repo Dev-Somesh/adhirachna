@@ -8,7 +8,7 @@ export interface BlogPost {
   date: string;
   category: string;
   image: string | null;
-  tags: string[];
+  tags: string[] | null;
   views: number;
   published?: boolean;
 }

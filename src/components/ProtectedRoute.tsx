@@ -1,7 +1,6 @@
 
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Loader2 } from 'lucide-react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 interface ProtectedRouteProps {
